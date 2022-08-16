@@ -1,6 +1,7 @@
 # autolist.nvim
 Minimal automatic list continuation for ordered and unordered lists for neovim in lua
 
+#### this is quite a new plugin, so expect lots of :PlugUpdates.
 
 ## Info
 *Only works in insert mode, makes lists function similar to gui word processors.*
