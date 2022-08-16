@@ -3,7 +3,7 @@ Minimal automatic list continuing for ordered and unordered lists for neovim in 
 
 supports:
 * ordered and unordered
-* autodeletes empty list bullets
+* autodeletes empty list entries
 * indented lists with `<c-t>` and `<c-d>`
 ```
 1. it supports numbered
