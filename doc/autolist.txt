@@ -16,9 +16,9 @@ Minimal auto list completion powered by lua
 INSTALL                                                     *autolist-install*
 
 Using plug:
-```
-Plug "gaoDean/autolist.nvim"
-```
+>
+	Plug "gaoDean/autolist.nvim"
+<
 
 USAGE                                                         *autolist-usage*
 
