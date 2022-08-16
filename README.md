@@ -1,6 +1,13 @@
 # autolist.nvim
 Minimal automatic list continuing for ordered and unordered lists for neovim in lua
 
+## Installation
+Using vim-plug:
+```
+Plug 'gaoDean/autolist.nvim'
+```
+
+## Info
 supports:
 * ordered and unordered
 * autodeletes empty list entries
@@ -21,6 +28,7 @@ supports:
 + supports syms "-+*"
 + pretend this text isn't here, if enter is pressed this line would be empty
 ```
+
 
 doesn't support:
 * renumbering of lists
