@@ -1,11 +1,6 @@
 # autolist.nvim
 Minimal automatic list continuation for ordered and unordered lists for neovim in lua
 
-## Installation
-Using vim-plug:
-```
-Plug 'gaoDean/autolist.nvim'
-```
 
 ## Info
 *Only works in insert mode, makes lists function similar to gui word processors.*
@@ -36,6 +31,34 @@ doesn't support:
 
 side effects:
 * overrides the comment variable
+
+## Installation
+Using vim-plug:
+```lua
+Plug 'gaoDean/autolist.nvim'
+```
+and
+```lua
+lua require('autolist').setup({})
+```
+
+## Configuration
+This is the default config:
+```
+require("autolist").setup({
+	create_enter_mapping = true,
+	-- for if you have something else that you want when you press enter
+	-- with the create enter being false, you must create your own mapping
+	new_entry_on_o = true,
+	-- when key o pressed, new list entry
+	enabled_filetypes = { "markdown", "text" },
+	-- filetypes that this plugin is enabled for
+	-- must put file name, not the extension
+	-- if you are not sure, just run :echo &filetype
+})
+```
+
+## Other
 
 todo:
 ```lua
