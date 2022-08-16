@@ -9,6 +9,8 @@ supports:
 * ordered and unordered lists, continues the list when in insert mode and `Return` pressed
 * autodeletes empty list entries with `Return` at the end of an empty entry
 * indented lists with `<c-t>` and `<c-d>`
+* creating new list entry with `o` key (newline key)
+* enabling plugin for specific filetypes
 ```
 1. it supports numbered lists
 2. auto increments the number on carrige return
@@ -51,6 +53,11 @@ require("autolist").setup({
 	-- with the create enter being false, you must create your own mapping
 	new_entry_on_o = true,
 	-- when key o pressed, new list entry
+	override_fo_all_filetypes = false,
+	-- override formatoptions for all filetypes
+	-- what this does is au("Filetype", "*", "fo-=r") (same for fo-o)
+	-- this means that if fo-r is enabled for current filetype, disable it
+	-- if the current filetype is in the enabled filetypes list, enable the fo-r
 	enabled_filetypes = { "markdown", "text" },
 	-- filetypes that this plugin is enabled for
 	-- must put file name, not the extension

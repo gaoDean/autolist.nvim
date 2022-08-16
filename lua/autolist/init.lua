@@ -1,6 +1,7 @@
 local config = {
 	create_enter_mapping = true,
 	new_entry_on_o = true,
+	override_fo_all_filetypes = false,
 	enabled_filetypes = { "markdown", "text" },
 }
 
@@ -39,7 +40,12 @@ function M.setup(set_config)
 		imap("<cr>", "<cr><cmd>lua require('autolist').list()<cr>")
 	end
 
-	au("Filetype", "*", "setl formatoptions-=r")
+	if config.override_commenting then
+		au("Filetype", "*", "setl formatoptions-=r")
+		if config.new_entry_on_o then
+			au("Filetype", "*", "setl formatoptions-=o")
+		end
+	end
 
 	for i, ft in ipairs(config.enabled_filetypes) do
 		au("Filetype", ft, "setl comments=b:*,b:-,b:+,n:>")
