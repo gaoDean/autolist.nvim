@@ -6,15 +6,17 @@ supports:
 * autodeletes empty list bullets
 * indented lists with `<c-t>` and `<c-d>`
 ```
-	1. content
-	2. content
-		1. content
+1. it supports numbered
+2. auto increments the number
+	3. can indent, but won't renumber
+	2. must do it manually
 
-	- content
-		- content
-		- content
-	* content
-	+ content
+- unordered
+	- tab across with <c-t>
+	- keeps the indent level
+	- <c-t> and <c-d> indents whole line
+* detab with <c-d>
++ supports syms "-+*"
 ```
 
 doesn't support:
