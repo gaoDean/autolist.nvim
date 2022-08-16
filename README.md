@@ -48,7 +48,7 @@ lua require('autolist').setup({})
 
 ## Configuration
 This is the default config:
-```
+```lua
 require("autolist").setup({
 	create_enter_mapping = true,
 	-- for if you have something else that you want when you press enter
