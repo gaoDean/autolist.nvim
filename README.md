@@ -4,9 +4,11 @@ Minimal automatic list continuing for ordered and unordered lists for neovim in 
 supports:
 * ordered (n. '...')
 * unordered
-	`-` content
-	`*` content
-	`+` content
+```
+	- content
+	* content
+	+ content
+```
 * autodeletes empty list bullets
 * indented lists with `<c-t>` and `<c-d>`
 
