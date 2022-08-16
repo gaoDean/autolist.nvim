@@ -29,12 +29,6 @@ supports:
 + pretend this text isn't here, if enter is pressed this line would be empty
 ```
 
-doesn't support:
-* renumbering of lists
-
-side effects:
-* overrides the comment variable
-
 ## Installation
 Using vim-plug:
 ```lua
