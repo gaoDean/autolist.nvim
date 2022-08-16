@@ -24,3 +24,13 @@ supports:
 
 doesn't support:
 * renumbering of lists
+
+side effects:
+* overrides the comment variable
+
+todo:
+```lua
+	if vim.bo.filetype ~= "markdown" and vim.bo.filetype ~= "txt" then
+		return
+	end
+```
