@@ -65,14 +65,7 @@ require("autolist").setup({
 })
 ```
 
-## Other
-
-todo:
-```lua
-	if vim.bo.filetype ~= "markdown" and vim.bo.filetype ~= "txt" then
-		return
-	end
-```
+## Credit
 
 inspired by [my gist](https://gist.github.com/gaoDean/288d01dfe64da66569fb6615c767e081)
 which is in turn inspired by [this gist](https://gist.github.com/sedm0784/dffda43bcfb4728f8e90)
