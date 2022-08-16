@@ -1,12 +1,22 @@
 local config = {
 	create_enter_mapping = true,
 	new_entry_on_o = true,
-	enabled_filetypes = { "markdown", "txt" },
+	enabled_filetypes = { "markdown", "text" },
 }
 
 local M = {}
 
 function M.list()
+	local continue = false
+	for i, ft in ipairs(config.enabled_filetypes) do
+		if ft == vim.bo.filetype then
+			continue = true
+		end
+	end
+	if not continue then
+		return
+	end
+
 	local preceding_line = vim.fn.getline(vim.fn.line(".") - 1)
 	if preceding_line:match("^%s*%d+%.%s.") then
 		local list_index = preceding_line:match("%d+")
@@ -27,8 +37,9 @@ function M.setup(set_config)
 
 	if config.create_enter_mapping then
 		imap("<cr>", "<cr><cmd>lua require('autolist').list()<cr>")
-		print("map")
 	end
+
+	au("Filetype", "*", "setl formatoptions-=r")
 
 	for i, ft in ipairs(config.enabled_filetypes) do
 		au("Filetype", ft, "setl comments=b:*,b:-,b:+,n:>")
