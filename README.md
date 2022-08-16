@@ -10,6 +10,8 @@ supports:
 2. auto increments the number
 	3. can indent, but won't renumber
 	2. must do it manually
+	3. might make a fork that does renumberings
+	4. this repo is minimal version
 
 - unordered
 	- tab across with <c-t>
