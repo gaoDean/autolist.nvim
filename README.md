@@ -19,6 +19,7 @@ supports:
 	- <c-t> and <c-d> indents whole line
 * detab with <c-d>
 + supports syms "-+*"
++ pretend this text isn't here, if enter this line would be empty
 ```
 
 doesn't support:
