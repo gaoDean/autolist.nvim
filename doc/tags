@@ -1,5 +1,5 @@
-autolist-install	autolist.txt	/*autolist-install*
 autolist-autolist.nvim	autolist.txt	/*autolist-autolist.nvim*
+autolist-install	autolist.txt	/*autolist-install*
 autolist-table-of-contents	autolist.txt	/*autolist-table-of-contents*
 autolist-usage	autolist.txt	/*autolist-usage*
 autolist.txt	autolist.txt	/*autolist.txt*
