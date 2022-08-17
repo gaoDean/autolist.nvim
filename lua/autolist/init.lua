@@ -1,8 +1,26 @@
 local config = {
 	create_enter_mapping = true,
+	-- for if you have something else that you want to map when press return
+	-- with the create enter being false, you must create your own mapping
+
 	new_entry_on_o = true,
-	override_fo_all_filetypes = false,
+	-- when key o pressed, new list entry. Enables fo-o.
+
+	override_fo-o = true,
+	-- if you don't use formatoptions o, set this to true
+	-- it will disable fo-o for all filetypes except for enabled types.
+
+	-- if you use any of the override options, you must remove any
+	-- definitions of the overrided formatoptions.
+
+	override_fo-r = true,
+	-- if you don't use formatoptions r, set this to true
+	-- it will disable fo-r for all filetypes except for enabled types.
+
 	enabled_filetypes = { "markdown", "text" },
+	-- filetypes that this plugin is enabled for
+	-- must put file name, not the extension
+	-- if you are not sure of the name, just run :echo &filetype
 }
 
 local M = {}
@@ -40,11 +58,12 @@ function M.setup(set_config)
 		imap("<cr>", "<cr><cmd>lua require('autolist').list()<cr>")
 	end
 
-	if config.override_commenting then
+	if config.override_fo-o then
+		au("Filetype", "*", "setl formatoptions-=o")
+	end
+
+	if config.override_fo-r then
 		au("Filetype", "*", "setl formatoptions-=r")
-		if config.new_entry_on_o then
-			au("Filetype", "*", "setl formatoptions-=o")
-		end
 	end
 
 	for i, ft in ipairs(config.enabled_filetypes) do

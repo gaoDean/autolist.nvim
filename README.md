@@ -12,7 +12,7 @@ supports:
 * indented lists with `<c-t>` and `<c-d>`
 * creating new list entry with `o` key (newline key)
 * enabling plugin for specific filetypes
-```
+```markdown
 1. it supports numbered lists
 2. auto increments the number on carrige return
 	3. can indent, but won't renumber
@@ -49,21 +49,29 @@ lua require('autolist').setup({})
 ## Configuration
 This is the default config:
 ```lua
-require("autolist").setup({
+require('autolist.nvim').setup({
 	create_enter_mapping = true,
-	-- for if you have something else that you want when you press enter
+	-- for if you have something else that you want to map when press return
 	-- with the create enter being false, you must create your own mapping
+
 	new_entry_on_o = true,
-	-- when key o pressed, new list entry
-	override_fo_all_filetypes = false,
-	-- override formatoptions for all filetypes
-	-- what this does is au("Filetype", "*", "fo-=r") (same for fo-o)
-	-- this means that if fo-r is enabled for current filetype, disable it
-	-- if the current filetype is in the enabled filetypes list, enable the fo-r
+	-- when key o pressed, new list entry. Enables fo-o.
+
+	override_fo-o = true,
+	-- if you don't use formatoptions o, set this to true
+	-- it will disable fo-o for all filetypes except for enabled types.
+
+	-- if you use any of the override options, you must remove any
+	-- definitions of the overrided formatoptions, or put the require setup after the formatoptions defintition.
+
+	override_fo-r = true,
+	-- if you don't use formatoptions r, set this to true
+	-- it will disable fo-r for all filetypes except for enabled types.
+
 	enabled_filetypes = { "markdown", "text" },
 	-- filetypes that this plugin is enabled for
 	-- must put file name, not the extension
-	-- if you are not sure, just run :echo &filetype
+	-- if you are not sure of the name, just run :echo &filetype
 })
 ```
 

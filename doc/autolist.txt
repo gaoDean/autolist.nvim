@@ -51,4 +51,46 @@ The plugin has a one automatically generated binding:
 This just executing the list function. If it doesn't detect anything related
 to the list, it does nothing.
 
+CONFIGURATION                                         *autolist-configuration*
+
+DEFAULT OPTIONS ~
+
+>
+	local config = {
+		create_enter_mapping = true,
+		-- for if you have something else that you want to map when press return
+		-- with the create enter being false, you must create your own mapping
+
+		new_entry_on_o = true,
+		-- when key o pressed, new list entry. Enables fo-o.
+
+		override_fo-o = true,
+		-- if you don't use formatoptions o, set this to true
+		-- it will disable fo-o for all filetypes except for enabled types.
+
+		-- if you use any of the override options, you must remove any
+		-- definitions of the overrided formatoptions, or put the require setup after the formatoptions defintition.
+
+		override_fo-r = true,
+		-- if you don't use formatoptions r, set this to true
+		-- it will disable fo-r for all filetypes except for enabled types.
+
+		enabled_filetypes = { "markdown", "text" },
+		-- filetypes that this plugin is enabled for
+		-- must put file name, not the extension
+		-- if you are not sure of the name, just run :echo &filetype
+	}
+<
+
+Edit (part of) this table to your preferences and pass it to the `setup()`
+function i.e.:
+
+>
+	require("autolist").setup({
+		create_enter_mapping = true,
+		new_entry_on_o = false,
+		enabled_filetypes = { "markdown", "text", "other", "yaml" },
+	})
+<
+
 vim:tw=78:ts=8:noet:ft=help:norl:
