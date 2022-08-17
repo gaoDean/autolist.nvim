@@ -4,18 +4,18 @@ local config = {
 	-- with the create enter being false, you must create your own mapping
 
 	new_entry_on_o = true,
-	-- when key o pressed, new list entry. Enables fo-o.
+	-- when key o pressed, new list entry. Enables fo_o.
 
-	override_fo-o = true,
+	override_fo_o = true,
 	-- if you don't use formatoptions o, set this to true
-	-- it will disable fo-o for all filetypes except for enabled types.
+	-- it will disable fo_o for all filetypes except for enabled types.
 
 	-- if you use any of the override options, you must remove any
 	-- definitions of the overrided formatoptions.
 
-	override_fo-r = true,
+	override_fo_r = true,
 	-- if you don't use formatoptions r, set this to true
-	-- it will disable fo-r for all filetypes except for enabled types.
+	-- it will disable fo_r for all filetypes except for enabled types.
 
 	enabled_filetypes = { "markdown", "text" },
 	-- filetypes that this plugin is enabled for
@@ -58,11 +58,11 @@ function M.setup(set_config)
 		imap("<cr>", "<cr><cmd>lua require('autolist').list()<cr>")
 	end
 
-	if config.override_fo-o then
+	if config.override_fo_o then
 		au("Filetype", "*", "setl formatoptions-=o")
 	end
 
-	if config.override_fo-r then
+	if config.override_fo_r then
 		au("Filetype", "*", "setl formatoptions-=r")
 	end
 
