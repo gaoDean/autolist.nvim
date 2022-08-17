@@ -29,15 +29,11 @@ Using vim-plug:
 local Plug = vim.fn['plug#']
 vim.call('plug#begin', '~/.config/nvim/plugged')
 	Plug 'gaoDean/autolist.nvim'
-
-	-- or if you want peak minimalism
-	Plug('gaoDean/autolist.nvim', { branch = 'min' })
 vim.call('plug#end')
 ```
 and
 ```lua
 lua require('autolist').setup({})
--- not required with min branch
 ```
 
 ## Configuration
