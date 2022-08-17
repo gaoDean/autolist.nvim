@@ -31,7 +31,7 @@ will be deleted.
 Indent lists with <c-t> (tab) and <c-d> (detab), which will indent the whole
 line, not just the text after the cursor. When you detab, the dash will not
 have the optional space before it, just a tab, or if it is aligned to the very
-right, nothing before the dash.
+left, nothing before the dash.
 
 Start an ordered list with an number, a dot and space, with the contents after
 the space. The auto ending of the list works the same as unordered list, when

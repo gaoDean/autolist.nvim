@@ -31,7 +31,7 @@ supports:
 
 Start an unordered list with an optional space, a dash and a space. Write the list contents and when you're done, press enter and a new dash will be created with a (optional space then a ) dash and a space. If you don't write anything after the dash and the space, it will carrige return and the last empty dash will be deleted.
 
-Indent lists with <c-t> (tab) and <c-d> (detab), which will indent the whole line, not just the text after the cursor. When you detab, the dash will not have the optional space before it, just a tab, or if it is aligned to the very right, nothing before the dash.
+Indent lists with <c-t> (tab) and <c-d> (detab), which will indent the whole line, not just the text after the cursor. When you detab, the dash will not have the optional space before it, just a tab, or if it is aligned to the very left, nothing before the dash.
 
 Start an ordered list with an number, a dot and space, with the contents after the space. The auto ending of the list works the same as unordered list, when the contents is empty and you press enter, there will be a carrige return and the last empty list entry will be deleted.
 
