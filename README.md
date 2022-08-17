@@ -12,6 +12,9 @@ supports:
 * indented lists with `<c-t>` and `<c-d>`
 * creating new list entry with `o` key (newline key)
 * enabling continuation for specific filetypes
+* enabling plugin for specific filetypes
+
+https://user-images.githubusercontent.com/97860672/185103177-c5694477-a2fe-4c88-b193-caf5024f6579.mp4
 
 Start an unordered list with an optional space, a dash and a space. Write the list contents and when you're done, press enter and a new dash will be created with a (optional space then a ) dash and a space. If you don't write anything after the dash and the space, it will carrige return and the last empty dash will be deleted.
 
