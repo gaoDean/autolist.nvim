@@ -12,22 +12,6 @@ supports:
 * indented lists with `<c-t>` and `<c-d>`
 * creating new list entry with `o` key (newline key)
 * enabling continuation for specific filetypes
-```markdown
-1. it supports numbered lists
-2. auto increments the number on carrige return
-	3. can indent, but won't renumber
-	2. must do it manually
-	3. might make a fork that does renumberings
-	4. this repo is minimal version
-
-- unordered
-	- tab across with <c-t>
-	- keeps the indent level on enter
-	- <c-t> and <c-d> indents whole line, not just the text after the cursor
-* detab with <c-d>
-+ supports syms all markdown list markers (-+*)
-+ pretend this text isn't here, if enter is pressed this line would be empty
-```
 
 Start an unordered list with an optional space, a dash and a space. Write the list contents and when you're done, press enter and a new dash will be created with a (optional space then a ) dash and a space. If you don't write anything after the dash and the space, it will carrige return and the last empty dash will be deleted.
 
