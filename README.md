@@ -1,17 +1,17 @@
 # autolist.nvim
 Minimal automatic list continuation for ordered and unordered lists for neovim in lua
 
-#### this is quite a new plugin, so expect lots of :PlugUpdates.
+This is quite a new plugin, so expect lots of :PlugUpdates.
 
 ## Info
 *Only works in insert mode, makes lists function similar to gui word processors.*
 
 supports:
-* ordered and unordered lists, continues the list when in insert mode and `Return` pressed
-* autodeletes empty list entries with `Return` at the end of an empty entry
+* ordered and unordered lists
+* autodelete empty list entries
 * indented lists with `<c-t>` and `<c-d>`
 * creating new list entry with `o` key (newline key)
-* enabling plugin for specific filetypes
+* enabling continuation for specific filetypes
 ```markdown
 1. it supports numbered lists
 2. auto increments the number on carrige return
@@ -65,14 +65,14 @@ require('autolist.nvim').setup({
 	new_entry_on_o = true,
 	-- when key o pressed, new list entry. Enables fo-o.
 
-	override_fo-o = true,
+	override_fo_o = true,
 	-- if you don't use formatoptions o, set this to true
 	-- it will disable fo-o for all filetypes except for enabled types.
 
 	-- if you use any of the override options, you must remove any
 	-- definitions of the overrided formatoptions, or put the require setup after the formatoptions defintition.
 
-	override_fo-r = true,
+	override_fo_r = true,
 	-- if you don't use formatoptions r, set this to true
 	-- it will disable fo-r for all filetypes except for enabled types.
 
