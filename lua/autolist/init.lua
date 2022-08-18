@@ -17,6 +17,10 @@ local function map(mode, keys, output)
 	vim.api.nvim_set_keymap(mode, keys, output, { noremap = true, silent = true})
 end
 
+local function nmap(keys, output)
+	map("n", keys, output)
+end
+
 local function imap(keys, output)
 	map("i", keys, output)
 end
@@ -30,6 +34,10 @@ function M.setup(set_config)
 
 	if config.create_enter_mapping then
 		imap("<cr>", "<cr><cmd>lua require('autolist').list()<cr>")
+	end
+
+	if config.new_entry_on_o then
+		nmap("o", "o<cmd>lua require('autolist').list()<cr>")
 	end
 
 	if config.create_tab_mapping then
