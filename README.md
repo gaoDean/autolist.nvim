@@ -33,7 +33,7 @@ require('autolist').setup({})
 5. Dedent your list with `<c-d>` (**d**edent) and watch as your *whole line* gets dedented, unlike `s-tab`
 6. When indenting, ordered lists will automatically be reset to one
 6. When dedenting, markers will automagically be changed to the type of the last marker on the same indent level
-7. Lastly, when you're done, pressing enter on an empty list entry will delete it, leaving you with a fresh, new sentence.
+7. Lastly, when you're done, pressing enter on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 fact: `automagically` is used when I am especially proud of a feature
 
