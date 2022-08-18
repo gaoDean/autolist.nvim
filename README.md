@@ -25,6 +25,18 @@ and
 require('autolist').setup({})
 ```
 
+## Usage
+1. Type in a list marker (ordered or unordered)
+2. Type in your content
+3. When you're ready, press `enter`/`return` and a new list entry will be automagically created
+4. Indent your list with `<c-t>` (**t**ab) and watch as your *whole line* gets indented, unlike `tab`
+5. Dedent your list with `<c-d>` (**d**edent) and watch as your *whole line* gets dedented, unlike `s-tab`
+6. When indenting, ordered lists will automatically be reset to one
+6. When dedenting, markers will automagically be changed to the type of the last marker on the same indent level
+7. Lastly, when you're done, pressing enter on an empty list entry will delete it, leaving you with a fresh, new sentence.
+
+fact: `automagically` is used when I am especially proud of a feature
+
 ## Configuration
 This is the default config:
 ```lua
