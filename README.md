@@ -1,27 +1,17 @@
 # autolist.nvim
-Minimal automatic list continuation for ordered and unordered lists for neovim in lua
+Minimal automatic list continuation for neovim, powered by lua
 
-This is quite a new plugin, so expect lots of :PlugUpdates.
+## Why autolist
+This question can be interpreted in two ways. Why did i create autolist, and why use autolist.
 
-## Info
-*Only works in insert mode, makes lists function similar to gui word processors.*
+Why did I create autolist.nvim?
+: It sounds simple, but all I wanted was a minimal list continuation plugin in lua that makes lists function better.
+: bullets.vim works, but it is written in vimscript and is more than a thousand lines long.
+: Needless to say, I couldn't find one, so I decided to create my own.
 
-supports:
-* ordered and unordered lists
-* autodeletes empty list entries
-* indented lists with `<c-t>` and `<c-d>`
-* creating new list entry with `o` key (newline key)
-* enabling continuation for specific filetypes
+Why use autolist?
+: autolist's main function file is less than 200 lines long, complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, to take your mind off the formatting, and have it work in the background while you write your thoughts.
 
-https://user-images.githubusercontent.com/97860672/185103177-c5694477-a2fe-4c88-b193-caf5024f6579.mp4
-
-Start an unordered list with an optional space, a dash and a space. Write the list contents and when you're done, press enter and a new dash will be created with a (optional space then a ) dash and a space. If you don't write anything after the dash and the space, it will carrige return and the last empty dash will be deleted.
-
-Indent lists with <c-t> (tab) and <c-d> (detab), which will indent the whole line, not just the text after the cursor. When you detab, the dash will not have the optional space before it, just a tab, or if it is aligned to the very left, nothing before the dash.
-
-Start an ordered list with an number, a dot and space, with the contents after the space. The auto ending of the list works the same as unordered list, when the contents is empty and you press enter, there will be a carrige return and the last empty list entry will be deleted.
-
-Indenting works the same way, with the exception that this *will not* renumber the lists, you must do it manually.
 
 ## Installation
 Using vim-plug:
