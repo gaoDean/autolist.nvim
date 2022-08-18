@@ -5,8 +5,8 @@ local M = {}
 local fn = vim.fn
 local marker_digit = "%d+"
 local marker_md = "[-+*]"
-local marker_ol = "^%s*%d+%.%s."
-local marker_ul = "^%s*[-+*]%s."
+local marker_ol = "^%s*%d+%.%s." -- ordered list
+local marker_ul = "^%s*[-+*]%s." -- unordered list
 
 -- gets the marker of {line} and if its a digit it adds {add}
 local function get_marker(line, add)
@@ -25,6 +25,11 @@ local function neither_list(line)
 	return false
 end
 
+local function set_cur(str)
+	fn.setline(".", str)
+	vim.cmd([[execute "normal! \<esc>A\<space>"]])
+end
+
 function M.list()
 	local continue = false
 	for i, ft in ipairs(config.enabled_filetypes) do
@@ -39,8 +44,7 @@ function M.list()
 	local prev_line = fn.getline(fn.line(".") - 1)
 	if prev_line:match("^%s*%d+%.%s.") then
 		local list_index = prev_line:match("%d+")
-		fn.setline(".", prev_line:match("^%s*") .. list_index + 1 .. ". ")
-		vim.cmd([[execute "normal! \<esc>A\<space>"]])
+		set_cur(prev_line:match("^%s*") .. list_index + 1 .. ". ")
 	elseif prev_line:match("^%s*%d+%.%s$") then
 		fn.setline(fn.line(".") - 1, "")
 	elseif prev_line:match("^%s*[-+*]") and #prev_line:match("[-+*].*") == 1 then
@@ -107,23 +111,38 @@ function M.detab()
 		if cur_marker:match(marker_md .. "%s") then
 			optimised = false
 		end
+		-- optimised only works on ordered lists
+		-- the list goes {1. x}\n{2. x}\n{3. x} so logically the last indent is
+		-- before {1. x}, so searches for 3. and goes 3 lines before that.
+		-- optimised doesn't work if bad md formatting as explained above
 		if optimised then
 			-- eval ptrline just gets the line that ptrline stores
 			local eval_ptrline = fn.getline(ptrline)
 
 			-- while the indents don't match
 			while eval_ptrline:match(spc) ~= cur_indent do
+
+				if not eval_ptrline:match(marker_ol) then
+					-- can't use optimised cus either ul or not a list
+					-- could be because of bad list formatting idk
+					optimised = false
+					break
+				end
+
 				ptrline = ptrline - eval_ptrline:match(marker_digit)
-				-- the list goes 1. 2. 3. so logically the last indent is
-				-- before 1., so searches for 3. and goes 3 lines before that
+				-- explained above at the start of the if
 
 				-- if ptrline out of bounds or eval_ptrline not a list entry
-				if ptrline <= 0 or neither_list(eval_ptrline) then
+				if ptrline <= 0 then
 					-- try using unoptimised search, skips setline function
 					optimised = false
 					break
 				end
-			neval_ptrline = fn.getline(ptrline)
+				eval_ptrline = fn.getline(ptrline)
+				if neither_list(eval_ptrline) then
+					optimised = false
+					break
+				end
 			end
 
 			-- found viable line
@@ -148,7 +167,7 @@ function M.detab()
 				end
 			end
 			local new_marker = get_marker(fn.getline(ptrline), 1)
-			fn.setline(".", fn.getline("."):gsub(cur_marker, new_marker, 1))
+			set_cur(fn.getline("."):gsub(cur_marker, new_marker, 1))
 		end
 	end
 end
