@@ -163,8 +163,16 @@ function M.detab()
 			-- found viable line
 			if optimised then
 				local new_marker = get_marker(fn.getline(ptrline), 1)
+				local cur_line = fn.getline(".")
+
+				-- some edge case where dedenting a numbered list
+				-- adds a space behind it for some reason
+				if cur_line:match("^%s*%d+%.%s%s") then
+					cur_line = cur_line:gsub("(%d+%.)  ", "%1 ", 1)
+				end
+
 				-- use current line and substitue the marker for indent marker
-				fn.setline(".", (fn.getline("."):gsub(cur_marker, new_marker, 1)))
+				fn.setline(".", (cur_line:gsub(cur_marker, new_marker, 1)))
 			end
 		end
 
