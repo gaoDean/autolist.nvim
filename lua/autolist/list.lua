@@ -10,9 +10,9 @@ local marker_ul = "^%s*[-+*]%s."
 
 -- gets the marker of {line} and if its a digit it adds {add}
 local function get_marker(line, add)
-	if line:match(ol_marker) then
+	if line:match(marker_ol) then
 		line = line:match(marker_digit) + add .. ". "
-	else if marker:match(ul_marker) then
+	else if marker:match(marker_ul) then
 		line = line:match(marker_md) .. " "
 	end
 	return line
@@ -20,7 +20,7 @@ end
 end
 
 local function neither_list(line)
-	if (not line:match(ol_marker)) and (not line:match(ul_marker)) then
+	if (not line:match(marker_ol)) and (not line:match(marker_ul)) then
 		return true
 	end
 	return false
@@ -66,7 +66,7 @@ function M.tab()
 	-- if prev line is numbered, set current line number to 1
 	local prev_line = fn.getline(fn.line(".") - 1)
 	if prev_line:match("^%s*%d+%.%s.") then
-		fn.setline(".", fn.getline("."):sub("%d+", "1"))
+		fn.setline(".", (fn.getline("."):gsub("%d+", "1", 1)))
 	end
 end
 
@@ -85,8 +85,6 @@ function M.detab()
 
 	-- pattern matches
 	local spc = "^%s*"
-	local ol_marker = "^%s*%d+%.%s."
-	local ul_marker = "^%s*[-+*]%s."
 
 	local prev_line_ptr = fn.line(".") - 1
 	local prev_line = fn.getline(prev_line_ptr)
@@ -124,7 +122,7 @@ function M.detab()
 			if optimised then
 				local new_marker = get_marker(fn.getline(ptrline), 1)
 				-- use current line and substitue the marker for indent marker
-				fn.setline(".", fn.getline("."):sub(cur_marker, new_marker))
+				fn.setline(".", fn.getline("."):gsub(cur_marker, new_marker, 1))
 			end
 		end
 
@@ -142,7 +140,7 @@ function M.detab()
 				end
 			end
 			local new_marker = get_marker(fn.getline(ptrline), 1)
-			fn.setline(".", fn.getline("."):sub(cur_marker, new_marker))
+			fn.setline(".", fn.getline("."):gsub(cur_marker, new_marker, 1))
 		end
 	end
 end
