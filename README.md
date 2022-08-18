@@ -16,7 +16,7 @@ This question can be interpreted in two ways. Why did i create autolist, and why
 
 
 ## Installation
-Using vim-plug:
+Using vim-plug: (no vimscript, you should be using lua anyways :)
 ```lua
 local Plug = vim.fn['plug#']
 vim.call('plug#begin', '~/.config/nvim/plugged')
@@ -25,7 +25,7 @@ vim.call('plug#end')
 ```
 and
 ```lua
-lua require('autolist').setup({})
+require('autolist').setup({})
 ```
 
 ## Configuration
@@ -36,19 +36,33 @@ require('autolist.nvim').setup({
 	-- for if you have something else that you want to map when press return
 	-- with the create enter being false, you must create your own mapping
 
+	create_tab_mapping = true,
+	-- creates mapping for <c-t> to renumber
+	-- also allows you to disable renumbering for tab
+
+	create_detab_mapping = true,
+	-- creates mapping for <c-d> to use the same marker as other-
+	-- entry with the same indent
+	-- also allows you to disable renumbering for detab
+
 	new_entry_on_o = true,
-	-- when key o pressed, new list entry. Enables fo-o.
-
-	override_fo_o = true,
-	-- if you don't use formatoptions o, set this to true
-	-- it will disable fo-o for all filetypes except for enabled types.
-
-	-- if you use any of the override options, you must remove any
-	-- definitions of the overrided formatoptions, or put the require setup after the formatoptions defintition.
+	-- when key o pressed, new list entry. Enables fo_o.
+	-- see :h fo-table
 
 	override_fo_r = true,
-	-- if you don't use formatoptions r, set this to true
-	-- it will disable fo-r for all filetypes except for enabled types.
+	-- if you don't use fo_r (or if you disable it), set this to true
+	-- it will disable fo_r for all filetypes except for enabled types.
+	-- perhaps grep for "formatoptions-=r" and "fo-=r"
+
+	override_fo_o = true,
+	-- if you don't use fo_o (or if you disable it), set this to true
+	-- it will disable fo_o for all filetypes except for enabled types.
+	-- perhaps grep for "formatoptions-=o" and "fo-=o"
+
+	-- if you use any of the override options, you must remove any
+	-- definitions of the overrided formatoptions, or you can
+	-- define the options before sourcing the require setup for this
+	-- plugin, so it can override it.
 
 	enabled_filetypes = { "markdown", "text" },
 	-- filetypes that this plugin is enabled for
