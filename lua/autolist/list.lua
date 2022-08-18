@@ -19,7 +19,7 @@ local function get_marker(line, add)
 	if line:match(marker_ol) then
 		line = line:match(marker_digit) + add .. ". "
 	elseif line:match(marker_ul) then
-		line = line:match(marker_md)
+		line = line:match(marker_md) .. " "
 	end
 	return line
 end
