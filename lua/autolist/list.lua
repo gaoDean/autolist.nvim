@@ -12,11 +12,10 @@ local marker_ul = "^%s*[-+*]%s."
 local function get_marker(line, add)
 	if line:match(marker_ol) then
 		line = line:match(marker_digit) + add .. ". "
-	else if marker:match(marker_ul) then
+	elseif line:match(marker_ul) then
 		line = line:match(marker_md) .. " "
 	end
 	return line
-end
 end
 
 local function neither_list(line)
@@ -79,6 +78,12 @@ function M.detab()
 			continue = true
 		end
 	end
+
+	-- no lists before so no need to renum
+	if fn.line(".") == 1 then
+		continue = false
+	end
+
 	if not continue then
 		return
 	end
@@ -99,6 +104,9 @@ function M.detab()
 		local cur_marker = get_marker(fn.getline("."), 0)
 
 		local optimised = config.optimised_renum
+		if cur_marker:match(marker_md .. "%s") then
+			optimised = false
+		end
 		if optimised then
 			-- eval ptrline just gets the line that ptrline stores
 			local eval_ptrline = fn.getline(ptrline)
@@ -115,14 +123,14 @@ function M.detab()
 					optimised = false
 					break
 				end
-				eval_ptrline = fn.getline(ptrline)
+			neval_ptrline = fn.getline(ptrline)
 			end
 
 			-- found viable line
 			if optimised then
 				local new_marker = get_marker(fn.getline(ptrline), 1)
 				-- use current line and substitue the marker for indent marker
-				fn.setline(".", fn.getline("."):gsub(cur_marker, new_marker, 1))
+				fn.setline(".", (fn.getline("."):gsub(cur_marker, new_marker, 1)))
 			end
 		end
 
