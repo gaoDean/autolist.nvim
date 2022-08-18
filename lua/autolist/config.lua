@@ -14,20 +14,22 @@ local config = {
 
 	new_entry_on_o = true,
 	-- when key o pressed, new list entry. Enables fo_o.
-
-	override_fo_o = true,
-	-- if you don't use formatoptions o, set this to true
-	-- it will disable fo_o for all filetypes except for enabled types.
-
-	-- if you use any of the override options, you must remove any
-	-- definitions of the overrided formatoptions.
+	-- see :h fo-table
 
 	override_fo_r = true,
-	-- if you don't use formatoptions r, set this to true
+	-- if you don't use fo_r (or if you disable it), set this to true
 	-- it will disable fo_r for all filetypes except for enabled types.
+	-- perhaps grep for "formatoptions-=r" and "fo-=r"
 
-	optimised_renum = true,
-	-- use good formatting
+	override_fo_o = true,
+	-- if you don't use fo_o (or if you disable it), set this to true
+	-- it will disable fo_o for all filetypes except for enabled types.
+	-- perhaps grep for "formatoptions-=o" and "fo-=o"
+
+	-- if you use any of the override options, you must remove any
+	-- definitions of the overrided formatoptions, or you can
+	-- define the options before sourcing the require setup for this
+	-- plugin, so it can override it.
 
 	enabled_filetypes = { "markdown", "text" },
 	-- filetypes that this plugin is enabled for

@@ -107,7 +107,7 @@ function M.detab()
 		local cur_indent = fn.getline("."):match(spc)
 		local cur_marker = get_marker(fn.getline("."), 0)
 
-		local optimised = config.optimised_renum
+		local optimised = true
 		if cur_marker:match(marker_md .. "%s") then
 			optimised = false
 		end
