@@ -166,9 +166,12 @@ function M.detab()
 				local cur_line = fn.getline(".")
 
 				-- some edge case where dedenting a numbered list
-				-- adds a space behind it for some reason
-				if cur_line:match("^%s*%d+%.%s%s") then
-					cur_line = cur_line:gsub("(%d+%.)  ", "%1 ", 1)
+				-- adds a space behind it for some reason.
+				-- cur marker is a pattern, and if it is an ordered list
+				-- it would be the length of five. The new marker
+				-- is a string, and would be length 2.
+				if #cur_marker == 5 and #new_marker == 2 then
+					cur_line = cur_line:sub(1, -2)
 				end
 
 				-- use current line and substitue the marker for indent marker
