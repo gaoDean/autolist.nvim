@@ -6,7 +6,7 @@ This question can be interpreted in two ways. Why did I create autolist, and why
 
 <dl>
 	<dt>Why did I create autolist?</dt>
-	<dd>It sounds simple, but all I wanted was a minimal list continuation plugin in lua that makes lists function better. bullets.vim works, but it is written in vimscript and is more than a thousand lines long. Needless to say, I couldn't find one, so I decided to create my own.</dd>
+	<dd>It sounds simple, but all I wanted was a minimal list continuation plugin in lua that makes lists function better. bullets.vim works, but it is written in vimscript and is more than a thousand lines long. Needless to say, I couldn't find a suitable one, so I decided to create my own.</dd>
 	<dt>Why use autolist?</dt>
 	<dd>autolist's main function file is less than 200 lines long, complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, to take your mind off the formatting, and have it work in the background while you write your thoughts.</dd>
 </dl>
