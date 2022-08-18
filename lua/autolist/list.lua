@@ -1,3 +1,9 @@
+-- just some random things that are used:
+-- string:gsub(pat, repl, n) where:
+-- 		pat is a lua pattern
+-- 		repl is a string, except %x where x is a digit means special thing
+--		n is an int that means how many occurences of pat is replaced
+
 local config = require("autolist.config")
 
 local M = {}
@@ -13,7 +19,16 @@ local function get_marker(line, add)
 	if line:match(marker_ol) then
 		line = line:match(marker_digit) + add .. ". "
 	elseif line:match(marker_ul) then
-		line = line:match(marker_md) .. " "
+		line = line:match(marker_md)
+	end
+	return line
+end
+
+local function get_marker_pat(line, add)
+	if line:match(marker_ol) then
+		line = line:match(marker_digit) + add .. "%.%s"
+	elseif line:match(marker_ul) then
+		line = "%" .. line:match(marker_md) .. "%s"
 	end
 	return line
 end
@@ -105,7 +120,7 @@ function M.detab()
 		local ptrline = prev_line_ptr
 
 		local cur_indent = fn.getline("."):match(spc)
-		local cur_marker = get_marker(fn.getline("."), 0)
+		local cur_marker = get_marker_pat(fn.getline("."), 0)
 
 		local optimised = true
 		if cur_marker:match(marker_md .. "%s") then
