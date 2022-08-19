@@ -29,11 +29,9 @@ require('autolist').setup({})
 1. Type in a list marker (ordered or unordered)
 2. Type in your content
 3. When you're ready, press `enter`/`return` and a new list entry will be automatically created
-4. Indent your list with `<c-t>` (**t**ab) and watch as your *whole line* gets indented
-5. Dedent your list with `<c-d>` (**d**edent) and watch as your *whole line* gets dedented
-6. When indenting, ordered lists will automatically be reset to one
-6. When dedenting, markers will automatically be changed through context awareness, to the *list type* of the *last marker* on the *same indent level*
-7. Lastly, when you're done, pressing `enter` on an empty list entry will delete it, leaving you with a fresh new sentence.
+4. Indent your list with `<c-t>` (**t**ab) and watch as your *whole line* gets indented. When indenting, ordered lists will automatically be reset to one
+5. Dedent your list with `<c-d>` (**d**edent) and watch as your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the *list type* of the *last marker* on the *same indent level* as the current marker
+6. Lastly, when you're done, pressing `enter` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 ## Configuration
 Note for **autocommands** (this doesn't affect `set`): this plugin uses `fo-r` (see :h fo-table) for unordered lists, and an optional `fo-o` for new entry on `o`, so you should either not change the value of `fo-r` **in an autocommand** (and `fo-o`), or call the setup function for this plugin after you change the values of `fo-r` and `fo-o` (in an autocommand) so it can override the autocommand, otherwise your autocommand will override the plugin.
