@@ -85,4 +85,5 @@ which is in turn inspired by [this gist](https://gist.github.com/sedm0784/dffda4
 
 ## Other
 To get a overview of code, this removes all the comments and empty lines. Idk, I just like to do this to polish, might be useful to you.
+
 	:%s/--.*//g | g/^\s*$/d
