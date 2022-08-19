@@ -38,7 +38,7 @@ Note for **autocommands** (this doesn't affect `set`): this plugin uses `fo-r` (
 
 This is the default config:
 ```lua
-require('autolist.nvim').setup({
+require('autolist').setup({
 	create_enter_mapping = true,
 	-- for if you have something else that you want to map when press return
 	-- with the create enter being false, you must create your own mapping
