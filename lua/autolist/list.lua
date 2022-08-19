@@ -24,6 +24,7 @@ local function get_marker(line, add)
 	return line
 end
 
+-- gets the pattern for the first argument to gsub
 local function get_marker_pat(line, add)
 	if line:match(marker_ol) then
 		line = line:match(marker_digit) + add .. "%.%s"
@@ -33,6 +34,7 @@ local function get_marker_pat(line, add)
 	return line
 end
 
+-- returns true if {line} is not a markdown list
 local function neither_list(line)
 	if (not line:match(marker_ol)) and (not line:match(marker_ul)) then
 		return true
@@ -40,19 +42,28 @@ local function neither_list(line)
 	return false
 end
 
+-- set current line to {str} and add a space at the end
 local function set_cur(str)
 	fn.setline(".", str)
 	vim.cmd([[execute "normal! \<esc>A\<space>"]])
 end
 
-function M.list()
-	local continue = false
+-- if filetype is not in enabled filetypes return true
+local function ft_disabled()
 	for i, ft in ipairs(config.enabled_filetypes) do
 		if ft == vim.bo.filetype then
-			continue = true
+			-- filetype enabled
+			return false
 		end
 	end
-	if not continue then
+	-- filetype not enabled
+	return true
+end
+
+-- increment ordered lists on enter
+function M.list()
+	-- checks if current filetype is enabled
+	if ft_disabled() then
 		return
 	end
 
@@ -60,24 +71,15 @@ function M.list()
 	if prev_line:match("^%s*%d+%.%s.") then
 		local list_index = prev_line:match("%d+")
 		set_cur(prev_line:match("^%s*") .. list_index + 1 .. ". ")
-	elseif prev_line:match("^%s*%d+%.%s$") then
-		fn.setline(fn.line(".") - 1, "")
-	elseif prev_line:match("^%s*[-+*]") and #prev_line:match("[-+*].*") == 1 then
+	-- checks if list entry is entry, and clears the line
+	elseif prev_line:match("^%s*[-+*]%s?$") or prev_line:match("^%s*%d+%.%s?$") then
 		fn.setline(fn.line(".") - 1, "")
 		fn.setline(".", "")
 	end
 end
 
 function M.tab()
-	-- checks if current filetype is in enabled filetypes
-	local continue = false
-	for i, ft in ipairs(config.enabled_filetypes) do
-		-- the filetype of current buffer
-		if ft == vim.bo.filetype then
-			continue = true
-		end
-	end
-	if not continue then
+	if ft_disabled() then
 		return
 	end
 
@@ -89,13 +91,8 @@ function M.tab()
 end
 
 function M.detab()
-	-- checks if current filetype is in enabled filetypes
-	local continue = false
-	for i, ft in ipairs(config.enabled_filetypes) do
-		-- the filetype of current buffer
-		if ft == vim.bo.filetype then
-			continue = true
-		end
+	if ft_disabled() then
+		return
 	end
 
 	-- no lists before so no need to renum
