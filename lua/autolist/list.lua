@@ -119,8 +119,9 @@ function M.detab()
 		-- just a number
 		local ptrline = prev_line_ptr
 
-		local cur_indent = fn.getline("."):match(spc)
-		local cur_marker = get_marker_pat(fn.getline("."), 0)
+		local cur_line = fn.getline(".")
+		local cur_indent = cur_line:match(spc)
+		local cur_marker = get_marker_pat(cur_line, 0)
 
 		local optimised = true
 		if cur_marker:match(marker_md .. "%s") then
@@ -163,7 +164,6 @@ function M.detab()
 			-- found viable line
 			if optimised then
 				local new_marker = get_marker(fn.getline(ptrline), 1)
-				local cur_line = fn.getline(".")
 
 				-- some edge case where dedenting a numbered list
 				-- adds a space behind it for some reason.
@@ -193,7 +193,10 @@ function M.detab()
 				end
 			end
 			local new_marker = get_marker(fn.getline(ptrline), 1)
-			set_cur(fn.getline("."):gsub(cur_marker, new_marker, 1))
+			if #cur_marker == 5 and #new_marker == 2 then
+				cur_line = cur_line:sub(1, -2)
+			end
+			set_cur(cur_line:gsub(cur_marker, new_marker, 1))
 		end
 	end
 end
