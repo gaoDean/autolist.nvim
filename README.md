@@ -82,3 +82,7 @@ require('autolist').setup({
 
 inspired by [my gist](https://gist.github.com/gaoDean/288d01dfe64da66569fb6615c767e081)
 which is in turn inspired by [this gist](https://gist.github.com/sedm0784/dffda43bcfb4728f8e90)
+
+## Other
+To get a overview of code, this removes all the comments and empty lines. Idk, I just like to do this to polish, might be useful to you.
+	:%s/--.*//g | g/^\s*$/d
