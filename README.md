@@ -8,12 +8,12 @@ This question can be interpreted in two ways. Why did I create autolist, and why
 	<dt>Why did I create autolist?</dt>
 	<dd>It sounds simple, but all I wanted was a minimal list continuation plugin in lua that makes lists function better. bullets.vim works, but it is written in vimscript and is more than a thousand lines long. Needless to say, I couldn't find a suitable one, so I decided to create my own.</dd>
 	<dt>Why use autolist?</dt>
-	<dd>autolist's main function file is less than 200 lines long, complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, to take your mind off the formatting, and have it work in the background while you write your thoughts.</dd>
+	<dd>autolist's main function file is less than 200 lines long, complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, and implements context aware renumbering/marking of list entries, to take your mind off the formatting, and have it work in the background while you write down your thoughts.</dd>
 </dl>
 
 
 ## Installation
-Using vim-plug: (no vimscript, you should be using lua anyways :)
+Using vim-plug:
 ```lua
 local Plug = vim.fn['plug#']
 vim.call('plug#begin', '~/.config/nvim/plugged')
@@ -28,12 +28,12 @@ require('autolist').setup({})
 ## Usage
 1. Type in a list marker (ordered or unordered)
 2. Type in your content
-3. When you're ready, press `enter`/`return` and a new list entry will be automagically created
+3. When you're ready, press `enter`/`return` and a new list entry will be automatically created
 4. Indent your list with `<c-t>` (**t**ab) and watch as your *whole line* gets indented, unlike `tab`
 5. Dedent your list with `<c-d>` (**d**edent) and watch as your *whole line* gets dedented, unlike `s-tab`
 6. When indenting, ordered lists will automatically be reset to one
-6. When dedenting, markers will automagically be changed to the type of the last marker on the same indent level
-7. Lastly, when you're done, pressing enter on an empty list entry will delete it, leaving you with a fresh new sentence.
+6. When dedenting, markers will automatically be changed through context awareness, to the *list type* of the *last marker* on the *same indent level*
+7. Lastly, when you're done, pressing `enter` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 ## Configuration
 Note for **autocommands** (this doesn't affect `set`): this plugin uses `fo-r` (see :h fo-table) for unordered lists, and an optional `fo-o` for new entry on `o`, so you should either not change the value of `fo-r` **in an autocommand** (and `fo-o`), or call the setup function for this plugin after you change the values of `fo-r` and `fo-o` (in an autocommand) so it can override the autocommand, otherwise your autocommand will override the plugin.
