@@ -3,21 +3,8 @@ local config = {
 	-- for if you have something else that you want to map when press return
 	-- with the create enter being false, you must create your own mapping
 
-	tab_mapping = "<c-t>",
-	-- set mapping to reset ordered lists to 1 and indent across
-	-- set this to empty ("") to disable
-
-	detab_mapping = "<c-d>",
-	-- set mapping to use context aware renumbering and dedent back
-	-- set this to empty ("") to disable
-
 	invert_mapping = "<c-r>",
 	-- the mapping to invert the list type e.g ol -> ul, ul -> ol
-	-- set this to empty ("") to disable
-
-	unlist_mapping = "dd",
-	-- the mapping to delete a line, then execute waterfall
-	-- waterfall basically reformats an ordered list to make the numbers right
 	-- set this to empty ("") to disable
 
 	invert_preferred_ul_marker = "-",

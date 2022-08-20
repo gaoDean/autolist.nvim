@@ -31,31 +31,8 @@ end
 
 function M.setup(set_config)
 	if set_config then
+		-- force uses 3rd arg's value if 2nd and 3rd have conflicting key-values
 		config = vim.tbl_deep_extend("force", config, set_config)
-	end
-
-	if config.create_enter_mapping then
-		imap("<cr>", "<cr><cmd>lua require('autolist').list()<cr>")
-	end
-
-	if config.new_entry_on_o then
-		nmap("o", "o<cmd>lua require('autolist').list()<cr>")
-	end
-
-	if config.unlist_mapping ~= ""then
-		nmap(config.unlist_mapping, "dd<cmd>lua require('autolist').unlist()<cr>")
-	end
-
-	if config.invert_mapping ~= "" then
-		imap(config.invert_mapping, "<cmd>lua require('autolist').invert()<cr>")
-	end
-
-	if config.tab_mapping ~= "" then
-		imap(config.tab_mapping, "<c-t><cmd>lua require('autolist').reset()<cr>")
-	end
-
-	if config.detab_mapping ~= "" then
-		imap(config.detab_mapping, "<c-d><cmd>lua require('autolist').relist()<cr>")
 	end
 
 	if config.override_fo_o then
@@ -66,12 +43,28 @@ function M.setup(set_config)
 		au("Filetype", "*", "setl formatoptions-=r")
 	end
 
+	-- for each filetype in enabled_filetypes
 	for i, ft in ipairs(config.enabled_filetypes) do
+		-- there are no comments in markdown so comments should be free for use
 		au("Filetype", ft, "setl comments=b:*,b:-,b:+,n:>")
 		au("Filetype", ft, "setl formatoptions+=r")
 		if config.new_entry_on_o then
 			au("Filetype", ft, "setl formatoptions+=o")
 		end
+		if config.create_enter_mapping then
+			au("Filetype", ft, "inoremap <buffer> <cr> <cr><cmd>lua require('autolist').list()<cr>")
+		end
+		if config.new_entry_on_o then
+			au("Filetype", ft, "nnoremap <buffer> o o<cmd>lua require('autolist').list()<cr>")
+		end
+		if config.invert_mapping ~= "" then
+			au("Filetype", ft, "inoremap <buffer> " .. config.invert_mapping .. " <cmd>lua require('autolist').invert()<cr>")
+		end
+
+		-- to change mapping, just do a imap (not inoremap) to <c-t> to recursively remap
+		au("Filetype", ft, "inoremap <buffer> <c-d> <c-d><cmd>lua require('autolist').relist()<cr>")
+		au("Filetype", ft, "inoremap <buffer> <c-t> <c-t><cmd>lua require('autolist').reset()<cr>")
+		au("Filetype", ft, "nnoremap <buffer> dd dd<cmd>lua require('autolist').unlist()<cr>")
 	end
 
 end

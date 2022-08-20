@@ -77,25 +77,8 @@ local function set_cur(str)
 	vim.cmd([[execute "normal! \<esc>A\<space>"]])
 end
 
--- if filetype is not in enabled filetypes return true
-local function ft_disabled()
-	for i, ft in ipairs(config.enabled_filetypes) do
-		if ft == vim.bo.filetype then
-			-- filetype enabled
-			return false
-		end
-	end
-	-- filetype not enabled
-	return true
-end
-
 -- increment ordered lists on enter
 function M.list()
-	-- checks if current filetype is enabled
-	if ft_disabled() then
-		return
-	end
-
 	local prev_line = fn.getline(fn.line(".") - 1)
 	if prev_line:match("^%s*%d+%.%s.") then
 		local list_index = prev_line:match("%d+")
@@ -109,10 +92,6 @@ function M.list()
 end
 
 function M.reset()
-	if ft_disabled() then
-		return
-	end
-
 	-- if prev line is numbered, set current line number to 1
 	local prev_line = fn.getline(fn.line(".") - 1)
 	if prev_line:match(pat_ol) then
@@ -123,7 +102,7 @@ end
 -- context aware renumbering/remarking
 function M.relist()
 	-- no lists before so no need to renum
-	if ft_disabled() or fn.line(".") == 1 then
+	if fn.line(".") == 1 then
 		return
 	end
 
@@ -218,10 +197,6 @@ end
 
 -- invert the list type: ol -> ul, ul -> ol
 function M.invert()
-	if ft_disabled() then
-		return
-	end
-
 	local cur_line = fn.getline(".")
 	local cur_marker = get_marker_pat(cur_line, 0)
 
@@ -237,10 +212,6 @@ function M.invert()
 end
 
 function M.unlist()
-	if ft_disabled() then
-		return
-	end
-
 	waterfall(fn.line("."), -1)
 end
 
