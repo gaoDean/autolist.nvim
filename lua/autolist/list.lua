@@ -71,7 +71,7 @@ function M.list()
 	if prev_line:match("^%s*%d+%.%s.") then
 		local list_index = prev_line:match("%d+")
 		set_cur(prev_line:match("^%s*") .. list_index + 1 .. ". ")
-	-- checks if list entry is entry, and clears the line
+	-- checks if list entry is entryk and clears the line
 	elseif prev_line:match("^%s*[-+*]%s?$") or prev_line:match("^%s*%d+%.%s?$") then
 		fn.setline(fn.line(".") - 1, "")
 		fn.setline(".", "")
@@ -91,16 +91,8 @@ function M.tab()
 end
 
 function M.detab()
-	if ft_disabled() then
-		return
-	end
-
 	-- no lists before so no need to renum
-	if fn.line(".") == 1 then
-		continue = false
-	end
-
-	if not continue then
+	if ft_disabled() or fn.line(".") == 1 then
 		return
 	end
 
