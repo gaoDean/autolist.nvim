@@ -1,4 +1,5 @@
 -- just some random things that are used:
+-- comments are put either inline or above the code
 -- string:gsub(pat, repl, n) where:
 -- 		pat is a lua pattern
 -- 		repl is a string, except %x where x is a digit means special thing
@@ -9,34 +10,42 @@ local config = require("autolist.config")
 local M = {}
 
 local fn = vim.fn
-local marker_digit = "%d+"
-local marker_md = "[-+*]"
-local marker_ol = "^%s*%d+%.%s." -- ordered list
-local marker_ul = "^%s*[-+*]%s." -- unordered list
+local pat_digit = "%d+"
+local pat_md = "[-+*]"
+local pat_ol = "^%s*%d+%.%s." -- ordered list
+local pat_ul = "^%s*[-+*]%s." -- unordered list
+local pat_indent = "^%s*"
 
 -- gets the marker of {line} and if its a digit it adds {add}
 local function get_marker(line, add)
-	if line:match(marker_ol) then
-		line = line:match(marker_digit) + add .. ". "
-	elseif line:match(marker_ul) then
-		line = line:match(marker_md) .. " "
+	if line:match(pat_ol) then
+		line = line:match(pat_digit) + add .. ". "
+	elseif line:match(pat_ul) then
+		line = line:match(pat_md) .. " "
 	end
 	return line
 end
 
 -- gets the pattern for the first argument to gsub
 local function get_marker_pat(line, add)
-	if line:match(marker_ol) then
-		line = line:match(marker_digit) + add .. "%.%s"
-	elseif line:match(marker_ul) then
-		line = "%" .. line:match(marker_md) .. "%s"
+	if line:match(pat_ol) then
+		line = line:match(pat_digit) + add .. "%.%s"
+	elseif line:match(pat_ul) then
+		line = "%" .. line:match(pat_md) .. "%s"
 	end
 	return line
 end
 
 -- returns true if {line} is not a markdown list
 local function neither_list(line)
-	if (not line:match(marker_ol)) and (not line:match(marker_ul)) then
+	if (not line:match(pat_ol)) and (not line:match(pat_ul)) then
+		return true
+	end
+	return false
+end
+
+local function either_list(line)
+	if line:match(pat_ol) or not line:match(pat_ul) then
 		return true
 	end
 	return false
@@ -85,8 +94,8 @@ function M.reset()
 
 	-- if prev line is numbered, set current line number to 1
 	local prev_line = fn.getline(fn.line(".") - 1)
-	if prev_line:match(marker_ol) then
-		fn.setline(".", (fn.getline("."):gsub(marker_digit, "1", 1)))
+	if prev_line:match(pat_ol) then
+		fn.setline(".", (fn.getline("."):gsub(pat_digit, "1", 1)))
 	end
 end
 
@@ -97,20 +106,19 @@ function M.relist()
 		return
 	end
 
-	local spc = "^%s*"
 	local prev_line_ptr = fn.line(".") - 1
 	local prev_line = fn.getline(prev_line_ptr)
 
 	-- if prev line is a list entry
-	if not neither_list(prev_line) then
+	if either_list(prev_line) then
 		local ptrline = prev_line_ptr
 
 		local cur_line = fn.getline(".")
-		local cur_indent = cur_line:match(spc)
+		local cur_indent = cur_line:match(indent)
 		local cur_marker = get_marker_pat(cur_line, 0)
 
 		local optimised = true
-		if cur_marker:match(marker_md .. "%s") then
+		if cur_marker:match(pat_md .. "%s") then
 			optimised = false
 		end
 		-- optimised only works on ordered lists
@@ -122,16 +130,16 @@ function M.relist()
 			local eval_ptrline = fn.getline(ptrline)
 
 			-- while the indents don't match
-			while eval_ptrline:match(spc) ~= cur_indent do
+			while eval_ptrline:match(indent) ~= cur_indent do
 
 				-- can't use optimised because cus either ul or not a list
-				if not eval_ptrline:match(marker_ol) then
+				if not eval_ptrline:match(pat_ol) then
 					optimised = false
 					break
 				end
 
 				-- explained above at the start of the if
-				ptrline = ptrline - eval_ptrline:match(marker_digit)
+				ptrline = ptrline - eval_ptrline:match(pat_digit)
 
 				-- if ptrline out of bounds or eval_ptrline not a list entry
 				-- try using unoptimised search, skips setline function
@@ -167,7 +175,7 @@ function M.relist()
 		if not optimised then
 			ptrline = prev_line_ptr
 			-- search all lines before current for something of the same indent
-			while fn.getline(ptrline):match(spc) ~= cur_indent do
+			while fn.getline(ptrline):match(indent) ~= cur_indent do
 				-- work upwards, checking every line
 				ptrline = ptrline - 1
 
@@ -187,6 +195,34 @@ function M.relist()
 	end
 end
 
+-- insert line in the middle of an ordered list
+-- adds one to every numbered list entry after insert
+
+function M.insert()
+	if ft_disabled() then
+		return
+	end
+end
+
+function M.add()
+	local cur_indent = fn.getline("."):match(pat_indent)
+	local ptrline = fn.line(".") + 1
+	local eval_ptrline = fn.getline(ptrline)
+
+	-- while the list is ongoing
+	while either_list(eval_ptrline) do
+		-- end of list scope
+		if neither_list(eval_ptrline) or eval_ptrline:match(pat_indent) < cur_indent then
+			return
+		end
+		ptrline = ptrline + 1
+		if ptrline > line('$') then
+			return
+		end
+		eval_ptrline = fn.getline(ptrline)
+	end
+end
+
 -- invert the list type: ol -> ul, ul -> ol
 function M.invert()
 	if ft_disabled() then
@@ -199,7 +235,7 @@ function M.invert()
 	-- if ul change to 1.
 	if cur_line:match("^%s*[-+*]%s") then
 		local new_marker = "1. "
-		set_cur(cur_line:gsub(marker_md .. "%s", new_marker, 1))
+		set_cur(cur_line:gsub(pat_md .. "%s", new_marker, 1))
 	-- if ol change to {config.invert_preferred_ul_marker}
 	elseif cur_line:match("^%s*%d+%.%s") then
 		local new_marker = config.invert_preferred_ul_marker
