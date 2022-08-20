@@ -97,16 +97,12 @@ function M.relist()
 		return
 	end
 
-	-- pattern matches
 	local spc = "^%s*"
-
 	local prev_line_ptr = fn.line(".") - 1
 	local prev_line = fn.getline(prev_line_ptr)
 
 	-- if prev line is a list entry
 	if not neither_list(prev_line) then
-
-		-- just a number
 		local ptrline = prev_line_ptr
 
 		local cur_line = fn.getline(".")
@@ -128,19 +124,18 @@ function M.relist()
 			-- while the indents don't match
 			while eval_ptrline:match(spc) ~= cur_indent do
 
+				-- can't use optimised because cus either ul or not a list
 				if not eval_ptrline:match(marker_ol) then
-					-- can't use optimised cus either ul or not a list
-					-- could be because of bad list formatting idk
 					optimised = false
 					break
 				end
 
-				ptrline = ptrline - eval_ptrline:match(marker_digit)
 				-- explained above at the start of the if
+				ptrline = ptrline - eval_ptrline:match(marker_digit)
 
 				-- if ptrline out of bounds or eval_ptrline not a list entry
+				-- try using unoptimised search, skips setline function
 				if ptrline <= 0 then
-					-- try using unoptimised search, skips setline function
 					optimised = false
 					break
 				end
@@ -175,6 +170,7 @@ function M.relist()
 			while fn.getline(ptrline):match(spc) ~= cur_indent do
 				-- work upwards, checking every line
 				ptrline = ptrline - 1
+
 				-- should short curcuit / lazy or, so when getline is
 				-- called ptrline should in the bounds of the file
 				if ptrline <= 0 or neither_list(fn.getline(ptrline)) then
