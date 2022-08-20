@@ -4,20 +4,20 @@ local config = {
 	-- with the create enter being false, you must create your own mapping
 
 	tab_mapping = "<c-t>",
-	-- set mapping to renumber, for example "<c-q>"
-	-- when empty it disables renumbering for tab
-
-	detab_mapping = "<c-d>",
-	-- set mapping to use context aware renumbering and detab
-	-- when empty it disable renumbering for detab
-
-	relist_mapping = "<c-r>",
-	-- the mapping to execute relist
+	-- set mapping to reset ordered lists to 1 and indent across
 	-- set this to empty ("") to disable
 
-	relist_preferred_ul_marker = "-",
+	detab_mapping = "<c-d>",
+	-- set mapping to use context aware renumbering and dedent back
+	-- set this to empty ("") to disable
+
+	invert_mapping = "<c-r>",
+	-- the mapping to invert the list type e.g ol -> ul, ul -> ol
+	-- set this to empty ("") to disable
+
+	invert_preferred_ul_marker = "-",
 	-- when pressing the relist mapping and current marker is
-	-- ordered list, change to preferred_ul_marker.
+	-- ordered list, change to invert_preferred_ul_marker.
 
 	new_entry_on_o = true,
 	-- when key o pressed, new list entry. Enables fo_o.

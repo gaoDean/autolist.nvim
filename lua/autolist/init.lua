@@ -3,10 +3,10 @@ local config = require("autolist.config")
 local M = {}
 
 local func = require("autolist.list")
-M.tab = func.tab
-M.detab = func.detab
-M.list = func.list
+M.reset = func.reset
 M.relist = func.relist
+M.list = func.list
+M.invert = func.invert
 
 -- helper
 
@@ -41,16 +41,16 @@ function M.setup(set_config)
 		nmap("o", "o<cmd>lua require('autolist').list()<cr>")
 	end
 
-	if config.relist_mapping ~= "" then
-		imap(config.relist_mapping, "<cmd>lua require('autolist').relist()<cr>")
+	if config.invert_mapping ~= "" then
+		imap(config.invert_mapping, "<cmd>lua require('autolist').invert()<cr>")
 	end
 
 	if config.tab_mapping ~= "" then
-		imap(config.tab_mapping, "<c-t><cmd>lua require('autolist').tab()<cr>")
+		imap(config.tab_mapping, "<c-t><cmd>lua require('autolist').reset()<cr>")
 	end
 
-	if config.create_detab_mapping ~= "" then
-		imap(config.detab_mapping, "<c-d><cmd>lua require('autolist').detab()<cr>")
+	if config.detab_mapping ~= "" then
+		imap(config.detab_mapping, "<c-d><cmd>lua require('autolist').relist()<cr>")
 	end
 
 	if config.override_fo_o then

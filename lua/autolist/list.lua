@@ -78,7 +78,7 @@ function M.list()
 	end
 end
 
-function M.tab()
+function M.reset()
 	if ft_disabled() then
 		return
 	end
@@ -90,7 +90,8 @@ function M.tab()
 	end
 end
 
-function M.detab()
+-- context aware renumbering/remarking
+function M.relist()
 	-- no lists before so no need to renum
 	if ft_disabled() or fn.line(".") == 1 then
 		return
@@ -191,7 +192,7 @@ function M.detab()
 end
 
 -- invert the list type: ol -> ul, ul -> ol
-function M.relist()
+function M.invert()
 	if ft_disabled() then
 		return
 	end
@@ -203,9 +204,9 @@ function M.relist()
 	if cur_line:match("^%s*[-+*]%s") then
 		local new_marker = "1. "
 		set_cur(cur_line:gsub(marker_md .. "%s", new_marker, 1))
-	-- if ol change to {config.relist_preferred_ul_marker}
+	-- if ol change to {config.invert_preferred_ul_marker}
 	elseif cur_line:match("^%s*%d+%.%s") then
-		local new_marker = config.relist_preferred_ul_marker
+		local new_marker = config.invert_preferred_ul_marker
 		set_cur(cur_line:gsub(cur_marker, new_marker, 1))
 	end
 end
