@@ -65,7 +65,7 @@ local function neither_list(line)
 end
 
 local function either_list(line)
-	if line:match(pat_ol) or not line:match(pat_ul) then
+	if line:match(pat_ol) or line:match(pat_ul) then
 		return true
 	end
 	return false
@@ -114,7 +114,7 @@ function M.relist()
 		local ptrline = prev_line_ptr
 
 		local cur_line = fn.getline(".")
-		local cur_indent = cur_line:match(indent)
+		local cur_indent = cur_line:match(pat_indent)
 		local cur_marker = get_marker_pat(cur_line, 0)
 
 		local optimised = true
@@ -130,7 +130,7 @@ function M.relist()
 			local eval_ptrline = fn.getline(ptrline)
 
 			-- while the indents don't match
-			while eval_ptrline:match(indent) ~= cur_indent do
+			while eval_ptrline:match(pat_indent) ~= cur_indent do
 
 				-- can't use optimised because cus either ul or not a list
 				if not eval_ptrline:match(pat_ol) then
@@ -175,7 +175,7 @@ function M.relist()
 		if not optimised then
 			ptrline = prev_line_ptr
 			-- search all lines before current for something of the same indent
-			while fn.getline(ptrline):match(indent) ~= cur_indent do
+			while fn.getline(ptrline):match(pat_indent) ~= cur_indent do
 				-- work upwards, checking every line
 				ptrline = ptrline - 1
 
