@@ -71,7 +71,7 @@ function M.list()
 	if prev_line:match("^%s*%d+%.%s.") then
 		local list_index = prev_line:match("%d+")
 		set_cur(prev_line:match("^%s*") .. list_index + 1 .. ". ")
-	-- checks if list entry is entryk and clears the line
+	-- checks if list entry is empty and clears the line
 	elseif prev_line:match("^%s*[-+*]%s?$") or prev_line:match("^%s*%d+%.%s?$") then
 		fn.setline(fn.line(".") - 1, "")
 		fn.setline(".", "")
@@ -85,8 +85,8 @@ function M.tab()
 
 	-- if prev line is numbered, set current line number to 1
 	local prev_line = fn.getline(fn.line(".") - 1)
-	if prev_line:match("^%s*%d+%.%s.") then
-		fn.setline(".", (fn.getline("."):gsub("%d+", "1", 1)))
+	if prev_line:match(marker_ol) then
+		fn.setline(".", (fn.getline("."):gsub(marker_digit, "1", 1)))
 	end
 end
 
@@ -190,5 +190,24 @@ function M.detab()
 	end
 end
 
+-- invert the list type: ol -> ul, ul -> ol
+function M.relist()
+	if ft_disabled() then
+		return
+	end
+
+	local cur_line = fn.getline(".")
+	local cur_marker = get_marker_pat(cur_line, 0)
+
+	-- if ul change to 1.
+	if cur_line:match("^%s*[-+*]%s") then
+		local new_marker = "1. "
+		set_cur(cur_line:gsub(marker_md .. "%s", new_marker, 1))
+	-- if ol change to {config.relist_preferred_ul_marker}
+	elseif cur_line:match("^%s*%d+%.%s") then
+		local new_marker = config.relist_preferred_ul_marker
+		set_cur(cur_line:gsub(cur_marker, new_marker, 1))
+	end
+end
 
 return M

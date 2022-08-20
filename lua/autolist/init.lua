@@ -2,10 +2,11 @@ local config = require("autolist.config")
 
 local M = {}
 
-local aulist = require("autolist.list")
-M.tab = aulist.tab
-M.detab = aulist.detab
-M.list = aulist.list
+local func = require("autolist.list")
+M.tab = func.tab
+M.detab = func.detab
+M.list = func.list
+M.relist = func.relist
 
 -- helper
 
@@ -40,12 +41,16 @@ function M.setup(set_config)
 		nmap("o", "o<cmd>lua require('autolist').list()<cr>")
 	end
 
-	if config.create_tab_mapping then
-		imap("<c-t>", "<c-t><cmd>lua require('autolist').tab()<cr>")
+	if config.relist_mapping ~= "" then
+		imap(config.relist_mapping, "<cmd>lua require('autolist').relist()<cr>")
 	end
 
-	if config.create_detab_mapping then
-		imap("<c-d>", "<c-d><cmd>lua require('autolist').detab()<cr>")
+	if config.tab_mapping ~= "" then
+		imap(config.tab_mapping, "<c-t><cmd>lua require('autolist').tab()<cr>")
+	end
+
+	if config.create_detab_mapping ~= "" then
+		imap(config.detab_mapping, "<c-d><cmd>lua require('autolist').detab()<cr>")
 	end
 
 	if config.override_fo_o then
@@ -63,7 +68,7 @@ function M.setup(set_config)
 			au("Filetype", ft, "setl formatoptions+=o")
 		end
 	end
-end
 
+end
 
 return M

@@ -3,14 +3,21 @@ local config = {
 	-- for if you have something else that you want to map when press return
 	-- with the create enter being false, you must create your own mapping
 
-	create_tab_mapping = true,
-	-- creates mapping for <c-t> to renumber
-	-- also allows you to disable renumbering for tab
+	tab_mapping = "<c-t>",
+	-- set mapping to renumber, for example "<c-q>"
+	-- when empty it disables renumbering for tab
 
-	create_detab_mapping = true,
-	-- creates mapping for <c-d> to use the same marker as other-
-	-- entry with the same indent
-	-- also allows you to disable renumbering for detab
+	detab_mapping = "<c-d>",
+	-- set mapping to use context aware renumbering and detab
+	-- when empty it disable renumbering for detab
+
+	relist_mapping = "<c-r>",
+	-- the mapping to execute relist
+	-- set this to empty ("") to disable
+
+	relist_preferred_ul_marker = "-",
+	-- when pressing the relist mapping and current marker is
+	-- ordered list, change to preferred_ul_marker.
 
 	new_entry_on_o = true,
 	-- when key o pressed, new list entry. Enables fo_o.
