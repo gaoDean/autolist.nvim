@@ -16,6 +16,26 @@ local pat_ol = "^%s*%d+%.%s." -- ordered list
 local pat_ul = "^%s*[-+*]%s." -- unordered list
 local pat_indent = "^%s*"
 
+-- called it waterfall because the ordered list entries after {ptrline}
+-- that belongs to the same list has {rise} added to it.
+local function waterfall(ptrline, rise)
+	local cur_indent = fn.getline(ptrline - 1):match(pat_indent)
+	local eval_ptrline = fn.getline(ptrline)
+	-- while the list is ongoing
+	while eval_ptrline:match(pat_ol) or eval_ptrline:match(pat_indent) > cur_indent do
+		if eval_ptrline:match(pat_indent) == cur_indent and eval_ptrline:match(pat_ol) then
+			-- set ptrline's digit to itself, plus rise
+			local line_digit = eval_ptrline:match(pat_digit)
+			fn.setline(ptrline, (eval_ptrline:gsub(pat_digit, line_digit + rise, 1)))
+		end
+		ptrline = ptrline + 1
+		if ptrline > fn.line('$') then
+			return
+		end
+		eval_ptrline = fn.getline(ptrline)
+	end
+end
+
 -- gets the marker of {line} and if its a digit it adds {add}
 local function get_marker(line, add)
 	if line:match(pat_ol) then
@@ -80,6 +100,7 @@ function M.list()
 	if prev_line:match("^%s*%d+%.%s.") then
 		local list_index = prev_line:match("%d+")
 		set_cur(prev_line:match("^%s*") .. list_index + 1 .. ". ")
+		waterfall(fn.line(".") + 1)
 	-- checks if list entry is empty and clears the line
 	elseif prev_line:match("^%s*[-+*]%s?$") or prev_line:match("^%s*%d+%.%s?$") then
 		fn.setline(fn.line(".") - 1, "")
@@ -195,34 +216,6 @@ function M.relist()
 	end
 end
 
--- insert line in the middle of an ordered list
--- adds one to every numbered list entry after insert
-
-function M.insert()
-	if ft_disabled() then
-		return
-	end
-end
-
-function M.add()
-	local cur_indent = fn.getline("."):match(pat_indent)
-	local ptrline = fn.line(".") + 1
-	local eval_ptrline = fn.getline(ptrline)
-
-	-- while the list is ongoing
-	while either_list(eval_ptrline) do
-		-- end of list scope
-		if neither_list(eval_ptrline) or eval_ptrline:match(pat_indent) < cur_indent then
-			return
-		end
-		ptrline = ptrline + 1
-		if ptrline > line('$') then
-			return
-		end
-		eval_ptrline = fn.getline(ptrline)
-	end
-end
-
 -- invert the list type: ol -> ul, ul -> ol
 function M.invert()
 	if ft_disabled() then
@@ -241,6 +234,14 @@ function M.invert()
 		local new_marker = config.invert_preferred_ul_marker
 		set_cur(cur_line:gsub(cur_marker, new_marker, 1))
 	end
+end
+
+function M.unlist()
+	if ft_disabled() then
+		return
+	end
+
+	waterfall(fn.line("."), -1)
 end
 
 return M

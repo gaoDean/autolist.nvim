@@ -15,6 +15,11 @@ local config = {
 	-- the mapping to invert the list type e.g ol -> ul, ul -> ol
 	-- set this to empty ("") to disable
 
+	unlist_mapping = "dd",
+	-- the mapping to delete a line, then execute waterfall
+	-- waterfall basically reformats an ordered list to make the numbers right
+	-- set this to empty ("") to disable
+
 	invert_preferred_ul_marker = "-",
 	-- when pressing the relist mapping and current marker is
 	-- ordered list, change to invert_preferred_ul_marker.

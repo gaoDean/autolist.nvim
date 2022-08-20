@@ -3,10 +3,11 @@ local config = require("autolist.config")
 local M = {}
 
 local func = require("autolist.list")
-M.reset = func.reset
-M.relist = func.relist
-M.list = func.list
 M.invert = func.invert
+M.list = func.list
+M.relist = func.relist
+M.reset = func.reset
+M.unlist = func.unlist
 
 -- helper
 
@@ -39,6 +40,10 @@ function M.setup(set_config)
 
 	if config.new_entry_on_o then
 		nmap("o", "o<cmd>lua require('autolist').list()<cr>")
+	end
+
+	if config.unlist_mapping ~= ""then
+		nmap(config.unlist_mapping, "dd<cmd>lua require('autolist').unlist()<cr>")
 	end
 
 	if config.invert_mapping ~= "" then
