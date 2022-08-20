@@ -14,6 +14,8 @@ local pat_digit = "%d+"
 local pat_md = "[-+*]"
 local pat_ol = "^%s*%d+%.%s." -- ordered list
 local pat_ul = "^%s*[-+*]%s." -- unordered list
+local pat_ol_less = "^%s*%d+%.%s" -- ordered list
+local pat_ul_less = "^%s*[-+*]%s" -- unordered list
 local pat_indent = "^%s*"
 
 -- called it waterfall because the ordered list entries after {ptrline}
@@ -40,9 +42,9 @@ local function waterfall(ptrline, rise)
 end
 
 -- gets the marker of {line} and if its a digit it adds {add}
-local function get_marker(line, add)
+local function get_marker(line)
 	if line:match(pat_ol) then
-		line = line:match(pat_digit) + add .. ". "
+		line = line:match(pat_digit) + 1 .. ". "
 	elseif line:match(pat_ul) then
 		line = line:match(pat_md) .. " "
 	end
@@ -50,11 +52,12 @@ local function get_marker(line, add)
 end
 
 -- gets the pattern for the first argument to gsub
-local function get_marker_pat(line, add)
-	if line:match(pat_ol) then
-		line = line:match(pat_digit) + add .. "%.%s"
-	elseif line:match(pat_ul) then
-		line = "%" .. line:match(pat_md) .. "%s"
+-- less is used because some markers are empty
+local function get_marker_pat(line)
+	if line:match(pat_ol_less) then
+		line = "%d+%.%s"
+	elseif line:match(pat_ul_less) then
+		line = "[-+*]%s"
 	end
 	return line
 end
@@ -105,96 +108,34 @@ end
 -- context aware renumbering/remarking
 function M.relist()
 	-- no lists before so no need to renum
-	if fn.line(".") == 1 then
+	if fn.line(".") <= 1 then
 		return
 	end
 
-	local prev_line_ptr = fn.line(".") - 1
-	local prev_line = fn.getline(prev_line_ptr)
+	local ptrline = fn.line(".") - 1
+	local cur_line = fn.getline(".")
+	local cur_indent = cur_line:match(pat_indent)
+	local cur_marker_pat = get_marker_pat(cur_line)
 
-	-- if prev line is a list entry
-	if either_list(prev_line) then
-		local ptrline = prev_line_ptr
+	local eval_ptrline = fn.getline(ptrline)
+	local ptrline_indent = eval_ptrline:match(pat_indent)
 
-		local cur_line = fn.getline(".")
-		local cur_indent = cur_line:match(pat_indent)
-		local cur_marker = get_marker_pat(cur_line, 0)
-
-		local optimised = true
-		if cur_marker:match(pat_md .. "%s") then
-			optimised = false
+	while either_list(eval_ptrline) and ptrline_indent >= cur_indent do
+		if ptrline_indent == cur_indent then
+			cur_line = cur_line:gsub(cur_marker_pat, get_marker(eval_ptrline))
+			fn.setline(".", cur_line)
+			return
+		-- this is when ptrline_indent > cur_indent
+		-- elseif eval_ptrline:match(pat_ol) then
+		-- 	ptrline = ptrline - eval_ptrline:match(pat_digit)
+		else
+			ptrline = ptrline - 1
 		end
-		-- optimised only works on ordered lists
-		-- the list goes {1. x}\n{2. x}\n{3. x} so logically the last indent is
-		-- before {1. x}, so searches for 3. and goes 3 lines before that.
-		-- optimised doesn't work if bad md formatting as explained above
-		if optimised then
-			-- eval ptrline just gets the line that ptrline stores
-			local eval_ptrline = fn.getline(ptrline)
-
-			-- while the indents don't match
-			while eval_ptrline:match(pat_indent) ~= cur_indent do
-
-				-- can't use optimised because cus either ul or not a list
-				if not eval_ptrline:match(pat_ol) then
-					optimised = false
-					break
-				end
-
-				-- explained above at the start of the if
-				ptrline = ptrline - eval_ptrline:match(pat_digit)
-
-				-- if ptrline out of bounds or eval_ptrline not a list entry
-				-- try using unoptimised search, skips setline function
-				if ptrline <= 0 then
-					optimised = false
-					break
-				end
-				eval_ptrline = fn.getline(ptrline)
-				if neither_list(eval_ptrline) then
-					optimised = false
-					break
-				end
-			end
-
-			-- found viable line
-			if optimised then
-				local new_marker = get_marker(fn.getline(ptrline), 1)
-
-				-- some edge case where dedenting a numbered list
-				-- adds a space behind it for some reason.
-				-- cur marker is a pattern, and if it is an ordered list
-				-- it would be the length of five. The new marker
-				-- is a string, and would be length 2.
-				if #cur_marker == 5 and #new_marker == 2 and cur_line:match("%s$") then
-					cur_line = cur_line:sub(1, -2)
-				end
-
-				-- use current line and substitue the marker for indent marker
-				fn.setline(".", (cur_line:gsub(cur_marker, new_marker, 1)))
-			end
+		if ptrline <= 0 then
+			return
 		end
-
-		if not optimised then
-			ptrline = prev_line_ptr
-			-- search all lines before current for something of the same indent
-			while fn.getline(ptrline):match(pat_indent) ~= cur_indent do
-				-- work upwards, checking every line
-				ptrline = ptrline - 1
-
-				-- should short curcuit / lazy or, so when getline is
-				-- called ptrline should in the bounds of the file
-				if ptrline <= 0 or neither_list(fn.getline(ptrline)) then
-					-- if out of bounds or not list entry return
-					return
-				end
-			end
-			local new_marker = get_marker(fn.getline(ptrline), 1)
-			if #cur_marker == 5 and #new_marker == 2 and cur_line:match("%s$") then
-				cur_line = cur_line:sub(1, -2)
-			end
-			set_cur(cur_line:gsub(cur_marker, new_marker, 1))
-		end
+		eval_ptrline = fn.getline(ptrline)
+		ptrline_indent = eval_ptrline:match(pat_indent)
 	end
 end
 
