@@ -19,6 +19,9 @@ local pat_indent = "^%s*"
 -- called it waterfall because the ordered list entries after {ptrline}
 -- that belongs to the same list has {rise} added to it.
 local function waterfall(ptrline, rise)
+	if ptrline >= fn.line('$') then
+		return
+	end
 	local cur_indent = fn.getline(ptrline - 1):match(pat_indent)
 	local eval_ptrline = fn.getline(ptrline)
 	-- while the list is ongoing
@@ -163,7 +166,7 @@ function M.relist()
 				-- cur marker is a pattern, and if it is an ordered list
 				-- it would be the length of five. The new marker
 				-- is a string, and would be length 2.
-				if #cur_marker == 5 and #new_marker == 2 then
+				if #cur_marker == 5 and #new_marker == 2 and cur_line:match("%s$") then
 					cur_line = cur_line:sub(1, -2)
 				end
 
@@ -187,7 +190,7 @@ function M.relist()
 				end
 			end
 			local new_marker = get_marker(fn.getline(ptrline), 1)
-			if #cur_marker == 5 and #new_marker == 2 then
+			if #cur_marker == 5 and #new_marker == 2 and cur_line:match("%s$") then
 				cur_line = cur_line:sub(1, -2)
 			end
 			set_cur(cur_line:gsub(cur_marker, new_marker, 1))
