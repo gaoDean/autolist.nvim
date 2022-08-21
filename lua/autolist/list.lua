@@ -106,31 +106,53 @@ function M.reset()
 end
 
 -- context aware renumbering/remarking
+-- Important: if your markdown ordered lists are badly formatted e.g a one
+-- followed by a three, the relist cant find the right list. most of the time
+-- you'll have the correct formatting, and its not a big deal if you dont, the
+-- program wont throw an error, you just wont get a relist.
 function M.relist()
-	-- no lists before so no need to renum
-	if fn.line(".") <= 1 then
-		return
-	end
-
+	-- no line before current line so nothing to be context-aware of
+	if fn.line(".") <= 1 then return end
 	local ptrline = fn.line(".") - 1
 	local cur_line = fn.getline(".")
 	local cur_indent = cur_line:match(pat_indent)
 	local cur_marker_pat = get_marker_pat(cur_line)
-
 	local eval_ptrline = fn.getline(ptrline)
 	local ptrline_indent = eval_ptrline:match(pat_indent)
 
+	-- if indent less than current indent, thats out of scope
 	while either_list(eval_ptrline) and ptrline_indent >= cur_indent do
 		if ptrline_indent == cur_indent then
 			cur_line = cur_line:gsub(cur_marker_pat, get_marker(eval_ptrline))
 			fn.setline(".", cur_line)
+
+			-- random edge case in setlines
+			-- ul -> ol results in cursor being one unit too far left
+			-- ol -> ul results in cursor being one unit too far right
+			-- context optimisation is such a cool name for an option
+			if cur_marker_pat ~= get_marker_pat(eval_ptrline) and config.context_optimisation then
+				-- if current marker is ul
+				if cur_marker_pat:sub(1, 1) == "[" then
+					local pos = fn.getpos(".")
+					-- pos[3] is the column pos
+					pos[3] = pos[3] + 1
+					fn.setpos(".", pos)
+				-- in this case the cur marker is ol
+				else
+					local pos = fn.getpos(".")
+					-- pos[3] is the column pos
+					pos[3] = pos[3] - 1
+					fn.setpos(".", pos)
+				end
+			end
 			return
-		-- this is when ptrline_indent > cur_indent
-		-- elseif eval_ptrline:match(pat_ol) then
-		-- 	ptrline = ptrline - eval_ptrline:match(pat_digit)
+		elseif eval_ptrline:match(pat_ol) then
+			-- this is when ptrline_indent > cur_indent
+			ptrline = ptrline - eval_ptrline:match(pat_digit)
 		else
 			ptrline = ptrline - 1
 		end
+		-- do these at the end so it can check it at the start of the loop
 		if ptrline <= 0 then
 			return
 		end
