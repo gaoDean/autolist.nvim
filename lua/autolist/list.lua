@@ -77,11 +77,21 @@ local function either_list(line)
 	return false
 end
 
+local function set_cursor_col(relative_move)
+	local pos = fn.getpos(".")
+	-- pos[3] is the column pos
+	pos[3] = pos[3] + relative_move
+	fn.setpos(".", pos)
+end
+
 -- set current line to {str} and add a space at the end
 local function set_cur(str)
 	fn.setline(".", str)
-	vim.cmd([[execute "normal! \<esc>A\<space>"]])
+	local pos = fn.getpos(".")
+	pos[3] = fn.col("$")
+	fn.setpos(".", pos)
 end
+
 
 -- increment ordered lists on enter
 function M.list()
@@ -133,16 +143,10 @@ function M.relist()
 			if cur_marker_pat ~= get_marker_pat(eval_ptrline) and config.context_optimisation then
 				-- if current marker is ul
 				if cur_marker_pat:sub(1, 1) == "[" then
-					local pos = fn.getpos(".")
-					-- pos[3] is the column pos
-					pos[3] = pos[3] + 1
-					fn.setpos(".", pos)
+					set_cursor_col(1)
 				-- in this case the cur marker is ol
 				else
-					local pos = fn.getpos(".")
-					-- pos[3] is the column pos
-					pos[3] = pos[3] - 1
-					fn.setpos(".", pos)
+					set_cursor_col(-1)
 				end
 			end
 			return
@@ -169,11 +173,12 @@ function M.invert()
 	-- if ul change to 1.
 	if cur_line:match("^%s*[-+*]%s") then
 		local new_marker = "1. "
-		set_cur(cur_line:gsub(pat_md .. "%s", new_marker, 1))
+		fn.setline(".", (cur_line:gsub(pat_md .. "%s", new_marker, 1)))
+		set_cursor_col(1)
 	-- if ol change to {config.invert_preferred_ul_marker}
 	elseif cur_line:match("^%s*%d+%.%s") then
-		local new_marker = config.invert_preferred_ul_marker
-		set_cur(cur_line:gsub(cur_marker, new_marker, 1))
+		local new_marker = config.invert_preferred_ul_marker .. " "
+		fn.setline(".", (cur_line:gsub(cur_marker, new_marker, 1)))
 	end
 end
 
