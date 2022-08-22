@@ -65,7 +65,7 @@ function M.setup(set_config)
 		au("Filetype", ft, "inoremap <buffer> <c-d> <c-d><cmd>lua require('autolist').relist()<cr>")
 		au("Filetype", ft, "inoremap <buffer> <c-t> <c-t><cmd>lua require('autolist').reset()<cr>")
 		au("Filetype", ft, "nnoremap <buffer> << <<<cmd>lua require('autolist').relist()<cr>")
-		au("Filetype", ft, "nnoremap <buffer> >> >><cmd>lua require('autolist').relist()<cr>")
+		au("Filetype", ft, "nnoremap <buffer> >> >><cmd>lua require('autolist').reset()<cr>")
 		au("Filetype", ft, "nnoremap <buffer> dd dd<cmd>lua require('autolist').unlist()<cr>")
 	end
 

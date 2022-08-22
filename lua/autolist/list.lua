@@ -25,10 +25,12 @@ local function waterfall(ptrline, rise)
 		return
 	end
 	local cur_indent = fn.getline(ptrline - 1):match(pat_indent)
+	-- waterfall only needs to affect after current line
+	ptrline = ptrline + 1
 	local eval_ptrline = fn.getline(ptrline)
 	-- while the list is ongoing
-	while eval_ptrline:match(pat_ol) or eval_ptrline:match(pat_indent) > cur_indent do
-		if eval_ptrline:match(pat_indent) == cur_indent and eval_ptrline:match(pat_ol) then
+	while eval_ptrline:match(pat_ol) or #(eval_ptrline:match(pat_indent)) > #cur_indent do
+		if #(eval_ptrline:match(pat_indent)) == #cur_indent and eval_ptrline:match(pat_ol) then
 			-- set ptrline's digit to itself, plus rise
 			local line_digit = eval_ptrline:match(pat_digit)
 			fn.setline(ptrline, (eval_ptrline:gsub(pat_digit, line_digit + rise, 1)))
@@ -99,7 +101,7 @@ function M.list()
 	if prev_line:match("^%s*%d+%.%s.") then
 		local list_index = prev_line:match("%d+")
 		set_cur(prev_line:match("^%s*") .. list_index + 1 .. ". ")
-		waterfall(fn.line(".") + 1)
+		waterfall(fn.line("."), 1)
 	-- checks if list entry is empty and clears the line
 	elseif prev_line:match("^%s*[-+*]%s?$") or prev_line:match("^%s*%d+%.%s?$") then
 		fn.setline(fn.line(".") - 1, "")
@@ -110,6 +112,7 @@ end
 function M.reset()
 	-- if prev line is numbered, set current line number to 1
 	local prev_line = fn.getline(fn.line(".") - 1)
+	waterfall(fn.line("."), -1)
 	if prev_line:match(pat_ol) then
 		fn.setline(".", (fn.getline("."):gsub(pat_digit, "1", 1)))
 	end
@@ -131,8 +134,8 @@ function M.relist()
 	local ptrline_indent = eval_ptrline:match(pat_indent)
 
 	-- if indent less than current indent, thats out of scope
-	while either_list(eval_ptrline) and ptrline_indent >= cur_indent do
-		if ptrline_indent == cur_indent then
+	while either_list(eval_ptrline) and #ptrline_indent >= #cur_indent do
+		if #ptrline_indent == #cur_indent then
 			cur_line = cur_line:gsub(cur_marker_pat, get_marker(eval_ptrline))
 			fn.setline(".", cur_line)
 
@@ -149,6 +152,7 @@ function M.relist()
 					set_cursor_col(-1)
 				end
 			end
+			waterfall(fn.line("."), 1)
 			return
 		elseif eval_ptrline:match(pat_ol) then
 			-- this is when ptrline_indent > cur_indent
@@ -183,7 +187,7 @@ function M.invert()
 end
 
 function M.unlist()
-	waterfall(fn.line("."), -1)
+	waterfall(fn.line(".") - 1, -1)
 end
 
 return M
