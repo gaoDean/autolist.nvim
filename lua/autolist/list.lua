@@ -113,12 +113,15 @@ function M.list()
 end
 
 function M.reset()
+	-- reduce the number of the indent that the current line was on
+	waterfall(fn.line("."), -1, fn.getline("."):gsub("%s", ""))
 	-- if prev line is numbered, set current line number to 1
 	local prev_line = fn.getline(fn.line(".") - 1)
-	waterfall(fn.line("."), -1)
+	waterfall(fn.line("."), 1)
 	if prev_line:match(pat_ol) then
 		fn.setline(".", (fn.getline("."):gsub(pat_digit, "1", 1)))
 	end
+	M.relist()
 end
 
 -- context aware renumbering/remarking
@@ -127,6 +130,9 @@ end
 -- you'll have the correct formatting, and its not a big deal if you dont, the
 -- program wont throw an error, you just wont get a relist.
 function M.relist()
+	-- reduce the number of the indent that the current line was on
+	waterfall(fn.line("."), -1, "\t" .. fn.getline("."))
+
 	-- no line before current line so nothing to be context-aware of
 	if fn.line(".") <= 1 then return end
 	local ptrline = fn.line(".") - 1
