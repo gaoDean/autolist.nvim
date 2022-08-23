@@ -20,11 +20,14 @@ local pat_indent = "^%s*"
 
 -- called it waterfall because the ordered list entries after {ptrline}
 -- that belongs to the same list has {rise} added to it.
-local function waterfall(ptrline, rise)
-	if ptrline >= fn.line('$') then
+local function waterfall(ptrline, rise, override)
+	if ptrline > fn.line('$') then
 		return
 	end
-	local cur_indent = fn.getline(ptrline - 1):match(pat_indent)
+	local cur_indent = fn.getline(ptrline):match(pat_indent)
+	if override then
+		cur_indent = override:match(pat_indent)
+	end
 	-- waterfall only needs to affect after current line
 	ptrline = ptrline + 1
 	local eval_ptrline = fn.getline(ptrline)
@@ -175,24 +178,29 @@ function M.invert()
 	local cur_marker = get_marker_pat(cur_line, 0)
 
 	-- if ul change to 1.
-	if cur_line:match(pat_ul) then
+	if cur_line:match("^%s*[-+*]") then
 		local new_marker = "1. "
 		fn.setline(".", (cur_line:gsub(pat_md .. "%s", new_marker, 1)))
 		set_cursor_col(1)
 	-- if ol change to {config.invert_preferred_ul_marker}
-	elseif cur_line:match(pat_ol) then
+	elseif cur_line:match("^%s*%d+") then
 		local new_marker = config.invert_preferred_ul_marker .. " "
 		fn.setline(".", (cur_line:gsub(cur_marker, new_marker, 1)))
 	end
 end
 
 function M.unlist()
+	if fn.line(".") == fn.line("$") then
+		M.relist()
+		return
+	end
+	-- the last deleted line gets stored in register 1
+	-- https://www.brianstorti.com/vim-registers/
+	-- we need this line to get the indent
+	local prev_deleted = fn.getreg("1")
 	if fn.getline("."):match(pat_ol) then
-		if fn.line(".") == fn.line("$") then
-			return
-		else
-			waterfall(fn.line("."), -1)
-		end
+		local cur_line = fn.getline(".")
+		waterfall(fn.line(".") - 1, -1, prev_deleted)
 	end
 end
 
