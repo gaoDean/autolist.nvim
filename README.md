@@ -35,11 +35,13 @@ require('autolist').setup({})
 ```
 
 ## Usage
-1. Type in a list marker (ordered or unordered)
+Note: Currently, autolist only supports markdown lists.
+
+1. Type in a list marker (a list marker is just the delimiter used to start the list (`-|+|*` or `1.|2.|3.`)
 2. Type in your content
 3. When you're ready, press `enter`/`return` and a new list entry will be automatically created
-4. Indent your list with `<c-t>` (**t**ab) and watch as your *whole line* gets indented. When indenting, ordered lists will automatically be reset to one
-5. Dedent your list with `<c-d>` (**d**edent) and watch as your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the *list type* of the *last marker* on the *same indent level* as the current marker
+4. Indent your list with `<c-t>` (**t**ab) and your *whole line* gets indented. When indenting, ordered lists will automatically be reset to one
+5. Dedent your list with `<c-d>` (**d**edent) and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the *list type* of the *last marker* on the *same indent level* as the current marker
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 ## Configuration
