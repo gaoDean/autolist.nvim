@@ -15,13 +15,22 @@ This question can be interpreted in two ways. Why did I create autolist, and why
 ## Installation
 Using vim-plug:
 ```lua
+-- lua
 local Plug = vim.fn['plug#']
 vim.call('plug#begin', '~/.config/nvim/plugged')
 	Plug 'gaoDean/autolist.nvim'
 vim.call('plug#end')
 ```
-and
+or Paq:
 ```lua
+-- lua
+require "paq" {
+	"gaoDean/autolist.nvim"
+}
+```
+and with both:
+```lua
+-- lua
 require('autolist').setup({})
 ```
 
