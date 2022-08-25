@@ -1,6 +1,8 @@
 # autolist.nvim
 Minimal automatic list continuation for neovim, powered by lua
 
+https://user-images.githubusercontent.com/97860672/186395300-2225ce49-af81-45cc-8ec0-87f14fc80cd4.mp4
+
 ## Why autolist.nvim
 This question can be interpreted in two ways. Why did I create autolist, and why you should use autolist.
 
