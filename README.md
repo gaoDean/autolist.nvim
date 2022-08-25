@@ -101,8 +101,7 @@ require('autolist').setup({
 	},
 })
 ```
-
-I highly encourage you to look through the `init.lua`, it is easily readable and contains good information about the mappings that the docs are sometimes behind on.
+The `config.lua` contains good information about the mappings and config that the docs are sometimes behind on.
 
 ## Credit
 
