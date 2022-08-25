@@ -1,13 +1,13 @@
 local config = require("autolist.config")
-local utils = require("autolist.utils")
+local generic = require("autolist.generic")
 
 local M = {}
 
-M.invert = utils.invert
-M.list = utils.list
-M.relist = utils.relist
-M.reset = utils.reset
-M.unlist = utils.unlist
+M.invert = generic.invert
+M.list = generic.list
+M.relist = generic.relist
+M.reset = generic.reset
+M.unlist = generic.unlist
 
 -- helper
 
