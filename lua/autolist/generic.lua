@@ -153,10 +153,7 @@ function M.relist()
 			-- random edge case in setlines
 			-- ul -> ol results in cursor being one unit too far left
 			-- ol -> ul results in cursor being one unit too far right
-			-- context optimisation is such a cool name for an option
-			if cur_marker_pat ~= get_marker_pat(eval_ptrline)
-				and config.context_optimisation
-			then
+			if cur_marker_pat ~= get_marker_pat(eval_ptrline) then
 				-- if current marker is ul
 				if cur_marker_pat:sub(1, 1) == "[" then
 					set_cursor_col(1)
@@ -167,7 +164,10 @@ function M.relist()
 			end
 			waterfall(fn.line("."), 1)
 			return
-		elseif eval_ptrline:match(pat_ol) then
+		-- context optimisation is such a cool name for an option
+		elseif eval_ptrline:match(pat_ol)
+			and config.context_optim
+		then
 			-- this is when ptrline_indent > cur_indent
 			ptrline = ptrline - eval_ptrline:match(pat_digit)
 		else

@@ -25,7 +25,7 @@ local default_config = {
 		-- followed by a three, the relist cant find the right list. most of the
 		-- time you'll have the correct formatting, and its not a big deal if you
 		-- dont, the program wont throw an error, you just wont get a relist.
-		context_optimisaton = true,
+		context_optim = true,
 
 		-- when key o pressed, new list entry. Enables fo_o. see :h fo-table
 		new_entry_on_o = true,
