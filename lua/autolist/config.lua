@@ -1,5 +1,6 @@
-local config = {
+local M = {}
 
+M.options = {
 	create_enter_mapping = true,
 	-- for if you have something else that you want to map when press return
 	-- with the create enter being false, you must create your own mapping
@@ -43,4 +44,8 @@ local config = {
 	-- if you are not sure, just run :echo &filetype. or :set filetype?
 }
 
-return config
+function M.set_options(custom_opts)
+	M.options = vim.tbl_deep_extend("force", M.options, custom_opts or {})
+end
+
+return M

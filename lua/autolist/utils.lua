@@ -5,7 +5,7 @@
 -- 		repl is a string, except %x where x is a digit means special thing
 --		n is an int that means how many occurences of pat is replaced
 
-local config = require("autolist.config")
+local config = require("autolist.config").options
 
 local M = {}
 
@@ -114,7 +114,7 @@ end
 
 function M.reset()
 	-- reduce the number of the indent that the current line was on
-	waterfall(fn.line("."), -1, fn.getline("."):gsub("%s", ""))
+	waterfall(fn.line("."), -1, fn.getline("."):gsub("%s", "", 1))
 	-- if prev line is numbered, set current line number to 1
 	local prev_line = fn.getline(fn.line(".") - 1)
 	waterfall(fn.line("."), 1)
