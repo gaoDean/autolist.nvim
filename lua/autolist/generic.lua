@@ -1,11 +1,4 @@
--- just some random things that are used:
--- comments are put either inline or above the code
--- string:gsub(pat, repl, n) where:
--- 		pat is a lua pattern
--- 		repl is a string, except %x where x is a digit means special thing
---		n is an int that means how many occurences of pat is replaced
-
-local config = require("autolist.config").options
+local config = require("autolist.config").generic
 
 local M = {}
 
@@ -32,11 +25,16 @@ local function waterfall(ptrline, rise, override)
 	ptrline = ptrline + 1
 	local eval_ptrline = fn.getline(ptrline)
 	-- while the list is ongoing
-	while eval_ptrline:match(pat_ol) or #(eval_ptrline:match(pat_indent)) > #cur_indent do
-		if #(eval_ptrline:match(pat_indent)) == #cur_indent and eval_ptrline:match(pat_ol) then
+	while eval_ptrline:match(pat_ol)
+		or #(eval_ptrline:match(pat_indent)) > #cur_indent
+	do
+		if #(eval_ptrline:match(pat_indent)) == #cur_indent
+			and eval_ptrline:match(pat_ol)
+		then
 			-- set ptrline's digit to itself, plus rise
 			local line_digit = eval_ptrline:match(pat_digit)
-			fn.setline(ptrline, (eval_ptrline:gsub(pat_digit, line_digit + rise, 1)))
+			eval_ptrline = eval_ptrline:gsub(pat_digit, line_digit + rise, 1)
+			fn.setline(ptrline, eval_ptrline)
 		end
 		ptrline = ptrline + 1
 		if ptrline > fn.line('$') then
@@ -106,7 +104,9 @@ function M.list()
 		set_cur(prev_line:match("^%s*") .. list_index + 1 .. ". ")
 		waterfall(fn.line("."), 1)
 	-- checks if list entry is empty and clears the line
-	elseif prev_line:match("^%s*[-+*]%s?$") or prev_line:match("^%s*%d+%.%s?$") then
+	elseif prev_line:match("^%s*[-+*]%s?$")
+		or prev_line:match("^%s*%d+%.%s?$")
+	then
 		fn.setline(fn.line(".") - 1, "")
 		fn.setline(".", "")
 	end
@@ -143,7 +143,9 @@ function M.relist()
 	local ptrline_indent = eval_ptrline:match(pat_indent)
 
 	-- if indent less than current indent, thats out of scope
-	while either_list(eval_ptrline) and #ptrline_indent >= #cur_indent do
+	while either_list(eval_ptrline)
+		and #ptrline_indent >= #cur_indent
+	do
 		if #ptrline_indent == #cur_indent then
 			cur_line = cur_line:gsub(cur_marker_pat, get_marker(eval_ptrline))
 			fn.setline(".", cur_line)
@@ -152,7 +154,9 @@ function M.relist()
 			-- ul -> ol results in cursor being one unit too far left
 			-- ol -> ul results in cursor being one unit too far right
 			-- context optimisation is such a cool name for an option
-			if cur_marker_pat ~= get_marker_pat(eval_ptrline) and config.context_optimisation then
+			if cur_marker_pat ~= get_marker_pat(eval_ptrline)
+				and config.context_optimisation
+			then
 				-- if current marker is ul
 				if cur_marker_pat:sub(1, 1) == "[" then
 					set_cursor_col(1)
@@ -188,9 +192,9 @@ function M.invert()
 		local new_marker = "1. "
 		fn.setline(".", (cur_line:gsub(pat_md .. "%s", new_marker, 1)))
 		set_cursor_col(1)
-	-- if ol change to {config.invert_preferred_ul_marker}
+	-- if ol change to {config.invert_ul_marker}
 	elseif cur_line:match("^%s*%d+") then
-		local new_marker = config.invert_preferred_ul_marker .. " "
+		local new_marker = config.invert_ul_marker .. " "
 		fn.setline(".", (cur_line:gsub(cur_marker, new_marker, 1)))
 	end
 end
@@ -211,3 +215,10 @@ function M.unlist()
 end
 
 return M
+
+-- just some random things that are used:
+-- comments are put either inline or above the code
+-- string:gsub(pat, repl, n) where:
+-- 		pat is a lua pattern
+-- 		repl is a string, except %x where x is a digit means special thing
+--		n is an int that means how many occurences of pat is replaced
