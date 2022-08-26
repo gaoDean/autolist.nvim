@@ -43,7 +43,7 @@ Note: Currently, autolist only supports markdown lists.
 2. Type in your content
 3. When you're ready, press `enter`/`return` and a new list entry will be automatically created
 4. Indent your list with `<c-t>` (**t**ab) and your *whole line* gets indented. When indenting, ordered lists will automatically be reset to one
-5. Dedent your list with `<c-d>` (**d**edent) and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the *list type* of the *last marker* on the *same indent level* as the current marker
+5. Dedent your list with `<c-d>` (**d**edent) and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 ## Configuration
@@ -109,7 +109,7 @@ inspired by [my gist](https://gist.github.com/gaoDean/288d01dfe64da66569fb6615c7
 which is in turn inspired by [this gist](https://gist.github.com/sedm0784/dffda43bcfb4728f8e90)
 
 ## Other
-I started learning lua like a month ago, plus this is my first plugin, so there's probably a bunch of badly written code in there. Feel free to pull request.
+I started learning lua like a month ago, plus this is my first plugin, so there's probably a bunch of badly written code in there. Feel free to critique harshly and pull request.
 
 
 To get a overview of code, this removes all the comments and empty lines. Idk, I just like to do this to polish, might be useful to you.
