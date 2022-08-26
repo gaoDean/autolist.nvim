@@ -154,10 +154,10 @@ function M.relist()
 			-- ul -> ol results in cursor being one unit too far left
 			-- ol -> ul results in cursor being one unit too far right
 			if cur_marker_pat ~= get_marker_pat(eval_ptrline) then
-				-- if current marker is ul
+				-- if before dedent marker is ul
 				if cur_marker_pat:sub(1, 1) == "[" then
 					set_cursor_col(1)
-				-- in this case the cur marker is ol
+				-- in this case the marker is ol
 				else
 					set_cursor_col(-1)
 				end
