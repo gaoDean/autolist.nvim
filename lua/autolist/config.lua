@@ -15,6 +15,9 @@ local default_config = {
 		-- set this to empty ("") to disable
 		invert_mapping = "<c-r>",
 
+		-- invert mapping in normal mode
+		invert_normal_mapping = "",
+
 		-- when pressing the relist mapping and current marker is ordered list,
 		-- change to invert_ul_marker.
 		invert_ul_marker = "-",
@@ -56,18 +59,6 @@ local function au(evt, pat, cmd) -- (string|table), (string|table), (string)
 	vim.api.nvim_create_autocmd(evt, { pattern = pat, command = cmd, })
 end
 
-local function map(mode, keys, output)
-	vim.api.nvim_set_keymap(mode, keys, output, { noremap = false, silent = true})
-end
-
-local function nmap(keys, output)
-	map("n", keys, output)
-end
-
-local function imap(keys, output)
-	map("i", keys, output)
-end
-
 local M = vim.deepcopy(default_config)
 
 M.update = function(opts)
@@ -91,21 +82,24 @@ M.update = function(opts)
 				au("Filetype", ft, "setl formatoptions+=o")
 			end
 			if newconf.generic.create_enter_mapping then
-				au("Filetype", ft, "inoremap <buffer> <cr> <cr><cmd>lua require('autolist').list()<cr>")
+				au("Filetype", ft, "imap <buffer> <cr> <cr><cmd>lua require('autolist').list()<cr>")
 			end
 			if newconf.generic.new_entry_on_o then
-				au("Filetype", ft, "nnoremap <buffer> o o<cmd>lua require('autolist').list()<cr>")
+				au("Filetype", ft, "nmap <buffer> o o<cmd>lua require('autolist').list()<cr>")
+			end
+			if newconf.generic.invert_normal_mapping ~= "" then
+				au("Filetype", ft, "nmap <buffer> " .. newconf.generic.invert_normal_mapping .. " <cmd>lua require('autolist').invert()<cr>")
 			end
 			if newconf.generic.invert_mapping ~= "" then
-				au("Filetype", ft, "inoremap <buffer> " .. newconf.generic.invert_mapping .. " <cmd>lua require('autolist').invert()<cr>")
+				au("Filetype", ft, "imap <buffer> " .. newconf.generic.invert_mapping .. " <cmd>lua require('autolist').invert()<cr>")
 			end
 
 			-- to change mapping, just do a imap (not inoremap) to <c-t> to recursively remap
-			au("Filetype", ft, "inoremap <buffer> <c-d> <c-d><cmd>lua require('autolist').relist()<cr>")
-			au("Filetype", ft, "inoremap <buffer> <c-t> <c-t><cmd>lua require('autolist').reset()<cr>")
-			au("Filetype", ft, "nnoremap <buffer> << <<<cmd>lua require('autolist').relist()<cr>")
-			au("Filetype", ft, "nnoremap <buffer> >> >><cmd>lua require('autolist').reset()<cr>")
-			au("Filetype", ft, "nnoremap <buffer> dd dd<cmd>lua require('autolist').unlist()<cr>")
+			au("Filetype", ft, "imap <buffer> <c-d> <c-d><cmd>lua require('autolist').relist()<cr>")
+			au("Filetype", ft, "imap <buffer> <c-t> <c-t><cmd>lua require('autolist').reset()<cr>")
+			au("Filetype", ft, "nmap <buffer> << <<<cmd>lua require('autolist').relist()<cr>")
+			au("Filetype", ft, "nmap <buffer> >> >><cmd>lua require('autolist').reset()<cr>")
+			au("Filetype", ft, "nmap <buffer> dd dd<cmd>lua require('autolist').unlist()<cr>")
 		end
 	end
 
