@@ -148,10 +148,11 @@ function M.list()
 end
 
 function M.reset()
+	local prev_line = fn.getline(fn.line(".") - 1)
+	if neither_list(prev_line) then return end
 	-- reduce the number of the indent that the current line was on
 	waterfall(fn.line("."), -1, fn.getline("."):gsub("%s", "", 1))
 	-- if prev line is numbered, set current line number to 1
-	local prev_line = fn.getline(fn.line(".") - 1)
 	waterfall(fn.line("."), 1)
 	if prev_line:match(pat_ol) then
 		fn.setline(".", (fn.getline("."):gsub(pat_digit, "1", 1)))
@@ -252,6 +253,9 @@ function M.unlist()
 	-- https://www.brianstorti.com/vim-registers/
 	-- we need this line to get the indent
 	local prev_deleted = fn.getreg("1")
+	if not prev_deleted:match(pat_ol) then
+		return
+	end
 	if fn.getline("."):match(pat_ol) then
 		local cur_line = fn.getline(".")
 		waterfall(fn.line(".") - 1, -1, prev_deleted)
