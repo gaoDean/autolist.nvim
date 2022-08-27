@@ -89,6 +89,8 @@ This is the default config:
     		-- the mapping to invert the list type e.g ol -> ul, ul -> ol
     		-- set this to empty ("") to disable
     		invert_mapping = "<c-r>",
+    		-- invert mapping in normal mode
+    		invert_normal_mapping = "",
     		-- when pressing the relist mapping and current marker is ordered list,
     		-- change to invert_ul_marker.
     		invert_ul_marker = "-",
@@ -137,11 +139,6 @@ I started learning lua like a month ago, plus this is my first plugin, so there'
 To get a overview of code, this removes all the comments and empty lines. Idk, I just like to do this to polish, might be useful to you.
 >
     :%s/--.*//g | g/^\s*$/d
-<
-
-The command used to generate this help file from https://github.com/davysson/md2vim
->
-    md2vim -generate-tags -desc "Minimal automatic list continuation for neovim, powered by lua" README.md docs/autolist.txt && echo "vim:tw=78:ts=8:noet:ft=help:norl:" >> docs/autolist.txt
 <
 
 vim:tw=78:ts=8:noet:ft=help:norl:

@@ -65,6 +65,9 @@ require('autolist').setup({
 		-- set this to empty ("") to disable
 		invert_mapping = "<c-r>",
 
+		-- invert mapping in normal mode
+		invert_normal_mapping = "",
+
 		-- when pressing the relist mapping and current marker is ordered list,
 		-- change to invert_ul_marker.
 		invert_ul_marker = "-",
