@@ -65,6 +65,11 @@ require('autolist').setup({
 		-- set this to empty ("") to disable
 		invert_mapping = "<c-r>",
 
+		-- when there is a list like - [x] content, when invert mapping is
+		-- pressed and below option is true the list will turn into
+		-- - [ ] content, instead of 1. [x] content
+		invert_toggles_checkbox = true,
+
 		-- invert mapping in normal mode
 		invert_normal_mapping = "",
 
