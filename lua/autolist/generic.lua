@@ -2,17 +2,32 @@ local config = require("autolist.config").generic
 
 local M = {}
 
+-- if you don't know regex, you should really learn it.
+-- its actually more useful than you might think.
+
 local fn = vim.fn
 local pat_digit = "%d+"
 local pat_md = "[-+*]"
-local pat_check = "[.]"
+local pat_check = "%[.%]"
 local pat_ol = "^%s*%d+%.%s." -- ordered list
 local pat_ul = "^%s*[-+*]%s." -- unordered list
-local pat_checkbox = "^%s*[.]%s." -- checkbox
+local pat_checkbox = "^%s*[-+*]%s%[.%]%s." -- checkbox
 local pat_ol_less = "^%s*%d+%.%s" -- ordered list
 local pat_ul_less = "^%s*[-+*]%s" -- unordered list
-local pat_checkbox_less = "^%s*[.]%s" -- checkbox
+local pat_checkbox_less = "^%s*[-+*]%s%[.%]%s" -- checkbox
 local pat_indent = "^%s*"
+
+-- an ordered list looks like:
+-- 	1. content
+-- 	2. content
+
+-- an unordered list looks like:
+-- 	- content
+-- 	- content
+
+-- a checkbox list looks like:
+-- 	- [ ] content
+-- 	- [x] content
 
 -- called it waterfall because the ordered list entries after {ptrline}
 -- that belongs to the same list has {rise} added to it.
@@ -52,9 +67,12 @@ local function get_marker(line)
 	if line:match(pat_ol) then
 		line = line:match(pat_digit) + 1 .. ". "
 	elseif line:match(pat_ul) then
-		line = line:match(pat_md) .. " "
-	elseif line:match(pat_checkbox) then
-		line = line:match(pat_check) .. " "
+		-- the set of checkbox lists is a subset of the set of unordered lists
+		if line:match(pat_checkbox) then
+			line = line:match(pat_check) .. " "
+		else
+			line = line:match(pat_md) .. " "
+		end
 	end
 	return line
 end
@@ -65,9 +83,11 @@ local function get_marker_pat(line)
 	if line:match(pat_ol_less) then
 		line = "%d+%.%s"
 	elseif line:match(pat_ul_less) then
-		line = "[-+*]%s"
-	elseif line:match(pat_checkbox_less) then
-		line = "[.]%s"
+		if line:match(pat_checkbox_less) then
+			line = "[.]%s"
+		else
+			line = "[-+*]%s"
+		end
 	end
 	return line
 end
@@ -107,9 +127,12 @@ end
 function M.list()
 	local prev_line = fn.getline(fn.line(".") - 1)
 	if prev_line:match(pat_ol) then
-		local list_index = prev_line:match("%d+")
-		set_cur(prev_line:match("^%s*") .. list_index + 1 .. ". ")
+		local list_index = prev_line:match(pat_digit)
+		set_cur(prev_line:match(pat_indent) .. list_index + 1 .. ". ")
 		waterfall(fn.line("."), 1)
+	elseif prev_line:match(pat_checkbox) then
+		print("test")
+		set_cur(prev_line:match(pat_ul_less) .. "[ ] ")
 	-- checks if list entry is empty and clears the line
 	elseif prev_line:match("^%s*[-+*]%s?$")
 		or prev_line:match("^%s*%d+%.%s?$")
