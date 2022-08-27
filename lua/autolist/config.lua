@@ -57,7 +57,7 @@ local function au(evt, pat, cmd) -- (string|table), (string|table), (string)
 end
 
 local function map(mode, keys, output)
-	vim.api.nvim_set_keymap(mode, keys, output, { noremap = true, silent = true})
+	vim.api.nvim_set_keymap(mode, keys, output, { noremap = false, silent = true})
 end
 
 local function nmap(keys, output)
