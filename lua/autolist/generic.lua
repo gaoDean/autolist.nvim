@@ -94,7 +94,6 @@ end
 -- called it waterfall because the ordered list entries after {ptrline}
 -- that belongs to the same list has {rise} added to it.
 local function waterfall(ptrline, rise, override)
-	print("test")
 	if ptrline > fn.line('$') then
 		return
 	end
