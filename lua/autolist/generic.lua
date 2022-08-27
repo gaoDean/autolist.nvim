@@ -133,9 +133,11 @@ function M.list()
 		waterfall(fn.line("."), 1)
 	elseif prev_line:match(pat_checkbox) then
 		set_cur(prev_line:match(pat_ul_less) .. "[ ] ")
-	-- checks if list entry is empty and clears the line
-	elseif prev_line:match("^%s*[-+*]%s?$")
-		or prev_line:match("^%s*%d+%.%s?$")
+	-- checks if list entry content is all spaces
+	-- the ? acts on the %s in the pats, checking for one space then newline
+	elseif prev_line:match(pat_ul_less .. "?$")
+		or prev_line:match(pat_ol_less .. "?$")
+		or prev_line:match(pat_checkbox_less .. "?$")
 	then
 		fn.setline(fn.line(".") - 1, "")
 		fn.setline(".", "")
