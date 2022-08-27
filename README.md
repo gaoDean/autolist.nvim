@@ -37,8 +37,9 @@ require('autolist').setup({})
 ```
 
 ## Usage
-Note: Currently, autolist only supports markdown lists.
+See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on supported list types and their usage.
 
+#### An intro to autolist
 1. Type in a list marker (a list marker is just the delimiter used to start the list (`-|+|*` or `1.|2.|3.`)
 2. Type in your content
 3. When you're ready, press `enter`/`return` and a new list entry will be automatically created
