@@ -130,7 +130,9 @@ end
 -- increment ordered lists on enter
 function M.list()
 	local prev_line = fn.getline(fn.line(".") - 1)
-	if prev_line:match(pat_ol) then
+	if prev_line:match(pat_ul) then
+		set_cur(prev_line:match(pat_ul_less))
+	elseif prev_line:match(pat_ol) then
 		local list_index = prev_line:match(pat_digit)
 		set_cur(prev_line:match(pat_indent) .. list_index + 1 .. ". ")
 		waterfall(fn.line("."), 1)
@@ -254,7 +256,6 @@ function M.unlist()
 	-- we need this line to get the indent
 	local prev_deleted = fn.getreg("1")
 	if prev_deleted:match(pat_ol) then
-		local cur_line = fn.getline(".")
 		waterfall(fn.line(".") - 1, -1, prev_deleted)
 	end
 end

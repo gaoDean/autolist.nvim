@@ -33,21 +33,6 @@ local default_config = {
 		-- when key o pressed, new list entry. Enables fo_o. see :h fo-table
 		new_entry_on_o = true,
 
-		-- if you use any of the override options, you must remove any definitions
-		-- of the overrided formatoptions, or you can define the options before
-		-- sourcing the require setup for this plugin, so it can override it.
-		-- see README#configuration
-
-		-- if you don't use fo_r (or if you disable it), set this to true.
-		-- it will disable fo_r for all filetypes except for enabled types.
-		-- perhaps grep for "formatoptions-=r" and "fo-=r"
-		override_fo_r = true,
-
-		-- if you don't use fo_o (or if you disable it), set this to true
-		-- it will disable fo_o for all filetypes except for enabled types.
-		-- perhaps grep for "formatoptions-=o" and "fo-=o"
-		override_fo_o = true,
-
 		-- filetypes that this plugin is enabled for.
 		-- must put file name, not the extension.
 		-- if you are not sure, just run :echo &filetype. or :set filetype?
@@ -65,22 +50,9 @@ M.update = function(opts)
 	local newconf = vim.tbl_deep_extend("force", default_config, opts or {})
 
 	if newconf.generic.enabled then
-		if newconf.generic.override_fo_o then
-			au("Filetype", "*", "setl formatoptions-=o")
-		end
-
-		if newconf.generic.override_fo_r then
-			au("Filetype", "*", "setl formatoptions-=r")
-		end
 
 		-- for each filetype in enabled_filetypes
 		for i, ft in ipairs(newconf.generic.enabled_filetypes) do
-			-- there are no comments in markdown so comments should be free for use
-			au("Filetype", ft, "setl comments=b:*,b:-,b:+,n:>")
-			au("Filetype", ft, "setl formatoptions+=r")
-			if newconf.generic.new_entry_on_o then
-				au("Filetype", ft, "setl formatoptions+=o")
-			end
 			if newconf.generic.create_enter_mapping then
 				au("Filetype", ft, "imap <buffer> <cr> <cr><cmd>lua require('autolist').list()<cr>")
 			end
