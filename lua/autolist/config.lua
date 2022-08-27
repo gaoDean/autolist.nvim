@@ -18,6 +18,8 @@ local default_config = {
 		-- invert mapping in normal mode
 		invert_normal_mapping = "",
 
+		invert_toggles_checkbox = true,
+
 		-- when pressing the relist mapping and current marker is ordered list,
 		-- change to invert_ul_marker.
 		invert_ul_marker = "-",

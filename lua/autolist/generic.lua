@@ -11,11 +11,11 @@ local pat_md = "[-+*]"
 local pat_check = "%[.%]"
 local pat_ol = "^%s*%d+%.%s." -- ordered list
 local pat_ul = "^%s*[-+*]%s." -- unordered list
-local pat_checkbox = "^%s*[-+*]%s%[.%]%s." -- checkbox
+local pat_checkbox = "^%s*%d*[-+*.]%s%[.%]%s."
 local pat_ol_less = "^%s*%d+%.%s" -- ordered list
 local pat_ul_less = "^%s*[-+*]%s" -- unordered list
-local pat_checkbox_less = "^%s*[-+*]%s%[.%]%s" -- checkbox
-local pat_checkbox_empty = "^%s*[-+*]%s%[%s]%s" -- checkbox with nothing inside
+local pat_checkbox_less = "^%s*%d*[-+*.]%s%[.%]%s"
+local pat_checkbox_empty = "^%s*%d*[-+*.]%s%[%s%]%s" -- checkbox with nothing inside
 local pat_indent = "^%s*"
 
 -- an ordered list looks like:
@@ -37,11 +37,7 @@ local function get_marker(line)
 		line = line:match(pat_digit) + 1 .. ". "
 	elseif line:match(pat_ul) then
 		-- the set of checkbox lists is a subset of the set of unordered lists
-		if line:match(pat_checkbox) then
-			line = line:match(pat_check) .. " "
-		else
-			line = line:match(pat_md) .. " "
-		end
+		line = line:match(pat_md) .. " "
 	end
 	return line
 end
@@ -52,11 +48,7 @@ local function get_marker_pat(line)
 	if line:match(pat_ol_less) then
 		line = "%d+%.%s"
 	elseif line:match(pat_ul_less) then
-		if line:match(pat_checkbox_less) then
-			line = "%[.%]%s"
-		else
-			line = "[-+*]%s"
-		end
+		line = "[-+*]%s"
 	end
 	return line
 end
@@ -130,14 +122,13 @@ end
 -- increment ordered lists on enter
 function M.list()
 	local prev_line = fn.getline(fn.line(".") - 1)
+	local newline
 	if prev_line:match(pat_ul) then
-		set_cur(prev_line:match(pat_ul_less))
+		newline = prev_line:match(pat_ul_less)
 	elseif prev_line:match(pat_ol) then
 		local list_index = prev_line:match(pat_digit)
-		set_cur(prev_line:match(pat_indent) .. list_index + 1 .. ". ")
+		newline = prev_line:match(pat_indent) .. list_index + 1 .. ". "
 		waterfall(fn.line("."), 1)
-	elseif prev_line:match(pat_checkbox) then
-		set_cur(prev_line:match(pat_ul_less) .. "[ ] ")
 	-- checks if list entry content is all spaces
 	-- the ? acts on the %s in the pats, checking for one space then newline
 	elseif prev_line:match(pat_ul_less .. "?$")
@@ -146,7 +137,12 @@ function M.list()
 	then
 		fn.setline(fn.line(".") - 1, "")
 		fn.setline(".", "")
+		return
 	end
+	if prev_line:match(pat_checkbox) then
+		newline = newline .. "[ ] "
+	end
+	set_cur(newline)
 end
 
 function M.reset()
@@ -188,6 +184,7 @@ function M.relist()
 	do
 		if #ptrline_indent == #cur_indent then
 			cur_line = cur_line:gsub(cur_marker_pat, get_marker(eval_ptrline))
+			print(cur_line)
 			fn.setline(".", cur_line)
 
 			-- random edge case in setlines
@@ -225,25 +222,31 @@ end
 -- invert the list type: ol -> ul, ul -> ol
 function M.invert()
 	local cur_line = fn.getline(".")
-	local cur_marker = get_marker_pat(cur_line, 0)
+	local cur_marker = get_marker_pat(cur_line)
+	local new_marker
 
+	-- if toggle checkbox true and is checkbox, toggle checkbox
+	if config.invert_toggles_checkbox then
+		if cur_line:match(pat_checkbox_empty) then
+			new_marker = "[x]"
+		-- it is a checkbox, but not empty
+		elseif cur_line:match(pat_checkbox_less) then
+			new_marker = "[ ]"
+		end
+		if new_marker:match(pat_check) then
+			fn.setline(".", (cur_line:gsub(pat_check, new_marker)))
+			return
+		end
+	end
 	-- if ul change to 1.
 	if cur_line:match(pat_ul_less) then
-		local new_marker = "1. "
-		if cur_line:match(pat_checkbox_less) then
-			if cur_line:match(pat_checkbox_empty) then
-				new_marker = "[x] "
-			else
-				new_marker = "[ ] "
-			end
-		end
-		fn.setline(".", (cur_line:gsub(cur_marker, new_marker, 1)))
+		new_marker = "1. "
 		set_cursor_col(1)
 	-- if ol change to {config.invert_ul_marker}
 	elseif cur_line:match(pat_ol_less) then
-		local new_marker = config.invert_ul_marker .. " "
-		fn.setline(".", (cur_line:gsub(cur_marker, new_marker, 1)))
+		new_marker = config.invert_ul_marker .. " "
 	end
+	fn.setline(".", (cur_line:gsub(cur_marker, new_marker, 1)))
 end
 
 function M.unlist()
