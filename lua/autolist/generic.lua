@@ -5,10 +5,13 @@ local M = {}
 local fn = vim.fn
 local pat_digit = "%d+"
 local pat_md = "[-+*]"
+local pat_check = "[.]"
 local pat_ol = "^%s*%d+%.%s." -- ordered list
 local pat_ul = "^%s*[-+*]%s." -- unordered list
+local pat_checkbox = "^%s*[.]%s." -- checkbox
 local pat_ol_less = "^%s*%d+%.%s" -- ordered list
 local pat_ul_less = "^%s*[-+*]%s" -- unordered list
+local pat_checkbox_less = "^%s*[.]%s" -- checkbox
 local pat_indent = "^%s*"
 
 -- called it waterfall because the ordered list entries after {ptrline}
@@ -50,6 +53,8 @@ local function get_marker(line)
 		line = line:match(pat_digit) + 1 .. ". "
 	elseif line:match(pat_ul) then
 		line = line:match(pat_md) .. " "
+	elseif line:match(pat_checkbox) then
+		line = line:match(pat_check) .. " "
 	end
 	return line
 end
@@ -61,6 +66,8 @@ local function get_marker_pat(line)
 		line = "%d+%.%s"
 	elseif line:match(pat_ul_less) then
 		line = "[-+*]%s"
+	elseif line:match(pat_checkbox_less) then
+		line = "[.]%s"
 	end
 	return line
 end
