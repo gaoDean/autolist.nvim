@@ -37,7 +37,7 @@ require('autolist').setup({})
 ```
 
 ## Usage
-See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on supported list types and their usage.
+See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on supported list types and their [usage](https://github.com/gaoDean/autolist.nvim/wiki/Usage).
 
 #### An intro to autolist
 1. Type in a list marker (a list marker is just the delimiter used to start the list (`-|+|*` or `1.|2.|3.`)
