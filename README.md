@@ -48,8 +48,6 @@ See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 ## Configuration
-Note for **autocommands** (this doesn't affect `set`): this plugin uses `fo-r` (see :h fo-table) for unordered lists, and an optional `fo-o` for new entry on `o`, so you should either not change the value of `fo-r` **in an autocommand** (and `fo-o`), or call the setup function for this plugin after you change the values of `fo-r` and `fo-o` (in an autocommand) so it can override the autocommand, otherwise your autocommand will override the plugin.
-
 This is the default config:
 ```lua
 require('autolist').setup({
@@ -87,21 +85,6 @@ require('autolist').setup({
 
 		-- when key o pressed, new list entry. Enables fo_o. see :h fo-table
 		new_entry_on_o = true,
-
-		-- if you use any of the override options, you must remove any definitions
-		-- of the overrided formatoptions, or you can define the options before
-		-- sourcing the require setup for this plugin, so it can override it.
-		-- see README#configuration
-
-		-- if you don't use fo_r (or if you disable it), set this to true.
-		-- it will disable fo_r for all filetypes except for enabled types.
-		-- perhaps grep for "formatoptions-=r" and "fo-=r"
-		override_fo_r = true,
-
-		-- if you don't use fo_o (or if you disable it), set this to true
-		-- it will disable fo_o for all filetypes except for enabled types.
-		-- perhaps grep for "formatoptions-=o" and "fo-=o"
-		override_fo_o = true,
 
 		-- filetypes that this plugin is enabled for.
 		-- must put file name, not the extension.
