@@ -106,7 +106,7 @@ end
 -- increment ordered lists on enter
 function M.list()
 	local prev_line = fn.getline(fn.line(".") - 1)
-	if prev_line:match("^%s*%d+%.%s.") then
+	if prev_line:match(pat_ol) then
 		local list_index = prev_line:match("%d+")
 		set_cur(prev_line:match("^%s*") .. list_index + 1 .. ". ")
 		waterfall(fn.line("."), 1)
