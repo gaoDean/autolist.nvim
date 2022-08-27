@@ -255,7 +255,6 @@ function M.unlist()
 	-- we need this line to get the indent
 	local prev_deleted = fn.getreg("1")
 	if prev_deleted:match(pat_ol) then
-		print(prev_deleted)
 		local cur_line = fn.getline(".")
 		waterfall(fn.line(".") - 1, -1, prev_deleted)
 	end
