@@ -30,38 +30,6 @@ local pat_indent = "^%s*"
 -- 	- [ ] content
 -- 	- [x] content
 
--- called it waterfall because the ordered list entries after {ptrline}
--- that belongs to the same list has {rise} added to it.
-local function waterfall(ptrline, rise, override)
-	if ptrline > fn.line('$') then
-		return
-	end
-	local cur_indent = fn.getline(ptrline):match(pat_indent)
-	if override then
-		cur_indent = override:match(pat_indent)
-	end
-	-- waterfall only needs to affect after current line
-	ptrline = ptrline + 1
-	local eval_ptrline = fn.getline(ptrline)
-	-- while the list is ongoing
-	while eval_ptrline:match(pat_ol)
-		or #(eval_ptrline:match(pat_indent)) > #cur_indent
-	do
-		if #(eval_ptrline:match(pat_indent)) == #cur_indent
-			and eval_ptrline:match(pat_ol)
-		then
-			-- set ptrline's digit to itself, plus rise
-			local line_digit = eval_ptrline:match(pat_digit)
-			eval_ptrline = eval_ptrline:gsub(pat_digit, line_digit + rise, 1)
-			fn.setline(ptrline, eval_ptrline)
-		end
-		ptrline = ptrline + 1
-		if ptrline > fn.line('$') then
-			return
-		end
-		eval_ptrline = fn.getline(ptrline)
-	end
-end
 
 -- gets the marker of {line} and if its a digit it adds {add}
 local function get_marker(line)
@@ -95,14 +63,14 @@ end
 
 -- returns true if {line} is not a markdown list
 local function neither_list(line)
-	if (not line:match(pat_ol)) and (not line:match(pat_ul)) then
+	if (not line:match(pat_ol_less)) and (not line:match(pat_ul_less)) then
 		return true
 	end
 	return false
 end
 
 local function either_list(line)
-	if line:match(pat_ol) or line:match(pat_ul) then
+	if line:match(pat_ol_less) or line:match(pat_ul_less) then
 		return true
 	end
 	return false
@@ -123,6 +91,41 @@ local function set_cur(str)
 	fn.setpos(".", pos)
 end
 
+-- called it waterfall because the ordered list entries after {ptrline}
+-- that belongs to the same list has {rise} added to it.
+local function waterfall(ptrline, rise, override)
+	if ptrline > fn.line('$') then
+		return
+	end
+	local cur_indent = fn.getline(ptrline):match(pat_indent)
+	if override then
+		cur_indent = override:match(pat_indent)
+	end
+	-- waterfall only needs to affect after current line
+	ptrline = ptrline + 1
+	local eval_ptrline = fn.getline(ptrline)
+	if neither_list(eval_ptrline) then
+		return
+	end
+	-- while the list is ongoing
+	while eval_ptrline:match(pat_ol)
+		or #(eval_ptrline:match(pat_indent)) > #cur_indent
+	do
+		if #(eval_ptrline:match(pat_indent)) == #cur_indent
+			and eval_ptrline:match(pat_ol)
+		then
+			-- set ptrline's digit to itself, plus rise
+			local line_digit = eval_ptrline:match(pat_digit)
+			eval_ptrline = eval_ptrline:gsub(pat_digit, line_digit + rise, 1)
+			fn.setline(ptrline, eval_ptrline)
+		end
+		ptrline = ptrline + 1
+		if ptrline > fn.line('$') then
+			return
+		end
+		eval_ptrline = fn.getline(ptrline)
+	end
+end
 
 -- increment ordered lists on enter
 function M.list()
@@ -162,13 +165,15 @@ end
 -- you'll have the correct formatting, and its not a big deal if you dont, the
 -- program wont throw an error, you just wont get a relist.
 function M.relist()
+	local cur_line = fn.getline(".")
+	if fn.line(".") <= 1 or neither_list(cur_line) then
+		return
+	end
 	-- reduce the number of the indent that the current line was on
 	waterfall(fn.line("."), -1, "\t" .. fn.getline("."))
 
 	-- no line before current line so nothing to be context-aware of
-	if fn.line(".") <= 1 then return end
 	local ptrline = fn.line(".") - 1
-	local cur_line = fn.getline(".")
 	local cur_indent = cur_line:match(pat_indent)
 	local cur_marker_pat = get_marker_pat(cur_line)
 	local eval_ptrline = fn.getline(ptrline)
