@@ -8,6 +8,7 @@ CONTENTS                                                       *autolist_content
     1.1. Why autolist.nvim............................|autolist_why_autolist.nvim|
     1.2. Installation......................................|autolist_installation|
     1.3. Usage....................................................|autolist_usage|
+            1.3.1. An intro to autolist............|autolist_an_intro_to_autolist|
     1.4. Configuration....................................|autolist_configuration|
     1.5. Credit..................................................|autolist_credit|
     1.6. Other....................................................|autolist_other|
@@ -17,41 +18,59 @@ AUTOLIST.NVIM                                             *autolist_autolist.nvi
 
 Minimal automatic list continuation for neovim, powered by lua
 
+https://user-images.githubusercontent.com/97860672/186395300-2225ce49-af81-45cc-8ec0-87f14fc80cd4.mp4
+
 --------------------------------------------------------------------------------
 WHY AUTOLIST.NVIM                                     *autolist_why_autolist.nvim*
 
 This question can be interpreted in two ways. Why did I create autolist, and why you should use autolist.
-
-Why did I create autolist? ~
-It sounds simple, but all I wanted was a minimal list continuation plugin in lua that makes lists function better. bullets.vim works, but it is written in vimscript and is more than a thousand lines long. Needless to say, I couldn't find a suitable one, so I decided to create my own.
-
-Why use autolist? ~
-Autolist's main function file is less than 200 lines long, complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, and implements context aware renumbering/marking of list entries, to take your mind off the formatting, and have it work in the background while you write down your thoughts.
+>
+    <dl>
+        <dt>Why did I create autolist?</dt>
+        <dd>It sounds simple, but all I wanted was a minimal list continuation plugin in lua that makes lists function better. bullets.vim works, but it is written in vimscript and is more than a thousand lines long. Needless to say, I couldn't find a suitable one, so I decided to create my own.</dd>
+        <dt>Why use autolist?</dt>
+        <dd>Autolist's main function file is less than 200 lines long, complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, and implements context aware renumbering/marking of list entries, to take your mind off the formatting, and have it work in the background while you write down your thoughts.</dd>
+    </dl>
+<
 
 --------------------------------------------------------------------------------
 INSTALLATION                                               *autolist_installation*
 
 Using vim-plug:
 >
+    -- lua
     local Plug = vim.fn['plug#']
     vim.call('plug#begin', '~/.config/nvim/plugged')
     	Plug 'gaoDean/autolist.nvim'
     vim.call('plug#end')
 <
 
-and
+or Paq:
 >
+    -- lua
+    require "paq" {
+    	"gaoDean/autolist.nvim"
+    }
+<
+
+and with both:
+>
+    -- lua
     require('autolist').setup({})
 <
 
 --------------------------------------------------------------------------------
 USAGE                                                             *autolist_usage*
 
-1.  Type in a list marker (ordered or unordered)
+See the wiki (https://github.com/gaoDean/autolist.nvim/wiki) for information on supported list types and their usage (https://github.com/gaoDean/autolist.nvim/wiki/Usage).
+
+AN INTRO TO AUTOLIST                               *autolist_an_intro_to_autolist*
+
+1.  Type in a list marker (a list marker is just the delimiter used to start the list (`-|+|*` or `1.|2.|3.`)
 2.  Type in your content
 3.  When you're ready, press `enter`/`return` and a new list entry will be automatically created
-4.  Indent your list with `<c-t>` (tab) and watch as your whole line gets indented. When indenting, ordered lists will automatically be reset to one
-5.  Dedent your list with `<c-d>` (dedent) and watch as your whole line gets dedented. When dedenting, markers will automatically be changed through context awareness, to the list type of the last marker on the same indent level as the current marker
+4.  Indent your list with `<c-t>` (tab) and your whole line gets indented. When indenting, ordered lists will automatically be reset to one
+5.  Dedent your list with `<c-d>` (dedent) and your whole line gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
 6.  Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 --------------------------------------------------------------------------------
@@ -62,41 +81,47 @@ Note for autocommands (this doesn't affect `set`): this plugin uses `fo-r` (see 
 This is the default config:
 >
     require('autolist').setup({
-    	create_enter_mapping = true,
-    	-- for if you have something else that you want to map when press return
-    	-- with the create enter being false, you must create your own mapping
-    	invert_mapping = "<c-r>",
-    	-- the mapping to invert the list type e.g ol -> ul, ul -> ol
-    	-- set this to empty ("") to disable
-    	invert_preferred_ul_marker = "-",
-    	-- when pressing the relist mapping and current marker is ordered list,
-    	-- change to invert_preferred_ul_marker.
-    	context_optimisaton = true,
-    	-- This just allows the relisting function to use the current list
-    	-- formatting to search for the right list type.
-    	-- Important: if your markdown ordered lists are badly formatted e.g a one
-    	-- followed by a three, the relist cant find the right list. most of the
-    	-- time you'll have the correct formatting, and its not a big deal if you
-    	-- dont, the program wont throw an error, you just wont get a relist.
-    	new_entry_on_o = true,
-    	-- when key o pressed, new list entry. Enables fo_o. see :h fo-table
-    	override_fo_r = true,
-    	-- if you don't use fo_r (or if you disable it), set this to true.
-    	-- it will disable fo_r for all filetypes except for enabled types.
-    	-- perhaps grep for "formatoptions-=r" and "fo-=r"
-    	override_fo_o = true,
-    	-- if you don't use fo_o (or if you disable it), set this to true
-    	-- it will disable fo_o for all filetypes except for enabled types.
-    	-- perhaps grep for "formatoptions-=o" and "fo-=o"
-    	-- if you use any of the override options, you must remove any definitions
-    	-- of the overrided formatoptions, or you can define the options before
-    	-- sourcing the require setup for this plugin, so it can override it.
-    	enabled_filetypes = { "markdown", "text" },
-    	-- filetypes that this plugin is enabled for.
-    	-- must put file name, not the extension.
-    	-- if you are not sure, just run :echo &filetype. or :set filetype?
+    	generic = {
+    		enabled = true,
+    		-- for if you have something else that you want to map when press return
+    		-- with the create enter being false, you must create your own mapping
+    		create_enter_mapping = true,
+    		-- the mapping to invert the list type e.g ol -> ul, ul -> ol
+    		-- set this to empty ("") to disable
+    		invert_mapping = "<c-r>",
+    		-- when pressing the relist mapping and current marker is ordered list,
+    		-- change to invert_ul_marker.
+    		invert_ul_marker = "-",
+    		-- This just allows the relisting function to use the current list
+    		-- formatting to search for the right list type.
+    		-- Important: if your markdown ordered lists are badly formatted e.g a one
+    		-- followed by a three, the relist cant find the right list. most of the
+    		-- time you'll have the correct formatting, and its not a big deal if you
+    		-- dont, the program wont throw an error, you just wont get a relist.
+    		context_optimisaton = true,
+    		-- when key o pressed, new list entry. Enables fo_o. see :h fo-table
+    		new_entry_on_o = true,
+    		-- if you use any of the override options, you must remove any definitions
+    		-- of the overrided formatoptions, or you can define the options before
+    		-- sourcing the require setup for this plugin, so it can override it.
+    		-- see README#configuration
+    		-- if you don't use fo_r (or if you disable it), set this to true.
+    		-- it will disable fo_r for all filetypes except for enabled types.
+    		-- perhaps grep for "formatoptions-=r" and "fo-=r"
+    		override_fo_r = true,
+    		-- if you don't use fo_o (or if you disable it), set this to true
+    		-- it will disable fo_o for all filetypes except for enabled types.
+    		-- perhaps grep for "formatoptions-=o" and "fo-=o"
+    		override_fo_o = true,
+    		-- filetypes that this plugin is enabled for.
+    		-- must put file name, not the extension.
+    		-- if you are not sure, just run :echo &filetype. or :set filetype?
+    		enabled_filetypes = { "markdown", "text" },
+    	},
     })
 <
+
+The `config.lua` contains good information about the mappings and config that the docs are sometimes behind on.
 
 --------------------------------------------------------------------------------
 CREDIT                                                           *autolist_credit*
@@ -107,6 +132,8 @@ which is in turn inspired by this gist (https://gist.github.com/sedm0784/dffda43
 --------------------------------------------------------------------------------
 OTHER                                                             *autolist_other*
 
+I started learning lua like a month ago, plus this is my first plugin, so there's probably a bunch of badly written code in there. Feel free to critique harshly and pull request.
+
 To get a overview of code, this removes all the comments and empty lines. Idk, I just like to do this to polish, might be useful to you.
 >
     :%s/--.*//g | g/^\s*$/d
@@ -114,8 +141,7 @@ To get a overview of code, this removes all the comments and empty lines. Idk, I
 
 The command used to generate this help file from https://github.com/davysson/md2vim
 >
-    md2vim -generate-tags -desc "Minimal automatic list continuation for neovim, powered by lua" autolist.md autolist.txt
+    md2vim -generate-tags -desc "Minimal automatic list continuation for neovim, powered by lua" README.md docs/autolist.txt && echo "vim:tw=78:ts=8:noet:ft=help:norl:" >> docs/autolist.txt
 <
 
 vim:tw=78:ts=8:noet:ft=help:norl:
-
