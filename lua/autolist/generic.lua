@@ -83,41 +83,6 @@ local function set_cur(str)
 	fn.setpos(".", pos)
 end
 
--- called it waterfall because the ordered list entries after {ptrline}
--- that belongs to the same list has {rise} added to it.
-local function waterfall(ptrline, rise, override)
-	if ptrline > fn.line('$') then
-		return
-	end
-	local cur_indent = fn.getline(ptrline):match(pat_indent)
-	if override then
-		cur_indent = override:match(pat_indent)
-	end
-	-- waterfall only needs to affect after current line
-	ptrline = ptrline + 1
-	local eval_ptrline = fn.getline(ptrline)
-	if neither_list(eval_ptrline) then
-		return
-	end
-	-- while the list is ongoing
-	while eval_ptrline:match(pat_ol)
-		or #(eval_ptrline:match(pat_indent)) > #cur_indent
-	do
-		if #(eval_ptrline:match(pat_indent)) == #cur_indent
-			and eval_ptrline:match(pat_ol)
-		then
-			-- set ptrline's digit to itself, plus rise
-			local line_digit = eval_ptrline:match(pat_digit)
-			eval_ptrline = eval_ptrline:gsub(pat_digit, line_digit + rise, 1)
-			fn.setline(ptrline, eval_ptrline)
-		end
-		ptrline = ptrline + 1
-		if ptrline > fn.line('$') then
-			return
-		end
-		eval_ptrline = fn.getline(ptrline)
-	end
-end
 
 -- increment ordered lists on enter
 function M.list()
