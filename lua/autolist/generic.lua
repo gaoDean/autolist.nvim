@@ -142,7 +142,9 @@ function M.list()
 	if prev_line:match(pat_checkbox) then
 		newline = newline .. "[ ] "
 	end
-	set_cur(newline)
+	if newline then
+		set_cur(newline)
+	end
 end
 
 function M.reset()
