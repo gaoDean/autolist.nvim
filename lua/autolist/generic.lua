@@ -186,7 +186,6 @@ function M.relist()
 	do
 		if #ptrline_indent == #cur_indent then
 			cur_line = cur_line:gsub(cur_marker_pat, get_marker(eval_ptrline))
-			print(cur_line)
 			fn.setline(".", cur_line)
 
 			-- random edge case in setlines
