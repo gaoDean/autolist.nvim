@@ -225,7 +225,7 @@ end
 function M.invert()
 	local cur_line = fn.getline(".")
 	local cur_marker = get_marker_pat(cur_line)
-	local new_marker
+	local new_marker = ""
 
 	-- if toggle checkbox true and is checkbox, toggle checkbox
 	if config.invert_toggles_checkbox then
@@ -236,7 +236,7 @@ function M.invert()
 			new_marker = "[ ]"
 		end
 		if new_marker:match(pat_check) then
-			fn.setline(".", (cur_line:gsub(pat_check, new_marker)))
+			set_cur(cur_line:gsub(pat_check, new_marker))
 			return
 		end
 	end
