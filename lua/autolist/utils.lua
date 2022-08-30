@@ -1,13 +1,16 @@
 local pat_num = "%d+"
 local pat_char = "%a"
+local prefix = "^%s*("
+local suffix = ").*$"
 local fn = vim.fn
 
 local M = {}
 
 -- increment if its an ordered list
+-- the caller must make sure that {entry} is a list
 function M.increment(entry)
-	local digit = entry:match(pat_num)
-	local char = entry:match(pat_char)
+	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
+	local char = entry:match(prefix .. "%a)..*$", "%1", 1)
 	-- if its an ordered list
 	if digit then
 		return entry:gsub(digit, digit + 1, 1)
@@ -26,9 +29,10 @@ function M.increment(entry)
 	return entry
 end
 
+-- the caller must make sure that {entry} is a list
 function M.decrement(entry)
-	local digit = entry:match(pat_num)
-	local char = entry:match(pat_char)
+	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
+	local char = entry:match(prefix .. "%a)..*$", "%1", 1)
 	-- if its an ordered list
 	if digit then
 		return entry:gsub(digit, digit - 1, 1)
@@ -59,36 +63,83 @@ end
 --is ordered list
 function M.is_ordered(entry, rise, list_types)
 	-- increment only acts on incrementable (ordered) lists
-	if is_list(entry, list_types) then
-		local newval
-		if rise > 0 then
-			newval = M.increment(entry)
-		else
-			newval = M.decrement(entry)
-		end
-		-- if increment changed {entry} it is changable thus ordered
-		if newval ~= entry then
-			return newval
-		end
+	local newval
+	if rise > 0 then
+		newval = M.increment(entry)
+	else
+		newval = M.decrement(entry)
+	end
+	-- if increment changed {entry} it is changable thus ordered
+	if newval ~= entry then
+		return newval
 	end
 	return nil
 end
 
--- is a list
-function M.is_list(entry, list_types)
+-- is a list, returns true, the pattern and the result of the pattern
+function M.is_list(entry, list_types, more)
+	if more then
+		more = "%s"
+	end
 	for _, pat in ipairs(list_types) do
-		local _, nsubs = entry:gsub("^%s*(" .. pat .. "%s?).*$", "%1", 1)
+		local sub, nsubs = entry:gsub("^%s*(" .. pat .. more .. ").*$", "%1", 1)
 		-- if replaced something
 		if nsubs > 0 then
-			return true
+			return true, pat, sub
 		end
 	end
 	return false
 end
 
+function M.not_list(entry, list_types, more)
+	if more then
+		more = "%s"
+	end
+	for _, pat in ipairs(list_types) do
+		local _, nsubs = entry:gsub(prefix .. pat .. more .. suffix, "%1", 1)
+		-- if replaced something
+		if nsubs > 0 then
+			return false
+		end
+	end
+	return true
+end
+
 -- returns the number of tabs/spaces before a character
 function M.get_indent_lvl(entry)
 	return #(entry:match("^%s*"))
+end
+
+-- returns a lua pattern with the current vim tab value
+function M.tab_value()
+	if vim.bo.expandtab then
+		local pattern = ""
+		-- get tabstop in spaces
+		for i = 1, vim.bo.tabstop, 1 do
+			pattern = pattern .. " "
+		end
+		return ret
+	else
+		return "\t"
+	end
+end
+
+function M.get_value_ordered(entry)
+	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
+	local char = entry:match(prefix .. "%a)..*$", "%1", 1)
+	if digit then
+		return digit
+	elseif char then
+		local byteform = char:byte()
+		-- lower a is 1
+		if byteform > 96 then
+			byteform = byteform - 96
+		elseif byteform > 64 then
+			byteform = byteform - 64
+		end
+		return byteform
+	end
+	return nil
 end
 
 return M
