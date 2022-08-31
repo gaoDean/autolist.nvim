@@ -1,6 +1,15 @@
 # autolist.nvim
 Automatic list continuation and formatting for neovim, powered by lua
 
+<p align="center">
+	<a href="https://github.com/gaoDean/autolist.nvim/stargazers">
+		<img alt="Stars" src="https://img.shields.io/github/stars/gaoDean/autolist.nvim?style=for-the-badge&logo=starship&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41"></a>
+	<a href="https://github.com/Pocco81/autolist.nvim/issues">
+		<img alt="Issues" src="https://img.shields.io/github/issues/gaoDean/autolist.nvim?style=for-the-badge&logo=bilibili&color=F5E0DC&logoColor=D9E0EE&labelColor=302D41"></a>
+	<a href="https://github.com/gaoDean/autolist.nvim">
+		<img alt="Repo Size" src="https://img.shields.io/github/repo-size/gaoDean/gaoDean.nvim?color=%23DDB6F2&label=SIZE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41"/></a>
+</p>
+
 https://user-images.githubusercontent.com/97860672/186395300-2225ce49-af81-45cc-8ec0-87f14fc80cd4.mp4
 
 Note: this plugin is early in development, so expect breaking changes with updates. All breaking changes will be listed in [breaking changes](#breaking-changes).
