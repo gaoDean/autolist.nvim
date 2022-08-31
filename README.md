@@ -1,6 +1,9 @@
-# autolist.nvim
-Automatic list continuation and formatting for neovim, powered by lua
-
+<p align="center">
+  <h2 align="center">autolist.nvim</h2>
+</p>
+<p align="center">
+	Automatic list continuation and formatting for neovim, powered by lua
+</p>
 <p align="center">
 	<a href="https://github.com/gaoDean/autolist.nvim/stargazers">
 		<img alt="Stars" src="https://img.shields.io/github/stars/gaoDean/autolist.nvim?style=for-the-badge&logo=starship&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41"></a>
@@ -27,7 +30,7 @@ This question can be interpreted in two ways. Why did I create autolist, and why
 </dl>
 
 
-## Installation
+### Installation
 Using vim-plug:
 ```lua
 -- lua
@@ -49,10 +52,10 @@ and with both:
 require('autolist').setup({})
 ```
 
-## Usage
+### Usage
 See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on supported list types and their [usage](https://github.com/gaoDean/autolist.nvim/wiki/Usage).
 
-#### An intro to autolist
+##### An intro to autolist
 1. Type in a list marker (a list marker is just the delimiter used to start the list (`-|+|*` or `1.|2.|3.`)
 2. Type in your content
 3. When you're ready, press `enter`/`return` and a new list entry will be automatically created
@@ -60,7 +63,7 @@ See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on
 5. Dedent your list with `<c-d>` (**d**edent) and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
-## Configuration
+### Configuration
 This is the default config:
 ```lua
 require('autolist').setup({
@@ -108,15 +111,15 @@ require('autolist').setup({
 ```
 The `config.lua` contains good information about the mappings and config that the docs are sometimes behind on.
 
-## Breaking changes
+### Breaking changes
 2022 Aug 29: Large refactor coming up that will remove the generic part of the table as its useless (all other config options kept, so just do two `dd`s for the generic brackets), and add extra options to do your own markers.
 
-## Credit
+### Credit
 
 inspired by [my gist](https://gist.github.com/gaoDean/288d01dfe64da66569fb6615c767e081)
 which is in turn inspired by [this gist](https://gist.github.com/sedm0784/dffda43bcfb4728f8e90)
 
-## Other
+### Other
 I started learning lua like a month ago, plus this is my first plugin, so there's probably a bunch of badly written code in there. Feel free to critique harshly and pull request.
 
 If you submit a good enough pull request and show that you are trusted, you could perhaps become a contributor, as I have limited time cus you know *school*.
