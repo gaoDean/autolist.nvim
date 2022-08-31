@@ -46,7 +46,10 @@ function M.new()
 					break
 				end
 			end
-			utils.set_current_line(modded .. fn.getline("."))
+			local cur_line = fn.getline(".")
+			utils.set_current_line(utils.get_indent(cur_line)
+			.. modded
+			.. cur_line:gsub("^%s*", "", 1))
 			return
 		end
 	end

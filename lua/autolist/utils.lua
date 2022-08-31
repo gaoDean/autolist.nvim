@@ -118,6 +118,11 @@ function M.get_indent_lvl(entry)
 	return #(entry:match("^%s*"))
 end
 
+-- returns the tabs/spaces before a character
+function M.get_indent(entry)
+	return entry:match("^%s*")
+end
+
 -- returns a lua pattern with the current vim tab value
 function M.tab_value()
 	if vim.bo.expandtab then
