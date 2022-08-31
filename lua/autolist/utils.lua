@@ -8,15 +8,16 @@ local M = {}
 
 -- increment if its an ordered list
 -- the caller must make sure that {entry} is a list
-function M.increment(entry)
+function M.increment(entry, amount)
+	if not amount then amount = 1 end
 	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
-	local char = entry:match(prefix .. "%a)..*$", "%1", 1)
+	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
 	-- if its an ordered list
 	if digit then
-		return entry:gsub(digit, digit + 1, 1)
+		return entry:gsub(digit, digit + amount, 1)
 	-- if it's an ascii list
 	elseif char then
-		local byteform = char:byte() + 1
+		local byteform = char:byte() + amount
 		-- if bigger than lowercase z wrap to upper A and vice versa
 		if byteform > 122 then
 			byteform = 65
@@ -30,15 +31,16 @@ function M.increment(entry)
 end
 
 -- the caller must make sure that {entry} is a list
-function M.decrement(entry)
+function M.decrement(entry, amount)
+	if not amount then amount = 1 end
 	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
-	local char = entry:match(prefix .. "%a)..*$", "%1", 1)
+	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
 	-- if its an ordered list
 	if digit then
-		return entry:gsub(digit, digit - 1, 1)
+		return entry:gsub(digit, digit - amount, 1)
 	-- if it's an ascii list
 	elseif char then
-		local byteform = char:byte() - 1
+		local byteform = char:byte() - amount
 		-- if bigger than lowercase z wrap to upper A and vice versa
 		if byteform < 65 then
 			byteform = 122
@@ -61,7 +63,7 @@ function M.set_current_line(new_line)
 end
 
 --is ordered list
-function M.is_ordered(entry, rise, list_types)
+function M.is_ordered(entry, rise)
 	-- increment only acts on incrementable (ordered) lists
 	local newval
 	if rise > 0 then
@@ -126,20 +128,48 @@ end
 
 function M.get_value_ordered(entry)
 	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
-	local char = entry:match(prefix .. "%a)..*$", "%1", 1)
+	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
 	if digit then
 		return digit
 	elseif char then
 		local byteform = char:byte()
-		-- lower a is 1
 		if byteform > 96 then
+			-- lowercase a is 1
 			byteform = byteform - 96
 		elseif byteform > 64 then
-			byteform = byteform - 64
+			-- (-64) + 26
+			-- capital A comes after lowercase z
+			byteform = byteform - 38
 		end
 		return byteform
 	end
 	return nil
+end
+
+-- returns successful
+function M.set_value_ordered(linenum, line, val)
+	local digit = line:gsub(prefix .. "%d+)%..*$", "%1", 1)
+	local char = line:gsub(prefix .. "%a)[.)].*$", "%1", 1)
+	if digit then
+		fn.setline(linenum, line:gsub("%d+", val, 1))
+		return true
+	elseif char then
+		if val <= 26 then
+			-- 1 equates to byteform of lowercase a
+			val = val + 96
+		else
+			-- 27 equates to byteform of uppercase A
+			val = val + 38
+		end
+		fn.setline(linenum, line:gsub("%a", val, 1))
+		return true
+	else
+		return false
+	end
+end
+
+function M.get_list_start(cur_linenum)
+	while line
 end
 
 return M

@@ -66,10 +66,10 @@ M.update = function(opts)
 		-- for each filetype in enabled_filetypes
 		for i, ft in ipairs(newconf.enabled_filetypes) do
 			if newconf.create_enter_mapping then
-				au("Filetype", ft, "inoremap <buffer> <cr> <cr><cmd>lua require('autolist').list()<cr>")
+				au("Filetype", ft, "inoremap <buffer> <cr> <cr><cmd>lua require('autolist').new()<cr>")
 			end
 			if newconf.new_entry_on_o then
-				au("Filetype", ft, "nnoremap <buffer> o o<cmd>lua require('autolist').list()<cr>")
+				au("Filetype", ft, "nnoremap <buffer> o o<cmd>lua require('autolist').new()<cr>")
 			end
 			if newconf.invert_normal_mapping ~= "" then
 				au("Filetype", ft, "nnoremap <buffer> " .. newconf.invert_normal_mapping .. " <cmd>lua require('autolist').invert()<cr>")
@@ -81,7 +81,7 @@ M.update = function(opts)
 			-- to change mapping, just do a imap (not inoremap) to <c-t> to recursively remap
 			-- au("Filetype", ft, "inoremap <buffer> <c-d> <c-d><cmd>lua require('autolist').relist()<cr>")
 			-- au("Filetype", ft, "inoremap <buffer> <c-t> <c-t><cmd>lua require('autolist').reset()<cr>")
-			-- au("Filetype", ft, "nnoremap <buffer> << <<<cmd>lua require('autolist').relist()<cr>")
+			au("Filetype", ft, "nnoremap <buffer> << <<<cmd>lua require('autolist').relist()<cr>")
 			-- au("Filetype", ft, "nnoremap <buffer> >> >><cmd>lua require('autolist').reset()<cr>")
 			-- au("Filetype", ft, "nnoremap <buffer> dd dd<cmd>lua require('autolist').unlist()<cr>")
 		end

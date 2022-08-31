@@ -122,16 +122,6 @@ function M.relist(prev_indent)
 		if line_indent == cur_indent then
 			cur_line = cur_line:gsub(cur_marker_pat, line_marker, 1)
 			fn.setline(".", cur_line)
-			-- edge case
-			-- if cur_marker_pat ~= line_marker then
-			-- 	-- if before dedent marker is ul
-			-- 	if cur_marker_pat:sub(1, 1) == "[" then
-			-- 		set_cursor_col(1)
-			-- 	-- in this case the marker is ol
-			-- 	else
-			-- 		set_cursor_col(-1)
-			-- 	end
-			-- end
 			waterfall(fn.line("."), 1)
 			return
 		-- context optimisation is such a cool name for an option
@@ -154,8 +144,37 @@ function M.relist(prev_indent)
 end
 
 function M.recalculate()
+	local list_start_num = utils.get_list_start(fn.line("."))
+	local list_start = fn.getline(list_start_num)
+	local list_indent = utils.get_indent_lvl(list_start)
 
+	-- set first entry to one, returns false if fails (not ordered)
+	if not utils.set_value_ordered(list_start_num, list_start, 1) then return end
+
+	local target = 2 -- start plus one
+	local linenum = list_start_num + 1
+	local line = fn.getline(linenum)
+	local lineval = utils.get_value_ordered(line)
+	local line_indent = utils.get_indent_lvl(line)
+	while is_ordered(line)
+		and line_indent >= list_indent
+	do
+		if line_indent == list_indent then
+			-- you set like 50 every time you press j, a few more cant hurt, right?
+			if not utils.set_value_ordered(linenum, line, target) then return end
+			-- only increase target if increased list
+			target = target + 1
+		end
+		-- do these at the end so it can check it at the start of the loop
+		linenum = linenum + 1
+		line = fn.getline(linenum)
+		lineval = utils.get_value_ordered(line)
+		line_indent = utils.get_indent_lvl(line)
+	end
 end
 
+-- TODO
+-- utils.get list start
+--
 
 return M
