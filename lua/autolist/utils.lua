@@ -190,6 +190,3 @@ function M.get_list_start(cur_linenum)
 end
 
 return M
-
--- TODO
--- in new(), add a fn.getline(".") in the setline so wont delete current line

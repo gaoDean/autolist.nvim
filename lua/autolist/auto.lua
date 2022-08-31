@@ -46,7 +46,7 @@ function M.new()
 					break
 				end
 			end
-			utils.set_current_line(modded)
+			utils.set_current_line(modded .. fn.getline("."))
 			return
 		end
 	end
@@ -135,6 +135,3 @@ function M.recalculate()
 end
 
 return M
-
--- TODO
--- in new(), add a fn.getline(".") in the setline so wont delete current line
