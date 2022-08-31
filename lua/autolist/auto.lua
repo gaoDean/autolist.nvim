@@ -144,7 +144,7 @@ function M.relist(prev_indent)
 end
 
 function M.recalculate()
-	local list_start_num = utils.get_list_start(fn.line("."))
+	local list_start_num = fn.line(".")
 	local list_start = fn.getline(list_start_num)
 	local list_indent = utils.get_indent_lvl(list_start)
 
@@ -172,9 +172,5 @@ function M.recalculate()
 		line_indent = utils.get_indent_lvl(line)
 	end
 end
-
--- TODO
--- utils.get list start
---
 
 return M
