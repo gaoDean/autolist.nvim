@@ -10,10 +10,11 @@ local function modify(prev, pattern)
 	-- the brackets capture {pattern} and they release on %1
 	local matched, nsubs = prev:gsub("^%s*(" .. pattern .. "%s?).*$", "%1", 1)
 	if matched == prev or not matched then
-		if nsubs > 0 then
-			return 1
+		-- if replaced smth
+		if nsubs == 1 then
+			return "$"
 		else
-			return nil
+			return ""
 		end
 	end
 	return utils.increment(matched)
@@ -29,13 +30,13 @@ function M.new()
 	local matched = false
 
 	-- ipairs is used to optimise list_types (most used checked first)
-	for _, pat in ipairs(config.list_types) do
-		local modded = modify(prev_line, pat)
+	for i, v in ipairs(config.list_types) do
+		local modded = modify(prev_line, v)
 		-- if its not true and nil
-		if modded == 1 then
+		if modded == "$" then
 			-- it was a list, only it was empty
 			matched = true
-		elseif modded then
+		elseif modded ~= "" then
 			-- sets current line and puts cursor to end
 			if prev_line:match(pat_checkbox) then
 				modded = modded .. "[ ] "
@@ -51,46 +52,6 @@ function M.new()
 	end
 	if matched then
 		fn.setline(fn.line(".") - 1, "")
-	end
-end
-
--- called it waterfall because the ordered list entries after {ptrline}
--- that belongs to the same list has {rise} added to it.
-function M.waterfall(ptrline, rise, override_indent)
-	local cur_indent_lvl
-	if override_indent then
-		cur_indent_lvl = override_indent
-	else
-		cur_indent_lvl = utils.get_indent_lvl(fn.getline(ptrline))
-	end
-	-- waterfall only needs to affect after current line
-	ptrline = ptrline + 1
-	local eval_ptrline = fn.getline(ptrline)
-	local val = utils.is_ordered(eval_ptrline, rise, config.list_types)
-	local ptr_indent_lvl = utils.get_indent_lvl(eval_ptrline)
-
-	-- waterfall only acts on ordered lists
-	-- if its smaller than current indent, the list is "out of scope"
-	-- it can be bigger because it could be unordered but parent list ordered
-
-	-- loop through lines in current list and incement/decrement ordered lists
-	while ptr_indent_lvl > cur_indent_lvl
-		or val ~= nil
-	do
-		-- a stricter check
-		if ptr_indent_lvl == cur_indent_lvl
-			and val ~= nil
-		then
-			-- if val isn't nil, it has a value that was increment/decrement
-			fn.setline(ptrline, val)
-		end
-		ptrline = ptrline + 1
-		if ptrline > fn.line('$') then
-			return
-		end
-		eval_ptrline = fn.getline(ptrline)
-		val = utils.is_ordered(eval_ptrline, config.list_types)
-		ptr_indent_lvl = utils.get_indent_lvl(eval_ptrline)
 	end
 end
 
@@ -174,3 +135,6 @@ function M.recalculate()
 end
 
 return M
+
+-- TODO
+-- in new(), add a fn.getline(".") in the setline so wont delete current line

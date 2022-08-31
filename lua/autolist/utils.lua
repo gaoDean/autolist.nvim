@@ -6,6 +6,12 @@ local fn = vim.fn
 
 local M = {}
 
+function M.str_add_digit(str, digit)
+	-- if not a str (a string)
+	return tostring(tonumber(str) + digit)
+end
+
+
 -- increment if its an ordered list
 -- the caller must make sure that {entry} is a list
 function M.increment(entry, amount)
@@ -13,10 +19,10 @@ function M.increment(entry, amount)
 	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
 	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
 	-- if its an ordered list
-	if digit then
-		return entry:gsub(digit, digit + amount, 1)
+	if digit ~= entry then
+		return entry:gsub(digit, M.str_add_digit(digit, amount), 1)
 	-- if it's an ascii list
-	elseif char then
+	elseif char ~= entry then
 		local byteform = char:byte() + amount
 		-- if bigger than lowercase z wrap to upper A and vice versa
 		if byteform > 122 then
@@ -184,3 +190,6 @@ function M.get_list_start(cur_linenum)
 end
 
 return M
+
+-- TODO
+-- in new(), add a fn.getline(".") in the setline so wont delete current line
