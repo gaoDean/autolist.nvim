@@ -125,8 +125,8 @@ function M.recalculate(override)
 	-- set first entry to one, returns false if fails (not ordered)
 	if not utils.set_value_ordered(list_start_num, list_start, 1) then return end
 
-	local target = 2 -- start plus one
-	local linenum = list_start_num + 1
+	local target = 1 -- start plus one
+	local linenum = list_start_num
 	local line = fn.getline(linenum)
 	local lineval = utils.get_value_ordered(line)
 	local line_indent = utils.get_indent_lvl(line)
@@ -134,17 +134,24 @@ function M.recalculate(override)
 		or line_indent > list_indent)
 		and linenum < list_start_num + 100
 	do
+		local nextline = fn.getline(fn.line(".") + 1)
 		if line_indent == list_indent then
 			-- you set like 50 every time you press j, a few more cant hurt, right?
+			-- btw this calls set_value_ordered
 			if not utils.set_value_ordered(linenum, line, target) then return end
 			-- only increase target if increased list
 			target = target + 1
+		elseif utils.is_ordered(nextline)
+			and utils.get_indent_lvl(nextline) == line_indent
+		then
+			M.recalculate(utils.get_indent_lvl(line))
 		end
 		-- do these at the end so it can check it at the start of the loop
 		linenum = linenum + 1
 		line = fn.getline(linenum)
 		lineval = utils.get_value_ordered(line)
 		line_indent = utils.get_indent_lvl(line)
+		print(line, utils.is_ordered(line))
 	end
 end
 
