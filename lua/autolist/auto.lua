@@ -59,7 +59,7 @@ function M.new()
 	end
 end
 
-function M.relist(prev_indent)
+function M.reverse()
 	local cur_line = fn.getline(".")
 	local cur_linenum = fn.line(".")
 	if cur_linenum <= 1
@@ -67,8 +67,6 @@ function M.relist(prev_indent)
 	then
 		return
 	end
-	-- reduce the number of the indent that the current line was on
-	waterfall(cur_linenum, -1, prev_indent)
 
 	-- is_list returns the pattern as the second value
 	local _, cur_marker_pat = utils.is_list(cur_line, config.list_types)
@@ -87,7 +85,6 @@ function M.relist(prev_indent)
 		if line_indent == cur_indent then
 			cur_line = cur_line:gsub(cur_marker_pat, line_marker, 1)
 			fn.setline(".", cur_line)
-			waterfall(fn.line("."), 1)
 			return
 		-- context optimisation is such a cool name for an option
 		elseif utils.is_ordered(line)
@@ -111,6 +108,7 @@ end
 function M.tab()
 	M.recalculate(utils.get_indent_lvl(fn.getline("."):gsub(utils.tab_value(), "", 1)))
 end
+
 
 function M.recalculate(override)
 	local list_start_num = fn.line(".")
@@ -151,7 +149,6 @@ function M.recalculate(override)
 		line = fn.getline(linenum)
 		lineval = utils.get_value_ordered(line)
 		line_indent = utils.get_indent_lvl(line)
-		print(line, utils.is_ordered(line))
 	end
 end
 
