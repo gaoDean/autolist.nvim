@@ -13,6 +13,7 @@ local function modify(prev, pattern)
 	if utils.trim_end(matched) == utils.trim_end(prev) then
 		-- if replaced smth
 		if nsubs == 1 then
+			-- filler return value
 			return "$"
 		else
 			return ""
@@ -108,8 +109,7 @@ function M.relist(prev_indent)
 end
 
 function M.tab()
-	-- M.recalculate(utils.get_indent_lvl(fn.getline("."):gsub(utils.tab_value(), "", 1)))
-	print(utils.is_ordered(fn.getline(".")))
+	M.recalculate(utils.get_indent_lvl(fn.getline("."):gsub(utils.tab_value(), "", 1)))
 end
 
 function M.recalculate(override)
@@ -130,8 +130,9 @@ function M.recalculate(override)
 	local line = fn.getline(linenum)
 	local lineval = utils.get_value_ordered(line)
 	local line_indent = utils.get_indent_lvl(line)
-	while utils.is_ordered(line)
-		or line_indent > list_indent
+	while (utils.is_ordered(line)
+		or line_indent > list_indent)
+		and linenum < list_start_num + 100
 	do
 		if line_indent == list_indent then
 			-- you set like 50 every time you press j, a few more cant hurt, right?
