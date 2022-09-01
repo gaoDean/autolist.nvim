@@ -86,15 +86,8 @@ function M.reverse()
 			cur_line = cur_line:gsub(cur_marker_pat, line_marker, 1)
 			fn.setline(".", cur_line)
 			return
-		-- context optimisation is such a cool name for an option
-		elseif utils.is_ordered(line)
-			and config.context_optim
-		then
-			-- this is when ptrline_indent > cur_indent
-			linenum = linenum - utils.get_value_ordered(line)
-		else
-			linenum = linenum - 1
 		end
+		linenum = linenum - 1
 		-- do these at the end so it can check it at the start of the loop
 		if linenum <= 0 then
 			return

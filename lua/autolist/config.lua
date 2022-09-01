@@ -25,14 +25,6 @@ local default_config = {
 	-- change to invert_ul_marker.
 	invert_ul_marker = "-",
 
-	-- This just allows the relisting function to use the current list
-	-- formatting to search for the right list type.
-	-- Important: if your markdown ordered lists are badly formatted e.g a one
-	-- followed by a three, the relist cant find the right list. most of the
-	-- time you'll have the correct formatting, and its not a big deal if you
-	-- dont, the program wont throw an error, you just wont get a relist.
-	context_optim = true,
-
 	-- when key o pressed, new list entry. Enables fo_o. see :h fo-table
 	new_entry_on_o = true,
 
