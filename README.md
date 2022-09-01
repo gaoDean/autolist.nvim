@@ -17,7 +17,7 @@ https://user-images.githubusercontent.com/97860672/186395300-2225ce49-af81-45cc-
 
 Note: this plugin is early in development, so expect breaking changes with updates. All breaking changes will be listed in [breaking changes](#breaking-changes).
 
-Sorry for the delay in issue response and unsatisfactory patches, currently going through a rewrite so the patches won't matter.
+Sorry for the delay in issue response and unsatisfactory patches, currently going through a rewrite so the patches won't matter, you can track the development in the *split* branch.
 
 ## Why autolist.nvim
 This question can be interpreted in two ways. Why did I create autolist, and why you should use autolist.
