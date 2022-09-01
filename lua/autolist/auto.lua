@@ -107,10 +107,20 @@ function M.relist(prev_indent)
 	end
 end
 
-function M.recalculate()
+function M.tab()
+	-- M.recalculate(utils.get_indent_lvl(fn.getline("."):gsub(utils.tab_value(), "", 1)))
+	print(utils.is_ordered(fn.getline(".")))
+end
+
+function M.recalculate(override)
 	local list_start_num = fn.line(".")
 	local list_start = fn.getline(list_start_num)
-	local list_indent = utils.get_indent_lvl(list_start)
+	local list_indent
+	if override then
+		list_indent = override
+	else
+		list_indent = utils.get_indent_lvl(list_start)
+	end
 
 	-- set first entry to one, returns false if fails (not ordered)
 	if not utils.set_value_ordered(list_start_num, list_start, 1) then return end
@@ -120,8 +130,8 @@ function M.recalculate()
 	local line = fn.getline(linenum)
 	local lineval = utils.get_value_ordered(line)
 	local line_indent = utils.get_indent_lvl(line)
-	while is_ordered(line)
-		and line_indent >= list_indent
+	while utils.is_ordered(line)
+		or line_indent > list_indent
 	do
 		if line_indent == list_indent then
 			-- you set like 50 every time you press j, a few more cant hurt, right?

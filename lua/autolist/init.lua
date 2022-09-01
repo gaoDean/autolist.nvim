@@ -12,7 +12,7 @@ M.setup = function(opts)
 	-- M.invert = generic.invert
 	M.new = auto.new
 	-- M.relist = generic.relist
-	-- M.reset = generic.reset
+	-- M.tab = auto.tab
 	-- M.unlist = generic.unlist
 end
 

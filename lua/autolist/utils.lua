@@ -8,21 +8,26 @@ local M = {}
 
 function M.str_add_digit(str, digit)
 	-- if not a str (a string)
-	return tostring(tonumber(str) + digit)
+	if str then
+		return tostring(tonumber(str) + digit)
+	end
+	return nil
 end
 
 
 -- increment if its an ordered list
 -- the caller must make sure that {entry} is a list
 function M.increment(entry, amount)
-	if not amount then amount = 1 end
+	if not amount then
+		amount = 1
+	end
 	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
 	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
 	-- if its an ordered list
-	if digit ~= entry then
+	if digit and digit ~= entry then
 		return entry:gsub(digit, M.str_add_digit(digit, amount), 1)
 	-- if it's an ascii list
-	elseif char ~= entry then
+	elseif char and char ~= entry then
 		local byteform = char:byte() + amount
 		-- if bigger than lowercase z wrap to upper A and vice versa
 		if byteform > 122 then
@@ -43,7 +48,7 @@ function M.decrement(entry, amount)
 	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
 	-- if its an ordered list
 	if digit then
-		return entry:gsub(digit, digit - amount, 1)
+		return entry:gsub(digit, M.str_add_digit(digit, amount), 1)
 	-- if it's an ascii list
 	elseif char then
 		local byteform = char:byte() - amount
@@ -72,7 +77,7 @@ end
 function M.is_ordered(entry, rise)
 	-- increment only acts on incrementable (ordered) lists
 	local newval
-	if rise > 0 then
+	if rise and rise > 0 then
 		newval = M.increment(entry)
 	else
 		newval = M.decrement(entry)
@@ -125,13 +130,13 @@ end
 
 -- returns a lua pattern with the current vim tab value
 function M.tab_value()
-	if vim.bo.expandtab then
+	if vim.opt.expandtab:get() then
 		local pattern = ""
 		-- get tabstop in spaces
-		for i = 1, vim.bo.tabstop, 1 do
+		for i = 1, vim.opt.tabstop:get(), 1 do
 			pattern = pattern .. " "
 		end
-		return ret
+		return pattern
 	else
 		return "\t"
 	end
@@ -162,7 +167,7 @@ function M.set_value_ordered(linenum, line, val)
 	local digit = line:gsub(prefix .. "%d+)%..*$", "%1", 1)
 	local char = line:gsub(prefix .. "%a)[.)].*$", "%1", 1)
 	if digit then
-		fn.setline(linenum, line:gsub("%d+", val, 1))
+		fn.setline(linenum, (line:gsub("%d+", val, 1)))
 		return true
 	elseif char then
 		if val <= 26 then
