@@ -6,21 +6,57 @@ local fn = vim.fn
 
 local M = {}
 
+local function vo(char)
+	return char:byte()
+end
+
+local function custom_round(a, b, val)
+	-- if val bigger than the middle of a and b
+	if val > (a + b) / 2 then
+		-- return the bigger
+		-- a > b ? a : b;
+		return a > b and a or b
+	else
+		-- a > b ? a : b;
+		return a < b and a or b
+	end
+end
+
+-- wrap the char
+-- increment z goes to A
+-- increment Z goes to a
+-- decrement vice verca
+function M.charwrap(byte)
+	-- search up ascii table
+	-- value of char (value a)
+	local va = vo('a')
+	local vA = vo('A')
+	local vz = vo('z')
+	local vZ = vo('Z')
+	if byte > vz then
+		return vA
+	-- smaller than 'z'
+	elseif byte < vA then
+		return vz
+	elseif byte > vZ and byte < va then
+		-- return the further value
+		-- round == 'a' ? 'Z' : 'a'
+		return custom_round(vZ, va, byte) == va and vZ or vA
+	end
+	return byte
+end
+
 function M.str_add_digit(str, digit)
 	-- if not a str (a string)
-	if str then
+	if tonumber(str) then
 		return tostring(tonumber(str) + digit)
 	end
 	return nil
 end
 
-
--- increment if its an ordered list
--- the caller must make sure that {entry} is a list
-function M.increment(entry, amount)
-	if not amount then
-		amount = 1
-	end
+function M.ordered_add(entry, amount)
+	-- defaults to increment
+	if not amount then amount = 1 end
 	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
 	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
 	-- if its an ordered list
@@ -28,36 +64,8 @@ function M.increment(entry, amount)
 		return entry:gsub(digit, M.str_add_digit(digit, amount), 1)
 	-- if it's an ascii list
 	elseif char and char ~= entry then
-		local byteform = char:byte() + amount
+		local byteform = charwrap(char:byte() + amount)
 		-- if bigger than lowercase z wrap to upper A and vice versa
-		if byteform > 122 then
-			byteform = 65
-		elseif byteform > 90 and byteform < 97
-			then byteform = 97
-		end
-		return entry:gsub(char, string.char(byteform), 1)
-	end
-	-- return original if anything else
-	return entry
-end
-
--- the caller must make sure that {entry} is a list
-function M.decrement(entry, amount)
-	if not amount then amount = 1 end
-	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
-	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
-	-- if its an ordered list
-	if digit then
-		return entry:gsub(digit, M.str_add_digit(digit, amount), 1)
-	-- if it's an ascii list
-	elseif char then
-		local byteform = char:byte() - amount
-		-- if bigger than lowercase z wrap to upper A and vice versa
-		if byteform < 65 then
-			byteform = 122
-		elseif byteform > 90 and byteform < 97
-			then byteform = 90
-		end
 		return entry:gsub(char, string.char(byteform), 1)
 	end
 	-- return original if anything else
@@ -84,9 +92,9 @@ function M.is_ordered(entry, rise)
 	-- increment only acts on incrementable (ordered) lists
 	local newval
 	if rise and rise > 0 then
-		newval = M.increment(entry)
+		newval = M.ordered_add(entry, 1)
 	else
-		newval = M.decrement(entry)
+		newval = M.ordered_add(entry, -1)
 	end
 	-- if increment changed {entry} it is changable thus ordered
 	if newval ~= entry then
