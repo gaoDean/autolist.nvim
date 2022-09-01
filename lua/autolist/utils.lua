@@ -73,6 +73,12 @@ function M.set_current_line(new_line)
 	fn.setpos(".", pos)
 end
 
+function M.reset_cursor_column()
+	local pos = fn.getpos(".")
+	pos[3] = 1
+	fn.setpos(".", pos)
+end
+
 --is ordered list
 function M.is_ordered(entry, rise)
 	-- increment only acts on incrementable (ordered) lists
@@ -197,6 +203,10 @@ function M.get_list_start(cur_linenum)
 		return linenum + 1
 	end
 	return nil
+end
+
+function M.trim_end(str)
+	return str:gsub("%s*$", "")
 end
 
 return M

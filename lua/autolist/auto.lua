@@ -8,8 +8,10 @@ local M = {}
 
 local function modify(prev, pattern)
 	-- the brackets capture {pattern} and they release on %1
-	local matched, nsubs = prev:gsub("^%s*(" .. pattern .. "%s?).*$", "%1", 1)
-	if matched == prev or not matched then
+	local matched, nsubs = prev:gsub("^(%s*" .. pattern .. "%s?).*$", "%1", 1)
+	-- trim off spaces
+	print(utils.trim_end(matched),"t",utils.trim_end(prev), nsubs)
+	if utils.trim_end(matched) == utils.trim_end(prev) then
 		-- if replaced smth
 		if nsubs == 1 then
 			return "$"
@@ -31,6 +33,7 @@ function M.new()
 
 	-- ipairs is used to optimise list_types (most used checked first)
 	for i, v in ipairs(config.list_types) do
+		print(prev_line)
 		local modded = modify(prev_line, v)
 		-- if its not true and nil
 		if modded == "$" then
@@ -47,14 +50,13 @@ function M.new()
 				end
 			end
 			local cur_line = fn.getline(".")
-			utils.set_current_line(utils.get_indent(cur_line)
-			.. modded
-			.. cur_line:gsub("^%s*", "", 1))
+			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
 			return
 		end
 	end
 	if matched then
 		fn.setline(fn.line(".") - 1, "")
+		utils.reset_cursor_column()
 	end
 end
 
