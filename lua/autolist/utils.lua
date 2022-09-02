@@ -149,13 +149,14 @@ end
 function M.tab_value()
 	if vim.opt.expandtab:get() then
 		local pattern = ""
+		local tabstop = vim.opt.tabstop:get()
 		-- get tabstop in spaces
-		for i = 1, vim.opt.tabstop:get(), 1 do
+		for i = 1, tabstop, 1 do
 			pattern = pattern .. " "
 		end
-		return pattern
+		return pattern, tabstop
 	else
-		return "\t"
+		return "\t", 1
 	end
 end
 
@@ -218,6 +219,10 @@ function M.get_list_start(cur_linenum)
 		return linenum + 1
 	end
 	return nil
+end
+
+function M.get_parent_list(line)
+	return M.get_list_start(line) - 1
 end
 
 function M.trim_end(str)

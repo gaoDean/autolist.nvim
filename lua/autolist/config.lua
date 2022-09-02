@@ -13,6 +13,9 @@ local default_config = {
 	-- when key o pressed, new list entry, functions like <cr> but normal mode
 	new_entry_on_o = true,
 
+	-- the max list entries it will recalculate
+	list_cap = 50,
+
 	invert = {
 		-- the mapping to invert the list type e.g ol -> ul, ul -> ol
 		-- set this to empty ("") to disable
@@ -116,10 +119,10 @@ M.update = function(opts)
 			end
 
 			-- to change mapping, just do a imap (not inoremap) to <c-t> to recursively remap
-			au("Filetype", ft, "inoremap <buffer> <c-d> <c-d><cmd>lua require('autolist').recal()<cr>")
-			au("Filetype", ft, "inoremap <buffer> <c-t> <c-t><cmd>lua require('autolist').recal()<cr>")
-			au("Filetype", ft, "nnoremap <buffer> << <<<cmd>lua require('autolist').recal()<cr>")
-			au("Filetype", ft, "nnoremap <buffer> >> >><cmd>lua require('autolist').recal()<cr>")
+			au("Filetype", ft, "inoremap <buffer> <c-d> <c-d><cmd>lua require('autolist').detab()<cr>")
+			au("Filetype", ft, "inoremap <buffer> <c-t> <c-t><cmd>lua require('autolist').tab()<cr>")
+			au("Filetype", ft, "nnoremap <buffer> << <<<cmd>lua require('autolist').detab()<cr>")
+			au("Filetype", ft, "nnoremap <buffer> >> >><cmd>lua require('autolist').tab()<cr>")
 			-- au("Filetype", ft, "nnoremap <buffer> dd dd<cmd>lua require('autolist').unlist()<cr>")
 		end
 	end

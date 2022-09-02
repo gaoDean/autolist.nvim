@@ -80,6 +80,15 @@ function M.new()
 	end
 end
 
+function M.tab()
+	-- recalculate part of the parent list
+	M.recal(utils.get_parent_list(fn.line(".")))
+end
+
+function M.detab()
+	M.recal()
+end
+
 -- recalculates the current list scope
 function M.recal(override_start_num)
 	local list_start_num
@@ -103,9 +112,9 @@ function M.recal(override_start_num)
 	local lineval = utils.get_value_ordered(line)
 	local line_indent = utils.get_indent_lvl(line)
 	local nextline = fn.getline(linenum + 1)
-	local done = -1
+	local childlist_indent = -1
 	while line_indent >= list_indent
-		and linenum < list_start_num + 100
+		and linenum < list_start_num + config.list_cap
 	do
 		if line_indent == list_indent then
 			if utils.is_ordered(line) then
@@ -116,18 +125,23 @@ function M.recal(override_start_num)
 				end
 				-- only increase target if increased list
 				target = target + 1
+				-- escaped the child list
+				childlist_indent = -1
 			else
 				-- same indent and isnt ordered
 				return
 			end
-		elseif utils.is_ordered(nextline)
-			and line_indent ~= done
-			and utils.get_indent_lvl(nextline) == line_indent
+		-- this part recalculates a child list with recursion
+		-- tab_value() returns the amount as the second value
+		-- the not_equal prevents it from recalculating multiple times
+		elseif utils.is_ordered(line)
+			and line_indent ~= childlist_indent
+			and line_indent == list_indent + select(2, utils.tab_value())
 		then
 			local new_indent = utils.get_indent_lvl(line)
 			-- the first time this runs, linenum is the first entry in the list
 			M.recal(linenum)
-			done = new_indent -- so you don't repeat recalculate()
+			childlist_indent = new_indent -- so you don't repeat recalculate()
 		end
 		-- do these at the end so it can check it at the start of the loop
 		linenum = linenum + 1

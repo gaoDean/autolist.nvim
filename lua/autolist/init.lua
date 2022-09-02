@@ -9,7 +9,8 @@ M.setup = function(opts)
 	-- if someone knows, pls tell me
 	local auto = require("autolist.auto")
 	M.new = auto.new
-	M.recal = auto.recal
+	M.detab = auto.detab
+	M.tab = auto.tab
 	M.invert = auto.invert
 end
 
