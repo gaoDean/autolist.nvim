@@ -3,8 +3,8 @@ local config = require("autolist.config")
 
 local fn = vim.fn
 local pat_checkbox = "^%s*%S+%s%[.%]"
-local checkbox_filled_pat = config.checkbox_left .. config.checkbox_fill .. config.checkbox_right
-local checkbox_empty_pat = config.checkbox_left .. " " .. config.checkbox_right
+local checkbox_filled_pat = config.checkbox.left .. config.checkbox.fill .. config.checkbox.right
+local checkbox_empty_pat = config.checkbox.left .. " " .. config.checkbox.right
 -- filter_pat() removes the % signs
 local checkbox_filled = utils.filter_pat(checkbox_filled_pat)
 local checkbox_empty = utils.filter_pat(checkbox_empty_pat)
@@ -52,7 +52,7 @@ function M.new()
 	local matched = false
 
 	-- ipairs is used to optimise list_types (most used checked first)
-	for i, v in ipairs(config.list_types) do
+	for i, v in ipairs(config.lists.all) do
 		local modded = modify(prev_line, v)
 		-- if its not true and nil
 		if modded == "$" then
@@ -142,7 +142,7 @@ function M.invert()
 	local cur_line = fn.getline(".")
 
 	-- if toggle checkbox true and is checkbox, toggle checkbox
-	if config.invert_toggles_checkbox then
+	if config.invert.toggles_checkbox then
 		-- returns nil if not a checkbox
 		local filled = checkbox_is_filled(cur_line)
 		if filled == true then
@@ -159,14 +159,14 @@ function M.invert()
 		end
 	end
 
-	local list, cur_marker_pat = utils.is_list(cur_line, config.list_types)
+	local list, cur_marker_pat = utils.is_list(cur_line, config.lists.all)
 	if list then
 		-- if ul change to 1.
 		if utils.is_ordered(cur_line) then
-			utils.set_current_line(cur_line:gsub(cur_marker_pat, config.invert_ul_marker, 1))
+			utils.set_current_line(cur_line:gsub(cur_marker_pat, config.invert.ul_marker, 1))
 		else
-			-- if ol change to {config.invert_ul_marker}
-			local new_marker = config.invert_ol_incrementable .. config.invert_ol_delim
+			-- if ol change to {config.invert.ul_marker}
+			local new_marker = config.invert.ol_incrementable .. config.invert.ol_delim
 			utils.set_current_line(cur_line:gsub(cur_marker_pat, new_marker, 1))
 		end
 	end
