@@ -98,7 +98,6 @@ M.update = function(opts)
 			-- the first part just appends on to newconf.lists.all
 			-- the newconf.lists.generic stores the key for the value in preloaded_lists
 			newconf.lists.all[#newconf.lists.all + 1] = preloaded_lists[v]
-			print(newconf.lists.all[#newconf.lists.all + 1])
 		end
 
 		-- for each filetype in enabled_filetypes
