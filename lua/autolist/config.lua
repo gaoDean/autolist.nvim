@@ -25,7 +25,16 @@ local default_config = {
 	-- change to invert_ul_marker.
 	invert_ul_marker = "-",
 
-	-- when key o pressed, new list entry. Enables fo_o. see :h fo-table
+	-- the following two settings configure changing from ul to ol
+	-- if you put ")", ul -> "1) " (or "2) ")
+	invert_ol_delim = ".",
+
+	-- the incrementable part of the ordered list
+	-- this can be a number or a char (depending on what you want)
+	-- so if the following was "a" (or "b" or "c" etc), ul -> "a. " (or "b. ")
+	invert_ol_incrementable = "1",
+
+	-- when key o pressed, new list entry. Enables fo_o. see :h fo-recalle
 	new_entry_on_o = true,
 
 	-- filetypes that this plugin is enabled for.
@@ -42,9 +51,14 @@ local default_config = {
 		"%d+%.",
 		"%a[.)]",
 	},
+
+	-- used to configure what is matched as a checkbox
+	checkbox_left = "%[",
+	checkbox_right = "%]",
+	checkbox_fill = "x",
 }
 
-local function au(evt, pat, cmd) -- (string|table), (string|table), (string)
+local function au(evt, pat, cmd) -- (string|recalle), (string|table), (string)
 	vim.api.nvim_create_autocmd(evt, { pattern = pat, command = cmd, })
 end
 
@@ -71,10 +85,10 @@ M.update = function(opts)
 			end
 
 			-- to change mapping, just do a imap (not inoremap) to <c-t> to recursively remap
-			au("Filetype", ft, "inoremap <buffer> <c-d> <c-d><cmd>lua require('autolist').stab()<cr>")
-			au("Filetype", ft, "inoremap <buffer> <c-t> <c-t><cmd>lua require('autolist').tab()<cr>")
-			au("Filetype", ft, "nnoremap <buffer> << <<<cmd>lua require('autolist').stab()<cr>")
-			au("Filetype", ft, "nnoremap <buffer> >> >><cmd>lua require('autolist').tab()<cr>")
+			au("Filetype", ft, "inoremap <buffer> <c-d> <c-d><cmd>lua require('autolist').recal()<cr>")
+			au("Filetype", ft, "inoremap <buffer> <c-t> <c-t><cmd>lua require('autolist').recal()<cr>")
+			au("Filetype", ft, "nnoremap <buffer> << <<<cmd>lua require('autolist').recal()<cr>")
+			au("Filetype", ft, "nnoremap <buffer> >> >><cmd>lua require('autolist').recal()<cr>")
 			-- au("Filetype", ft, "nnoremap <buffer> dd dd<cmd>lua require('autolist').unlist()<cr>")
 		end
 	end

@@ -15,10 +15,11 @@ local function custom_round(a, b, val)
 	if val > (a + b) / 2 then
 		-- return the bigger
 		-- a > b ? a : b;
-		return a > b and a or b
+		if a > b then return a else return b end
 	else
-		-- a > b ? a : b;
-		return a < b and a or b
+		-- return the smaller
+		-- a < b ? a : b;
+		if a < b then return a else return b end
 	end
 end
 
@@ -107,9 +108,11 @@ end
 function M.is_list(entry, list_types, more)
 	if more then
 		more = "%s"
+	else
+		more = ""
 	end
 	for _, pat in ipairs(list_types) do
-		local sub, nsubs = entry:gsub("^%s*(" .. pat .. more .. ").*$", "%1", 1)
+		local sub, nsubs = entry:gsub(prefix .. pat .. more .. suffix, "%1", 1)
 		-- if replaced something
 		if nsubs > 0 then
 			return true, pat, sub
@@ -219,6 +222,10 @@ end
 
 function M.trim_end(str)
 	return str:gsub("%s*$", "")
+end
+
+function M.filter_pat(pat)
+	return pat:gsub("%%", "")
 end
 
 return M

@@ -3,8 +3,20 @@ local config = require("autolist.config")
 
 local fn = vim.fn
 local pat_checkbox = "^%s*%S+%s%[.%]"
+local checkbox_filled_pat = config.checkbox_left .. config.checkbox_fill .. config.checkbox_right
+local checkbox_empty_pat = config.checkbox_left .. " " .. config.checkbox_right
+-- filter_pat() removes the % signs
+local checkbox_filled = utils.filter_pat(checkbox_filled_pat)
+local checkbox_empty = utils.filter_pat(checkbox_empty_pat)
 
-local M = {}
+local function checkbox_is_filled(line)
+	if line:match(checkbox_filled_pat) then
+		return true
+	elseif line:match(checkbox_empty_pat) then
+		return false
+	end
+	return nil
+end
 
 local function modify(prev, pattern)
 	-- the brackets capture {pattern} and they release on %1
@@ -21,6 +33,8 @@ local function modify(prev, pattern)
 	end
 	return utils.ordered_add(matched, 1)
 end
+
+local M = {}
 
 function M.new()
 	if fn.line(".") <= 0 then return end
@@ -41,7 +55,7 @@ function M.new()
 		elseif modded ~= "" then
 			-- sets current line and puts cursor to end
 			if prev_line:match(pat_checkbox) then
-				modded = modded .. "[ ] "
+				modded = modded .. checkbox_empty .. " "
 				-- if the prev was checkbox and had no content
 				if prev_line:match(pat_checkbox .. "%s?$") then
 					matched = true
@@ -59,61 +73,22 @@ function M.new()
 	end
 end
 
-function M.reverse()
-	local cur_line = fn.getline(".")
-	local cur_linenum = fn.line(".")
-	if cur_linenum <= 1
-		or utils.not_list(cur_line, config.list_types)
-	then
-		return
-	end
-	-- is_list returns the pattern as the second value
-	local _, cur_marker_pat = utils.is_list(cur_line, config.list_types)
-	local cur_indent = utils.get_indent_lvl(cur_line)
-	local linenum = cur_linenum - 1
-	local line = fn.getline(linenum)
-	local line_indent = utils.get_indent_lvl(line)
-	-- returns the marker as the third value
-	local _, _, line_marker = utils.is_list(line, config.list_types)
-	-- if indent less than current indent, thats out of scope
-	while line_marker
-		and line_indent >= cur_indent
-	do
-		if line_indent == cur_indent then
-			cur_line = cur_line:gsub(cur_marker_pat, line_marker, 1)
-			fn.setline(".", cur_line)
-			return
-		end
-		linenum = linenum - 1
-		if linenum <= 0 then
-			return
-		end
-		line = fn.getline(linenum)
-		line_indent = utils.get_indent_lvl(line)
-		_, _, line_marker = utils.is_list(line, config.list_types)
-	end
-end
-
-function M.tab()
-	M.recalculate()
-end
-
-function M.stab()
-	M.recalculate()
-end
-
-function M.recalculate(override_start_num)
+-- recalculates the current list scope
+function M.recal(override_start_num)
 	local list_start_num
 	if override_start_num then
 		list_start_num = utils.get_list_start(override_start_num)
 	else
 		list_start_num = utils.get_list_start(fn.line("."))
 	end
+	if not list_start_num then return end -- returns nil if not ordered list
 	local list_start = fn.getline(list_start_num)
 	local list_indent = utils.get_indent_lvl(list_start)
 
 	-- set first entry to one, returns false if fails (not ordered)
-	if not utils.set_value_ordered(list_start_num, list_start, 1) then return end
+	if not utils.set_value_ordered(list_start_num, list_start, 1) then
+		return
+	end
 
 	local target = 2 -- start plus one
 	local linenum = list_start_num + 1
@@ -144,7 +119,7 @@ function M.recalculate(override_start_num)
 		then
 			local new_indent = utils.get_indent_lvl(line)
 			-- the first time this runs, linenum is the first entry in the list
-			M.recalculate(linenum)
+			M.recal(linenum)
 			done = new_indent -- so you don't repeat recalculate()
 		end
 		-- do these at the end so it can check it at the start of the loop
@@ -153,6 +128,38 @@ function M.recalculate(override_start_num)
 		lineval = utils.get_value_ordered(line)
 		line_indent = utils.get_indent_lvl(line)
 		nextline = fn.getline(linenum + 1)
+	end
+end
+
+function M.invert()
+	local cur_line = fn.getline(".")
+
+	-- if toggle checkbox true and is checkbox, toggle checkbox
+	if config.invert_toggles_checkbox then
+		-- returns nil if not a checkbox
+		local filled = checkbox_is_filled(cur_line)
+		if filled == true then
+			-- replace current line's empty checkbox with filled checkbox
+			fn.setline(".", (cur_line:gsub(checkbox_filled_pat, checkbox_empty)))
+			return
+		-- it is a checkbox, but not empty
+		elseif filled == false then
+			-- replace current line's filled checkbox with empty checkbox
+			fn.setline(".", (cur_line:gsub(checkbox_empty_pat, checkbox_filled)))
+			return
+		end
+	end
+
+	local list, cur_marker_pat = utils.is_list(cur_line, config.list_types)
+	if list then
+		-- if ul change to 1.
+		if utils.is_ordered(cur_line) then
+			utils.set_current_line(cur_line:gsub(cur_marker_pat, config.invert_ul_marker, 1))
+		else
+			-- if ol change to {config.invert_ul_marker}
+			local new_marker = config.invert_ol_incrementable .. config.invert_ol_delim
+			utils.set_current_line(cur_line:gsub(cur_marker_pat, new_marker, 1))
+		end
 	end
 end
 
