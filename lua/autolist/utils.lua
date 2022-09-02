@@ -199,15 +199,19 @@ function M.set_value_ordered(linenum, line, val)
 end
 
 function M.get_list_start(cur_linenum)
+	if not cur_linenum then
+		cur_linenum = fn.line(".")
+	end
 	local linenum = cur_linenum
 	local line = fn.getline(linenum)
-	local cur_indent = get_indent_lvl(line)
-	while is_ordered(line) or get_indent_lvl(line) > cur_indent do
+	local cur_indent = M.get_indent_lvl(line)
+	if cur_indent < 0 then cur_indent = 0 end
+	while (M.is_ordered(line) and M.get_indent_lvl(line) >= cur_indent) or M.get_indent_lvl(line) > cur_indent do
 		linenum = linenum - 1
 		line = fn.getline(linenum)
 	end
-	local line = fn.getline(linenum + 1)
-	if is_ordered(line) then
+	line = fn.getline(linenum + 1)
+	if M.is_ordered(line) then
 		return linenum + 1
 	end
 	return nil

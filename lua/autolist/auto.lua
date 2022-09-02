@@ -67,17 +67,14 @@ function M.reverse()
 	then
 		return
 	end
-
 	-- is_list returns the pattern as the second value
 	local _, cur_marker_pat = utils.is_list(cur_line, config.list_types)
 	local cur_indent = utils.get_indent_lvl(cur_line)
-
 	local linenum = cur_linenum - 1
 	local line = fn.getline(linenum)
 	local line_indent = utils.get_indent_lvl(line)
 	-- returns the marker as the third value
 	local _, _, line_marker = utils.is_list(line, config.list_types)
-
 	-- if indent less than current indent, thats out of scope
 	while line_marker
 		and line_indent >= cur_indent
@@ -88,7 +85,6 @@ function M.reverse()
 			return
 		end
 		linenum = linenum - 1
-		-- do these at the end so it can check it at the start of the loop
 		if linenum <= 0 then
 			return
 		end
@@ -99,49 +95,64 @@ function M.reverse()
 end
 
 function M.tab()
-	M.recalculate(utils.get_indent_lvl(fn.getline("."):gsub(utils.tab_value(), "", 1)))
+	M.recalculate()
 end
 
+function M.stab()
+	M.recalculate()
+end
 
-function M.recalculate(override)
-	local list_start_num = fn.line(".")
-	local list_start = fn.getline(list_start_num)
-	local list_indent
-	if override then
-		list_indent = override
+function M.recalculate(override_start_num)
+	local list_start_num
+	if override_start_num then
+		list_start_num = utils.get_list_start(override_start_num)
 	else
-		list_indent = utils.get_indent_lvl(list_start)
+		list_start_num = utils.get_list_start(fn.line("."))
 	end
+	local list_start = fn.getline(list_start_num)
+	local list_indent = utils.get_indent_lvl(list_start)
 
 	-- set first entry to one, returns false if fails (not ordered)
 	if not utils.set_value_ordered(list_start_num, list_start, 1) then return end
 
-	local target = 1 -- start plus one
-	local linenum = list_start_num
+	local target = 2 -- start plus one
+	local linenum = list_start_num + 1
 	local line = fn.getline(linenum)
 	local lineval = utils.get_value_ordered(line)
 	local line_indent = utils.get_indent_lvl(line)
-	while (utils.is_ordered(line)
-		or line_indent > list_indent)
+	local nextline = fn.getline(linenum + 1)
+	local done = -1
+	while line_indent >= list_indent
 		and linenum < list_start_num + 100
 	do
-		local nextline = fn.getline(fn.line(".") + 1)
 		if line_indent == list_indent then
-			-- you set like 50 every time you press j, a few more cant hurt, right?
-			-- btw this calls set_value_ordered
-			if not utils.set_value_ordered(linenum, line, target) then return end
-			-- only increase target if increased list
-			target = target + 1
+			if utils.is_ordered(line) then
+				-- you set like 50 every time you press j, a few more cant hurt, right?
+				-- btw this calls set_value_ordered
+				if not utils.set_value_ordered(linenum, line, target) then
+					return
+				end
+				-- only increase target if increased list
+				target = target + 1
+			else
+				-- same indent and isnt ordered
+				return
+			end
 		elseif utils.is_ordered(nextline)
+			and line_indent ~= done
 			and utils.get_indent_lvl(nextline) == line_indent
 		then
-			M.recalculate(utils.get_indent_lvl(line))
+			local new_indent = utils.get_indent_lvl(line)
+			-- the first time this runs, linenum is the first entry in the list
+			M.recalculate(linenum)
+			done = new_indent -- so you don't repeat recalculate()
 		end
 		-- do these at the end so it can check it at the start of the loop
 		linenum = linenum + 1
 		line = fn.getline(linenum)
 		lineval = utils.get_value_ordered(line)
 		line_indent = utils.get_indent_lvl(line)
+		nextline = fn.getline(linenum + 1)
 	end
 end
 
