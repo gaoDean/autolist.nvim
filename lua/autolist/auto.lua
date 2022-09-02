@@ -9,6 +9,8 @@ local checkbox_empty_pat = config.checkbox_left .. " " .. config.checkbox_right
 local checkbox_filled = utils.filter_pat(checkbox_filled_pat)
 local checkbox_empty = utils.filter_pat(checkbox_empty_pat)
 
+local M = {}
+
 local function checkbox_is_filled(line)
 	if line:match(checkbox_filled_pat) then
 		return true
@@ -16,6 +18,12 @@ local function checkbox_is_filled(line)
 		return false
 	end
 	return nil
+end
+
+local function check_recal(func_name)
+	if utils.table_contains(config.recal_hooks, func_name) then
+		M.recal()
+	end
 end
 
 local function modify(prev, pattern)
@@ -33,8 +41,6 @@ local function modify(prev, pattern)
 	end
 	return utils.ordered_add(matched, 1)
 end
-
-local M = {}
 
 function M.new()
 	if fn.line(".") <= 0 then return end
@@ -64,6 +70,7 @@ function M.new()
 			end
 			local cur_line = fn.getline(".")
 			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
+			check_recal("new")
 			return
 		end
 	end
@@ -141,11 +148,13 @@ function M.invert()
 		if filled == true then
 			-- replace current line's empty checkbox with filled checkbox
 			fn.setline(".", (cur_line:gsub(checkbox_filled_pat, checkbox_empty)))
+			check_recal("invert")
 			return
 		-- it is a checkbox, but not empty
 		elseif filled == false then
 			-- replace current line's filled checkbox with empty checkbox
 			fn.setline(".", (cur_line:gsub(checkbox_empty_pat, checkbox_filled)))
+			check_recal("invert")
 			return
 		end
 	end
@@ -161,6 +170,7 @@ function M.invert()
 			utils.set_current_line(cur_line:gsub(cur_marker_pat, new_marker, 1))
 		end
 	end
+	check_recal("invert")
 end
 
 return M

@@ -52,6 +52,10 @@ local default_config = {
 		"%a[.)]",
 	},
 
+	recal_hooks = {
+		"invert",
+	},
+
 	-- used to configure what is matched as a checkbox
 	checkbox_left = "%[",
 	checkbox_right = "%]",
