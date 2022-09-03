@@ -121,20 +121,6 @@ function M.is_list(entry, list_types, more)
 	return false
 end
 
-function M.not_list(entry, list_types, more)
-	if more then
-		more = "%s"
-	end
-	for _, pat in ipairs(list_types) do
-		local _, nsubs = entry:gsub(prefix .. pat .. more .. suffix, "%1", 1)
-		-- if replaced something
-		if nsubs > 0 then
-			return false
-		end
-	end
-	return true
-end
-
 -- returns the number of tabs/spaces before a character
 function M.get_indent_lvl(entry)
 	return #(entry:match("^%s*"))
