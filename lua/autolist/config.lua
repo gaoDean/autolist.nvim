@@ -14,11 +14,21 @@ local default_config = {
 	-- also enables capital O
 	new_entry_on_o = true,
 
-	-- when a line ends with a colon, the list is automatically indented
-	colon_indent = true,
-
 	-- the max list entries it will recalculate
 	list_cap = 50,
+
+	-- line ending with a colon
+	colon = {
+		-- when a line ends with a colon, the list is automatically indented
+		indent_raw = true,
+
+		-- when a *list* ends with a colon, the list is automatically indented
+		indent = true,
+
+		-- the preferred marker when starting a list from a colon
+		-- set to empty to use current
+		preferred = "-"
+	},
 
 	invert = {
 		-- the mapping to invert the list type e.g ol -> ul, ul -> ol

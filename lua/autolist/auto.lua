@@ -3,7 +3,7 @@ local config = require("autolist.config")
 
 local fn = vim.fn
 local pat_checkbox = "^%s*%S+%s%[.%]"
-local pat_colon = ":$"
+local pat_colon = ":%s*$"
 local checkbox_filled_pat = config.checkbox.left .. config.checkbox.fill .. config.checkbox.right
 local checkbox_empty_pat = config.checkbox.left .. " " .. config.checkbox.right
 -- filter_pat() removes the % signs
@@ -51,9 +51,6 @@ function M.new(before)
 		prev_line = fn.getline(fn.line(".") + 1)
 	end
 
-	-- no lists have two letters at the start, at least for now
-	if prev_line:sub(1, 2):match("%a%a") then return end
-
 	local matched = false
 
 	-- ipairs is used to optimise list_types (most used checked first)
@@ -72,8 +69,15 @@ function M.new(before)
 					matched = true
 					break
 				end
-			elseif not before and prev_line:match(pat_colon) then
+			elseif not before
+				and config.colon.indent
+				and prev_line:match(pat_colon)
+			then
+				if config.colon.preferred ~= "" then
+					modded = modded:gsub("^(%s*).*", "%1", 1) .. config.colon.preferred .. " "
+				end
 				modded = utils.tab_value() .. modded
+				before = true -- just to recal
 			end
 			local cur_line = fn.getline(".")
 			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
@@ -84,6 +88,13 @@ function M.new(before)
 	if matched then
 		fn.setline(fn.line(".") - 1, "")
 		utils.reset_cursor_column()
+		return
+	end
+	if not before
+		and config.colon.indent_raw
+		and prev_line:match(pat_colon)
+	then
+		utils.set_current_line(config.colon.preferred .. " " .. fn.getline("."):gsub("^%s*", "", 1))
 	end
 end
 
