@@ -228,4 +228,12 @@ function M.table_contains(table, element)
   return false
 end
 
+-- returns the correct lists for the current filetype
+function M.get_lists(filetype_lists)
+	-- each table in filetype lists has the key of a filetype
+	-- each value has the tables (of lists) that it is assigned to
+	return filetype_lists[vim.bo.filetype]
+end
+
+
 return M
