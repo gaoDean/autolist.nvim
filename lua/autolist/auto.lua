@@ -72,7 +72,7 @@ function M.new(before)
 					matched = true
 					break
 				end
-			elseif prev_line:match(pat_colon) then
+			elseif not before and prev_line:match(pat_colon) then
 				modded = utils.tab_value() .. modded
 			end
 			local cur_line = fn.getline(".")
