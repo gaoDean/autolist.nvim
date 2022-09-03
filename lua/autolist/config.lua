@@ -14,6 +14,9 @@ local default_config = {
 	-- also enables capital O
 	new_entry_on_o = true,
 
+	-- when a line ends with a colon, the list is automatically indented
+	colon_indent = true,
+
 	-- the max list entries it will recalculate
 	list_cap = 50,
 
