@@ -7,12 +7,11 @@ M.setup = function(opts)
 
 	-- i dunno how to do this better
 	-- if someone knows, pls tell me
-	local generic = require("autolist.generic")
-	M.invert = generic.invert
-	M.list = generic.list
-	M.relist = generic.relist
-	M.reset = generic.reset
-	M.unlist = generic.unlist
+	local auto = require("autolist.auto")
+	M.new = auto.new
+	M.detab = auto.detab
+	M.tab = auto.tab
+	M.invert = auto.invert
 end
 
 return M

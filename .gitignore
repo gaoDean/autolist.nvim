@@ -1,0 +1,2 @@
+/lua/autolist/*
+!/lua/autolist/*.lua
