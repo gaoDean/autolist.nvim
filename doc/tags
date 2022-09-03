@@ -1,9 +1,8 @@
 autolist_an_intro_to_autolist	autolist.txt	/*autolist_an_intro_to_autolist*
-autolist_autolist.nvim	autolist.txt	/*autolist_autolist.nvim*
 autolist_configuration	autolist.txt	/*autolist_configuration*
-autolist_contents	autolist.txt	/*autolist_contents*
 autolist_credit	autolist.txt	/*autolist_credit*
-autolist_installation	autolist.txt	/*autolist_installation*
 autolist_other	autolist.txt	/*autolist_other*
-autolist_usage	autolist.txt	/*autolist_usage*
+autolist_contents	autolist.txt	/*autolist_contents*
 autolist_why_autolist.nvim	autolist.txt	/*autolist_why_autolist.nvim*
+autolist_installation	autolist.txt	/*autolist_installation*
+autolist_usage	autolist.txt	/*autolist_usage*
