@@ -15,9 +15,7 @@
 
 https://user-images.githubusercontent.com/97860672/186395300-2225ce49-af81-45cc-8ec0-87f14fc80cd4.mp4
 
-Note: this plugin is early in development, so expect breaking changes with updates. All breaking changes will be listed in [breaking changes](#breaking-changes).
-
-Sorry for the delay in issue response and unsatisfactory patches, currently going through a rewrite so the patches won't matter, you can track the development in the *split* branch.
+Note: this plugin is early in development, so expect breaking changes with updates. All breaking changes will be listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## Why autolist.nvim
 This question can be interpreted in two ways. Why did I create autolist, and why you should use autolist.
@@ -110,9 +108,6 @@ require('autolist').setup({
 })
 ```
 The `config.lua` contains good information about the mappings and config that the docs are sometimes behind on.
-
-## Breaking changes
-2022 Aug 29: Large refactor coming up that will remove the generic part of the table as its useless (all other config options kept, so just do two `dd`s for the generic brackets), and add extra options to do your own markers.
 
 ## Credit
 
