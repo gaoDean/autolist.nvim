@@ -20,8 +20,8 @@ local function checkbox_is_filled(line)
 	return nil
 end
 
-local function check_recal(func_name)
-	if utils.table_contains(config.recal_hooks, func_name) then
+local function check_recal(func_name, extra)
+	if extra == true or utils.table_contains(config.recal_hooks, func_name) then
 		M.recal()
 	end
 end
@@ -42,9 +42,13 @@ local function modify(prev, pattern)
 	return utils.ordered_add(matched, 1)
 end
 
-function M.new()
+function M.new(before)
 	if fn.line(".") <= 0 then return end
 	local prev_line = fn.getline(fn.line(".") - 1)
+	local filetype_lists = utils.get_lists(config.ft_lists)
+	if before and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
+		prev_line = fn.getline(fn.line(".") + 1)
+	end
 
 	-- no lists have two letters at the start, at least for now
 	if prev_line:sub(1, 2):match("%a%a") then return end
@@ -52,7 +56,7 @@ function M.new()
 	local matched = false
 
 	-- ipairs is used to optimise list_types (most used checked first)
-	for i, v in ipairs(utils.get_lists(config.ft_lists)) do
+	for i, v in ipairs(filetype_lists) do
 		local modded = modify(prev_line, v)
 		-- if its not true and nil
 		if modded == "$" then
@@ -70,7 +74,7 @@ function M.new()
 			end
 			local cur_line = fn.getline(".")
 			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
-			check_recal("new")
+			check_recal("new", before)
 			return
 		end
 	end

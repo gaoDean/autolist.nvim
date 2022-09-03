@@ -106,6 +106,9 @@ end
 
 -- is a list, returns true, the pattern and the result of the pattern
 function M.is_list(entry, list_types, more)
+	if not list_types then
+		return M.is_ordered(entry)
+	end
 	if more then
 		more = "%s"
 	else
@@ -188,7 +191,7 @@ function M.set_value_ordered(linenum, line, val)
 	end
 end
 
-function M.get_list_start(cur_linenum)
+function M.get_list_start(cur_linenum, list_types)
 	if not cur_linenum then
 		cur_linenum = fn.line(".")
 	end
@@ -196,12 +199,19 @@ function M.get_list_start(cur_linenum)
 	local line = fn.getline(linenum)
 	local cur_indent = M.get_indent_lvl(line)
 	if cur_indent < 0 then cur_indent = 0 end
-	while (M.is_ordered(line) and M.get_indent_lvl(line) >= cur_indent) or M.get_indent_lvl(line) > cur_indent do
-		linenum = linenum - 1
-		line = fn.getline(linenum)
+	if list_types then
+		while (M.is_list(line, list_types) and M.get_indent_lvl(line) >= cur_indent) or M.get_indent_lvl(line) > cur_indent do
+			linenum = linenum - 1
+			line = fn.getline(linenum)
+		end
+	else
+		while (M.is_ordered(line) and M.get_indent_lvl(line) >= cur_indent) or M.get_indent_lvl(line) > cur_indent do
+			linenum = linenum - 1
+			line = fn.getline(linenum)
+		end
 	end
 	line = fn.getline(linenum + 1)
-	if M.is_ordered(line) then
+	if M.is_list(line, list_types) then
 		return linenum + 1
 	end
 	return nil
