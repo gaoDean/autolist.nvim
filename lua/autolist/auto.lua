@@ -82,11 +82,15 @@ end
 
 function M.tab()
 	-- recalculate part of the parent list
-	M.recal(utils.get_parent_list(fn.line(".")))
+	if is_ordered(fn.getline(".")) then
+		M.recal(utils.get_parent_list(fn.line(".")))
+	end
 end
 
 function M.detab()
-	M.recal()
+	if is_ordered(fn.getline(".")) then
+		M.recal()
+	end
 end
 
 -- recalculates the current list scope
