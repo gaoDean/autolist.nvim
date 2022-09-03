@@ -44,24 +44,40 @@ local default_config = {
 		ol_delim = ".",
 	},
 
-	-- filetypes that this plugin is enabled for.
-	-- must put file name, not the extension.
-	-- if you are not sure, just run :echo &filetype. or :set filetype?
-	enabled_filetypes = {
-		"markdown",
-		"text",
-	},
-
 	-- the list entries that will be autocompleted
 	lists = {
-		generic = {
-			"md",
-			"digit",
-			"ascii",
+		preloaded = {
+			-- these options correspond to the options in the {filetypes} table
+			generic = {
+				"unordered",
+				"digit",
+				"ascii",
+			},
+			latex = {
+				"latex_item",
+			},
+			-- you can set your own list types using lua's patterns, take a
+			-- look at the preloaded_lists variable in this file
 		},
-		-- a table that is used to contain the patterns, as well as any custom
-		-- patterns you might want. see preloaded_lists in this file.
-		all = { },
+
+		-- its hard to wrap your mind around but in preloaded_lists, each table
+		-- is a "group" of list types, and in this filetypes table, each
+		-- filetype is a filetype that this "group" is applied to.
+		filetypes = {
+			-- must put file name, not the extension.
+			-- if you are not sure, just run :set filetype? or :echo &filetype
+
+			-- this means the generic lists will be applied to markdown and text
+			generic = {
+				"markdown",
+				"text",
+			},
+			-- this means the latex preloaded group is applied to latex files only
+			latex = {
+				"tex",
+				"plaintex",
+			},
+		},
 	},
 
 	-- a list of functions you run recal() on finish
@@ -84,27 +100,49 @@ local function au(evt, pat, cmd) -- (string|recalle), (string|table), (string)
 end
 
 local preloaded_lists = {
-	md = "[-+*]",
+	unordered = "[-+*]",
 	digit = "%d+[.)]",
 	ascii = "%a[.)]",
+	latex_item = "\\item"
 }
+
+local function get_preloaded_pattern(pre)
+	local val = preloaded_lists[pre]
+	-- if the option is not in preloaded_lists return the pattern
+	if not val then
+		return pre
+	end
+	return val
+end
 
 local M = vim.deepcopy(default_config)
 
 M.update = function(opts)
 	local newconf = vim.tbl_deep_extend("force", default_config, opts or {})
 
+	local filetype_lists = {}
+	for list, filetypes in pairs(newconf.lists.filetypes) do
+		for _, filetype in pairs(filetypes) do
+			if not filetype_lists[filetype] then
+				filetype_lists[filetype] = {}
+			end
+			for _, list_type in pairs(newconf.lists.preloaded[list]) do
+				table.insert(filetype_lists[filetype], get_preloaded_pattern(list_type))
+			end
+		end
+	end
+
+	-- DEBUG: this lists the patterns for each filetype
+	-- for filetype, table in pairs(filetype_lists) do
+	-- 	for _, pattern in pairs(table) do
+	-- 		print(filetype, pattern)
+	-- 	end
+	-- end
+
 	if newconf.enabled then
 
-		-- append the value of the preloaded generic lists to {all}
-		for i, v in ipairs(newconf.lists.generic) do
-			-- the first part just appends on to newconf.lists.all
-			-- the newconf.lists.generic stores the key for the value in preloaded_lists
-			newconf.lists.all[#newconf.lists.all + 1] = preloaded_lists[v]
-		end
-
-		-- for each filetype in enabled_filetypes
-		for i, ft in ipairs(newconf.enabled_filetypes) do
+		-- for each filetype in th enabled filetypes
+		for ft, _ in pairs(filetype_lists) do
 			if newconf.create_enter_mapping then
 				au("Filetype", ft, "inoremap <buffer> <cr> <cr><cmd>lua require('autolist').new()<cr>")
 			end
@@ -130,6 +168,9 @@ M.update = function(opts)
 	for k, v in pairs(newconf) do
 		M[k] = v
 	end
+
+	-- options that are hidden from config options but accessible by the scripts
+	M.ft_lists = filetype_lists
 end
 
 return M

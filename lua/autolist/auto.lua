@@ -20,6 +20,13 @@ local function checkbox_is_filled(line)
 	return nil
 end
 
+-- returns the correct lists for the current filetype
+local function get_lists(filetype_lists)
+	-- each table in filetype lists has the key of a filetype
+	-- each value has the tables (of lists) that it is assigned to
+	return filetype_lists[vim.bo.filetype]
+end
+
 local function check_recal(func_name)
 	if utils.table_contains(config.recal_hooks, func_name) then
 		M.recal()
@@ -52,7 +59,7 @@ function M.new()
 	local matched = false
 
 	-- ipairs is used to optimise list_types (most used checked first)
-	for i, v in ipairs(config.lists.all) do
+	for i, v in ipairs(get_lists(config.ft_lists)) do
 		local modded = modify(prev_line, v)
 		-- if its not true and nil
 		if modded == "$" then
@@ -173,7 +180,7 @@ function M.invert()
 		end
 	end
 
-	local list, cur_marker_pat = utils.is_list(cur_line, config.lists.all)
+	local list, cur_marker_pat = utils.is_list(cur_line, get_lists(config.ft_lists))
 	if list then
 		-- if ul change to 1.
 		if utils.is_ordered(cur_line) then
@@ -186,5 +193,9 @@ function M.invert()
 	end
 	check_recal("invert")
 end
+
+-- TODO
+-- move checkbox functions to utils
+-- delete not_list()
 
 return M
