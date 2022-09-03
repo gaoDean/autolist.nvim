@@ -82,13 +82,13 @@ end
 
 function M.tab()
 	-- recalculate part of the parent list
-	if is_ordered(fn.getline(".")) then
+	if utils.is_ordered(fn.getline(".")) then
 		M.recal(utils.get_parent_list(fn.line(".")))
 	end
 end
 
 function M.detab()
-	if is_ordered(fn.getline(".")) then
+	if utils.is_ordered(fn.getline(".")) then
 		M.recal()
 	end
 end
