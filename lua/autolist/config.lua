@@ -11,6 +11,7 @@ local default_config = {
 	create_enter_mapping = true,
 
 	-- when key o pressed, new list entry, functions like <cr> but normal mode
+	-- also enables capital O
 	new_entry_on_o = true,
 
 	-- the max list entries it will recalculate
@@ -148,6 +149,7 @@ M.update = function(opts)
 			end
 			if newconf.new_entry_on_o then
 				au("Filetype", ft, "nnoremap <buffer> o o<cmd>lua require('autolist').new()<cr>")
+				au("Filetype", ft, "nnoremap <buffer> O O<cmd>lua require('autolist').new(true)<cr>")
 			end
 			if newconf.invert.normal_mapping ~= "" then
 				au("Filetype", ft, "nnoremap <buffer> " .. newconf.invert.normal_mapping .. " <cmd>lua require('autolist').invert()<cr>")
