@@ -3,6 +3,7 @@ local config = require("autolist.config")
 
 local fn = vim.fn
 local pat_checkbox = "^%s*%S+%s%[.%]"
+local pat_colon = ":$"
 local checkbox_filled_pat = config.checkbox.left .. config.checkbox.fill .. config.checkbox.right
 local checkbox_empty_pat = config.checkbox.left .. " " .. config.checkbox.right
 -- filter_pat() removes the % signs
@@ -71,6 +72,8 @@ function M.new(before)
 					matched = true
 					break
 				end
+			elseif prev_line:match(pat_colon) then
+				modded = utils.tab_value() .. modded
 			end
 			local cur_line = fn.getline(".")
 			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
