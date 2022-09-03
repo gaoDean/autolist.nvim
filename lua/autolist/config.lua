@@ -3,50 +3,116 @@
 -- my excuse is this is my first plugin so ykyk
 
 local default_config = {
-	generic = {
+	-- enables/disables the plugin
+	enabled = true,
 
-		enabled = true,
+	-- for if you have something else that you want to map when press return
+	-- with the create enter being false, you must create your own mapping
+	create_enter_mapping = true,
 
-		-- for if you have something else that you want to map when press return
-		-- with the create enter being false, you must create your own mapping
-		create_enter_mapping = true,
+	-- when key o pressed, new list entry, functions like <cr> but normal mode
+	new_entry_on_o = true,
 
+	-- the max list entries it will recalculate
+	list_cap = 50,
+
+	invert = {
 		-- the mapping to invert the list type e.g ol -> ul, ul -> ol
 		-- set this to empty ("") to disable
-		invert_mapping = "<c-r>",
+		mapping = "<c-r>",
 
 		-- invert mapping in normal mode
-		invert_normal_mapping = "",
+		normal_mapping = "",
 
 		-- when there is a list like - [x] content, when invert mapping is
 		-- pressed and below option is true the list will turn into
 		-- - [ ] content, instead of 1. [x] content
-		invert_toggles_checkbox = true,
+		toggles_checkbox = true,
 
 		-- when pressing the relist mapping and current marker is ordered list,
-		-- change to invert_ul_marker.
-		invert_ul_marker = "-",
+		-- change to {ul_marker}.
+		ul_marker = "-",
 
-		-- This just allows the relisting function to use the current list
-		-- formatting to search for the right list type.
-		-- Important: if your markdown ordered lists are badly formatted e.g a one
-		-- followed by a three, the relist cant find the right list. most of the
-		-- time you'll have the correct formatting, and its not a big deal if you
-		-- dont, the program wont throw an error, you just wont get a relist.
-		context_optim = true,
+		-- the following two settings configure changing from ul to ol
+		-- the incrementable part of the ordered list
+		-- this can be a number or a char (depending on what you want)
+		-- so if the following was "a" (or "b" or "c" etc), ul -> "a. " (or "b. ")
+		ol_incrementable = "1",
 
-		-- when key o pressed, new list entry. Enables fo_o. see :h fo-table
-		new_entry_on_o = true,
+		-- if you put ")", ul -> "1) " (or "2) ")
+		-- basically what goes after {ol_incrementable}
+		ol_delim = ".",
+	},
 
-		-- filetypes that this plugin is enabled for.
-		-- must put file name, not the extension.
-		-- if you are not sure, just run :echo &filetype. or :set filetype?
-		enabled_filetypes = { "markdown", "text" },
+	-- the list entries that will be autocompleted
+	lists = {
+		preloaded = {
+			-- these options correspond to the options in the {filetypes} table
+			generic = {
+				"unordered",
+				"digit",
+				"ascii",
+			},
+			latex = {
+				"latex_item",
+			},
+			-- you can set your own list types using lua's patterns, take a
+			-- look at the preloaded_lists variable in this file
+		},
+
+		-- its hard to wrap your mind around but in preloaded_lists, each table
+		-- is a "group" of list types, and in this filetypes table, each
+		-- filetype is a filetype that this "group" is applied to.
+		filetypes = {
+			-- must put file name, not the extension.
+			-- if you are not sure, just run :set filetype? or :echo &filetype
+
+			-- this means the generic lists will be applied to markdown and text
+			generic = {
+				"markdown",
+				"text",
+			},
+			-- this means the latex preloaded group is applied to latex files only
+			latex = {
+				"tex",
+				"plaintex",
+			},
+		},
+	},
+
+	-- a list of functions you run recal() on finish
+	-- currently you can do invert() and/or new()
+	recal_hooks = {
+		"invert",
+	},
+
+	-- used to configure what is matched as a checkbox
+	-- in this case a filled checkbox would be "%[x%]" or "[x]"
+	checkbox = {
+		left = "%[",
+		right = "%]",
+		fill = "x",
 	},
 }
 
-local function au(evt, pat, cmd) -- (string|table), (string|table), (string)
+local function au(evt, pat, cmd) -- (string|recalle), (string|table), (string)
 	vim.api.nvim_create_autocmd(evt, { pattern = pat, command = cmd, })
+end
+
+local preloaded_lists = {
+	unordered = "[-+*]",
+	digit = "%d+[.)]",
+	ascii = "%a[.)]",
+	latex_item = "\\item"
+}
+
+local function get_preloaded_pattern(pre)
+	local val = preloaded_lists[pre]
+	-- if the option is not in preloaded_lists return the pattern
+	if not val then
+		return pre
+	end
+	return val
 end
 
 local M = vim.deepcopy(default_config)
@@ -54,35 +120,57 @@ local M = vim.deepcopy(default_config)
 M.update = function(opts)
 	local newconf = vim.tbl_deep_extend("force", default_config, opts or {})
 
-	if newconf.generic.enabled then
+	local filetype_lists = {}
+	for list, filetypes in pairs(newconf.lists.filetypes) do
+		for _, filetype in pairs(filetypes) do
+			if not filetype_lists[filetype] then
+				filetype_lists[filetype] = {}
+			end
+			for _, list_type in pairs(newconf.lists.preloaded[list]) do
+				table.insert(filetype_lists[filetype], get_preloaded_pattern(list_type))
+			end
+		end
+	end
 
-		-- for each filetype in enabled_filetypes
-		for i, ft in ipairs(newconf.generic.enabled_filetypes) do
-			if newconf.generic.create_enter_mapping then
-				au("Filetype", ft, "imap <buffer> <cr> <cr><cmd>lua require('autolist').list()<cr>")
+	-- DEBUG: this lists the patterns for each filetype
+	-- for filetype, table in pairs(filetype_lists) do
+	-- 	for _, pattern in pairs(table) do
+	-- 		print(filetype, pattern)
+	-- 	end
+	-- end
+
+	if newconf.enabled then
+
+		-- for each filetype in th enabled filetypes
+		for ft, _ in pairs(filetype_lists) do
+			if newconf.create_enter_mapping then
+				au("Filetype", ft, "inoremap <buffer> <cr> <cr><cmd>lua require('autolist').new()<cr>")
 			end
-			if newconf.generic.new_entry_on_o then
-				au("Filetype", ft, "nmap <buffer> o o<cmd>lua require('autolist').list()<cr>")
+			if newconf.new_entry_on_o then
+				au("Filetype", ft, "nnoremap <buffer> o o<cmd>lua require('autolist').new()<cr>")
 			end
-			if newconf.generic.invert_normal_mapping ~= "" then
-				au("Filetype", ft, "nmap <buffer> " .. newconf.generic.invert_normal_mapping .. " <cmd>lua require('autolist').invert()<cr>")
+			if newconf.invert.normal_mapping ~= "" then
+				au("Filetype", ft, "nnoremap <buffer> " .. newconf.invert.normal_mapping .. " <cmd>lua require('autolist').invert()<cr>")
 			end
-			if newconf.generic.invert_mapping ~= "" then
-				au("Filetype", ft, "imap <buffer> " .. newconf.generic.invert_mapping .. " <cmd>lua require('autolist').invert()<cr>")
+			if newconf.invert.mapping ~= "" then
+				au("Filetype", ft, "inoremap <buffer> " .. newconf.invert.mapping .. " <cmd>lua require('autolist').invert()<cr>")
 			end
 
 			-- to change mapping, just do a imap (not inoremap) to <c-t> to recursively remap
-			au("Filetype", ft, "imap <buffer> <c-d> <c-d><cmd>lua require('autolist').relist()<cr>")
-			au("Filetype", ft, "imap <buffer> <c-t> <c-t><cmd>lua require('autolist').reset()<cr>")
-			au("Filetype", ft, "nmap <buffer> << <<<cmd>lua require('autolist').relist()<cr>")
-			au("Filetype", ft, "nmap <buffer> >> >><cmd>lua require('autolist').reset()<cr>")
-			au("Filetype", ft, "nmap <buffer> dd dd<cmd>lua require('autolist').unlist()<cr>")
+			au("Filetype", ft, "inoremap <buffer> <c-d> <c-d><cmd>lua require('autolist').detab()<cr>")
+			au("Filetype", ft, "inoremap <buffer> <c-t> <c-t><cmd>lua require('autolist').tab()<cr>")
+			au("Filetype", ft, "nnoremap <buffer> << <<<cmd>lua require('autolist').detab()<cr>")
+			au("Filetype", ft, "nnoremap <buffer> >> >><cmd>lua require('autolist').tab()<cr>")
+			-- au("Filetype", ft, "nnoremap <buffer> dd dd<cmd>lua require('autolist').unlist()<cr>")
 		end
 	end
 
 	for k, v in pairs(newconf) do
 		M[k] = v
 	end
+
+	-- options that are hidden from config options but accessible by the scripts
+	M.ft_lists = filetype_lists
 end
 
 return M
