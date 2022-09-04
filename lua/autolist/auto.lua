@@ -12,6 +12,13 @@ local checkbox_empty = utils.filter_pat(checkbox_empty_pat)
 
 local M = {}
 
+-- returns the correct lists for the current filetype
+local function get_lists()
+	-- each table in filetype lists has the key of a filetype
+	-- each value has the tables (of lists) that it is assigned to
+	return config.ft_lists[vim.bo.filetype]
+end
+
 local function checkbox_is_filled(line)
 	if line:match(checkbox_filled_pat) then
 		return true
@@ -46,7 +53,7 @@ end
 function M.new(before)
 	if fn.line(".") <= 0 then return end
 	local prev_line = fn.getline(fn.line(".") - 1)
-	local filetype_lists = utils.get_lists(config.ft_lists)
+	local filetype_lists = get_lists()
 	if before and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
 		prev_line = fn.getline(fn.line(".") + 1)
 	end
@@ -106,7 +113,7 @@ function M.tab()
 end
 
 function M.detab()
-	if utils.is_ordered(fn.getline(".")) then
+	if utils.is_list(fn.getline("."), get_lists()) then
 		M.recal()
 	end
 end
@@ -115,48 +122,56 @@ end
 function M.recal(override_start_num)
 	local list_start_num
 	if override_start_num then
-		list_start_num = utils.get_list_start(override_start_num)
+		list_start_num = utils.get_list_start(override_start_num, get_lists())
 	else
-		list_start_num = utils.get_list_start(fn.line("."))
+		list_start_num = utils.get_list_start(fn.line("."), get_lists())
 	end
 	if not list_start_num then return end -- returns nil if not ordered list
 	local list_start = fn.getline(list_start_num)
 	local list_indent = utils.get_indent_lvl(list_start)
-
-	-- set first entry to one, returns false if fails (not ordered)
-	if not utils.set_value_ordered(list_start_num, list_start, 1) then
-		return
-	end
+	local list_ordered = utils.is_ordered(list_start)
+	local list_marker = select(3, utils.is_list(list_start, get_lists()))
+	if not list_marker then return end -- only returns list type if is list
 
 	local target = 2 -- start plus one
 	local linenum = list_start_num + 1
 	local line = fn.getline(linenum)
-	local lineval = utils.get_value_ordered(line)
+	local line_marker_pat = select(2, utils.is_list(line, get_lists()))
+	local line_ordered = utils.is_ordered(line)
 	local line_indent = utils.get_indent_lvl(line)
 	local nextline = fn.getline(linenum + 1)
 	local childlist_indent = -1
+
 	while line_indent >= list_indent
 		and linenum < list_start_num + config.list_cap
 	do
 		if line_indent == list_indent then
-			if utils.is_ordered(line) then
-				-- you set like 50 every time you press j, a few more cant hurt, right?
-				-- btw this calls set_value_ordered
-				if not utils.set_value_ordered(linenum, line, target) then
-					return
+			-- if its a list and its the same type of list
+			if line_marker_pat -- only returns linesub if is list
+				and line_ordered == list_ordered then
+				if line_ordered then
+					-- you set like 50 every time you press j, a few more cant hurt, right?
+					if not utils.set_value(linenum, line, target) then
+						print("p1")
+						return
+					end
+					-- only increase target if increased list
+					target = target + 1
+				else
+					fn.setline(".", (line:gsub(line_marker_pat, list_marker)))
+						print("p2")
 				end
-				-- only increase target if increased list
-				target = target + 1
 				-- escaped the child list
 				childlist_indent = -1
 			else
+						print("p3")
 				-- same indent and isnt ordered
 				return
 			end
 		-- this part recalculates a child list with recursion
 		-- tab_value() returns the amount as the second value
 		-- the not_equal prevents it from recalculating multiple times
-		elseif utils.is_ordered(line)
+		elseif utils.is_list(line, get_lists())
 			and line_indent ~= childlist_indent
 			and line_indent == list_indent + select(2, utils.tab_value())
 		then
@@ -168,9 +183,10 @@ function M.recal(override_start_num)
 		-- do these at the end so it can check it at the start of the loop
 		linenum = linenum + 1
 		line = fn.getline(linenum)
-		lineval = utils.get_value_ordered(line)
 		line_indent = utils.get_indent_lvl(line)
 		nextline = fn.getline(linenum + 1)
+		line_marker_pat = select(2, utils.is_list(line, get_lists()))
+		line_ordered = utils.is_ordered(line)
 	end
 end
 
@@ -195,7 +211,7 @@ function M.invert()
 		end
 	end
 
-	local list, cur_marker_pat = utils.is_list(cur_line, utils.get_lists(config.ft_lists))
+	local list, cur_marker_pat = utils.is_list(cur_line, get_lists())
 	if list then
 		-- if ul change to 1.
 		if utils.is_ordered(cur_line) then
@@ -208,5 +224,9 @@ function M.invert()
 	end
 	check_recal("invert")
 end
+
+
+-- TODO
+-- for dedenting only use parent list
 
 return M

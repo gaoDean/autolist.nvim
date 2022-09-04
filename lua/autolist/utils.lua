@@ -114,11 +114,11 @@ function M.is_list(entry, list_types, more)
 	else
 		more = ""
 	end
-	for _, pat in ipairs(list_types) do
+	for i, pat in ipairs(list_types) do
 		local sub, nsubs = entry:gsub(prefix .. pat .. more .. suffix, "%1", 1)
 		-- if replaced something
 		if nsubs > 0 then
-			return true, pat, sub
+			return true, pat, sub, i
 		end
 	end
 	return false
@@ -170,13 +170,13 @@ function M.get_value_ordered(entry)
 end
 
 -- returns successful
-function M.set_value_ordered(linenum, line, val)
+function M.set_value(linenum, line, val)
 	local digit = line:gsub(prefix .. "%d+)%..*$", "%1", 1)
 	local char = line:gsub(prefix .. "%a)[.)].*$", "%1", 1)
-	if digit then
+	if digit and digit ~= entry then
 		fn.setline(linenum, (line:gsub("%d+", val, 1)))
 		return true
-	elseif char then
+	elseif char and char ~= entry then
 		if val <= 26 then
 			-- 1 equates to byteform of lowercase a
 			val = val + 96
@@ -187,7 +187,7 @@ function M.set_value_ordered(linenum, line, val)
 		fn.setline(linenum, line:gsub("%a", val, 1))
 		return true
 	else
-		return false
+		fn.setline(linenum, line)
 	end
 end
 
@@ -245,5 +245,19 @@ function M.get_lists(filetype_lists)
 	return filetype_lists[vim.bo.filetype]
 end
 
+function M.same_list_type(la, lb, list_types)
+	if not list_types then
+		print("error in utils(same_list_type)")
+	end
+	for _, pat in ipairs(list_types) do
+		local _, asub = la:gsub(prefix .. pat .. suffix, "%1", 1)
+		local _, bsub = lb:gsub(prefix .. pat .. suffix, "%1", 1)
+		-- if they sub something, they should be 1 cus this ---^
+		if asub > 0 and bsub > 0 then
+			return true
+		end
+	end
+	return false
+end
 
 return M
