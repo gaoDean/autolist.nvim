@@ -98,6 +98,7 @@ local default_config = {
 	-- currently you can do invert() and/or new()
 	recal_hooks = {
 		"invert",
+		"new",
 	},
 
 	-- used to configure what is matched as a checkbox
