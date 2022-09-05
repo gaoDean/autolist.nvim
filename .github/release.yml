@@ -1,0 +1,23 @@
+# .github/release.yml
+
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+    authors:
+      - gaoDean
+  categories:
+    - title: Breaking Changes
+      labels:
+        - Semver-Major
+        - breaking-change
+    - title: Added
+      labels:
+        - Semver-Minor
+        - enhancement
+    - title: Changed
+      labels:
+        - "*"
+    - title: Fixed
+      labels:
+        - "*"
