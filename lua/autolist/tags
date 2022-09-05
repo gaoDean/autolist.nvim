@@ -1,0 +1,55 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/Users/deangao/repos/rea/autolist.nvim/lua/autolist/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/934f60ec/
+au	config.lua	/^local function au(evt, pat, cmd) -- (string|recalle), (string|table), (string)$/;"	f
+char_add	utils.lua	/^local function char_add(char, amount)$/;"	f
+char_to_number	utils.lua	/^local function char_to_number(char)$/;"	f
+charfunc	utils.lua	/^	local function charfunc() fn.setline(linenum, (line:gsub("%a", number_to_char(val), 1))) end$/;"	f
+charfunc	utils.lua	/^	local function charfunc(char) return entry:gsub(char, char_add(char, amount), 1) end$/;"	f
+charwrap	utils.lua	/^local function charwrap(byte)$/;"	f
+check_recal	auto.lua	/^local function check_recal(func_name, extra)$/;"	f
+checkbox_is_filled	auto.lua	/^local function checkbox_is_filled(line)$/;"	f
+custom_round	utils.lua	/^local function custom_round(a, b, val)$/;"	f
+detab	auto.lua	/^function M.detab()$/;"	f	unknown:M
+digitfunc	utils.lua	/^	local function digitfunc() fn.setline(linenum, (line:gsub("%d+", val, 1))) end$/;"	f
+digitfunc	utils.lua	/^	local function digitfunc(digit) return entry:gsub(digit, str_add(digit, amount), 1) end$/;"	f
+digitfunc	utils.lua	/^	local function digitfunc(input) return tonumber(input) end$/;"	f
+does_table_contain	utils.lua	/^function M.does_table_contain(table, element)$/;"	f	unknown:M
+exec_ordered	utils.lua	/^local function exec_ordered(entry, func_digit, func_char, return_else, return_last)$/;"	f
+get_indent	utils.lua	/^function M.get_indent(entry) return entry:match("^%s*") end$/;"	f	unknown:M
+get_indent_lvl	utils.lua	/^function M.get_indent_lvl(entry) return #(entry:match("^%s*")) end$/;"	f	unknown:M
+get_list_start	utils.lua	/^function M.get_list_start(cur_linenum, list_types)$/;"	f	unknown:M
+get_lists	auto.lua	/^local function get_lists()$/;"	f
+get_marker	utils.lua	/^function M.get_marker(line, list_types) return select(3, M.is_list(line, list_types)) end$/;"	f	unknown:M
+get_ordered_add	utils.lua	/^function M.get_ordered_add(entry, amount)$/;"	f	unknown:M
+get_parent_list	utils.lua	/^function M.get_parent_list(line) return M.get_list_start(line) - 1 end$/;"	f	unknown:M
+get_percent_filtered	utils.lua	/^function M.get_percent_filtered(pat) return pat:gsub("%%", "") end$/;"	f	unknown:M
+get_preloaded_pattern	config.lua	/^local function get_preloaded_pattern(pre)$/;"	f
+get_tab_value	utils.lua	/^function M.get_tab_value()$/;"	f	unknown:M
+get_value_ordered	utils.lua	/^function M.get_value_ordered(entry)$/;"	f	unknown:M
+get_whitespace_trimmed	utils.lua	/^function M.get_whitespace_trimmed(str) return str:gsub("%s*$", "", 1) end$/;"	f	unknown:M
+invert	auto.lua	/^function M.invert()$/;"	f	unknown:M
+is_list	utils.lua	/^function M.is_list(entry, list_types, more)$/;"	f	unknown:M
+is_ordered	utils.lua	/^function M.is_ordered(entry, rise)$/;"	f	unknown:M
+is_same_list_type	utils.lua	/^function M.is_same_list_type(la, lb, list_types)$/;"	f	unknown:M
+modify	auto.lua	/^local function modify(prev, pattern)$/;"	f
+new	auto.lua	/^function M.new(before)$/;"	f	unknown:M
+number_to_char	utils.lua	/^local function number_to_char(number)$/;"	f
+recal	auto.lua	/^function M.recal(override_start_num)$/;"	f	unknown:M
+reset_cursor_column	utils.lua	/^function M.reset_cursor_column()$/;"	f	unknown:M
+set_current_line	utils.lua	/^function M.set_current_line(new_line)$/;"	f	unknown:M
+set_list_line	utils.lua	/^function M.set_list_line(linenum, marker, list_types)$/;"	f	unknown:M
+set_value	utils.lua	/^function M.set_value(line, linenum, val)$/;"	f	unknown:M
+setup	init.lua	/^M.setup = function(opts)$/;"	f	unknown:M
+str_add	utils.lua	/^local function str_add(str, amount)$/;"	f
+tab	auto.lua	/^function M.tab()$/;"	f	unknown:M
+update	config.lua	/^M.update = function(opts)$/;"	f	unknown:M
+vo	utils.lua	/^local function vo(char) return char:byte() end$/;"	f

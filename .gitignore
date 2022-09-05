@@ -1,2 +1,3 @@
 /lua/autolist/*
 !/lua/autolist/*.lua
+!/lua/autolist/tags
