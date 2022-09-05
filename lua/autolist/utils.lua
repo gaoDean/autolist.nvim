@@ -55,24 +55,6 @@ function M.str_add_digit(str, digit)
 	return nil
 end
 
-function M.ordered_add(entry, amount)
-	-- defaults to increment
-	if not amount then amount = 1 end
-	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
-	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
-	-- if its an ordered list
-	if digit and digit ~= entry then
-		return entry:gsub(digit, M.str_add_digit(digit, amount), 1)
-	-- if it's an ascii list
-	elseif char and char ~= entry then
-		local byteform = charwrap(char:byte() + amount)
-		-- if bigger than lowercase z wrap to upper A and vice versa
-		return entry:gsub(char, string.char(byteform), 1)
-	end
-	-- return original if anything else
-	return entry
-end
-
 -- set current line to {new_line} and set cursor to end of line
 function M.set_current_line(new_line)
 	fn.setline(".", new_line)
@@ -149,11 +131,23 @@ function M.tab_value()
 	end
 end
 
-function M.get_value_ordered(entry)
-	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
-	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
+-- reduce boilerplate
+function M.exec_ordered(entry, func_digit, func_char, return_last, ...)
+	local digit = entry:gsub("^%s*(%d+)%..*$", "%1", 1)
+	local char = entry:gsub("^%s*(%a)[.)].*$", "%1", 1)
 	if digit then
-		return digit
+		return func_digit(entry, digit, ...)
+	elseif char then
+		return func_char(entry, char, ...)
+	end
+	return return_last -- nil if not defined
+end
+
+function M.get_value_ordered(entry)
+	local digit = entry:gsub("^%s*(%d+)%..*$", "%1", 1)
+	local char = entry:gsub("^%s*(%a)[.)].*$", "%1", 1)
+	if digit then
+		return tonumber(digit)
 	elseif char then
 		local byteform = char:byte()
 		if byteform > 96 then
@@ -166,7 +160,25 @@ function M.get_value_ordered(entry)
 		end
 		return byteform
 	end
-	return nil
+	return 0
+end
+
+function M.ordered_add(entry, amount)
+	-- defaults to increment
+	if not amount then amount = 1 end
+	local digit = entry:gsub(prefix .. "%d+)%..*$", "%1", 1)
+	local char = entry:gsub(prefix .. "%a)[.)].*$", "%1", 1)
+	-- if its an ordered list
+	if digit and digit ~= entry then
+		return entry:gsub(digit, M.str_add_digit(digit, amount), 1)
+	-- if it's an ascii list
+	elseif char and char ~= entry then
+		local byteform = charwrap(char:byte() + amount)
+		-- if bigger than lowercase z wrap to upper A and vice versa
+		return entry:gsub(char, string.char(byteform), 1)
+	end
+	-- return original if anything else
+	return entry
 end
 
 -- returns successful
@@ -258,6 +270,17 @@ function M.same_list_type(la, lb, list_types)
 		end
 	end
 	return false
+end
+
+function M.get_marker(line, list_types)
+	return select(3, M.is_list(line, list_types))
+end
+
+function M.set_list_line(linenum, marker, list_types)
+	local line = fn.getline(linenum)
+	print(linenum, marker)
+	local line = line:gsub(select(2, M.is_list(line, list_types)), marker)
+	fn.setline(linenum, line)
 end
 
 return M

@@ -120,6 +120,7 @@ end
 
 -- recalculates the current list scope
 function M.recal(override_start_num)
+	local types = get_lists()
 	local list_start_num
 	if override_start_num then
 		list_start_num = utils.get_list_start(override_start_num, get_lists())
@@ -130,10 +131,11 @@ function M.recal(override_start_num)
 	local list_start = fn.getline(list_start_num)
 	local list_indent = utils.get_indent_lvl(list_start)
 	local list_ordered = utils.is_ordered(list_start)
-	local list_marker = select(3, utils.is_list(list_start, get_lists()))
+	local list_marker = utils.get_marker(list_start, types)
 	if not list_marker then return end -- only returns list type if is list
 
-	local target = 2 -- start plus one
+	local target = utils.get_value_ordered(list_start) -- start plus one
+	print(target, list_start_num)
 	local linenum = list_start_num + 1
 	local line = fn.getline(linenum)
 	local line_marker_pat = select(2, utils.is_list(line, get_lists()))
@@ -147,24 +149,15 @@ function M.recal(override_start_num)
 	do
 		if line_indent == list_indent then
 			-- if its a list and its the same type of list
-			if line_marker_pat -- only returns linesub if is list
-				and line_ordered == list_ordered then
-				if line_ordered then
-					-- you set like 50 every time you press j, a few more cant hurt, right?
-					if not utils.set_value(linenum, line, target) then
-						print("p1")
-						return
-					end
-					-- only increase target if increased list
-					target = target + 1
-				else
-					fn.setline(".", (line:gsub(line_marker_pat, list_marker)))
-						print("p2")
-				end
+			-- only returns linesub if is list
+			if line_marker_pat then
+				utils.set_list_line(linenum, utils.get_marker(utils.ordered_add(list_start, target), get_lists()), get_lists())
+				-- only increase target if increased list
+				target = target + 1
 				-- escaped the child list
 				childlist_indent = -1
 			else
-						print("p3")
+				print(linenum)
 				-- same indent and isnt ordered
 				return
 			end
