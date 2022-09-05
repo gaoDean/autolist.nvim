@@ -7,10 +7,17 @@ local pat_colon = ":%s*$"
 local checkbox_filled_pat = config.checkbox.left .. config.checkbox.fill .. config.checkbox.right
 local checkbox_empty_pat = config.checkbox.left .. " " .. config.checkbox.right
 -- filter_pat() removes the % signs
-local checkbox_filled = utils.filter_pat(checkbox_filled_pat)
-local checkbox_empty = utils.filter_pat(checkbox_empty_pat)
+local checkbox_filled = utils.get_percent_filtered(checkbox_filled_pat)
+local checkbox_empty = utils.get_percent_filtered(checkbox_empty_pat)
 
 local M = {}
+
+-- returns the correct lists for the current filetype
+local function get_lists()
+	-- each table in filetype lists has the key of a filetype
+	-- each value has the tables (of lists) that it is assigned to
+	return config.ft_lists[vim.bo.filetype]
+end
 
 local function checkbox_is_filled(line)
 	if line:match(checkbox_filled_pat) then
@@ -22,7 +29,7 @@ local function checkbox_is_filled(line)
 end
 
 local function check_recal(func_name, extra)
-	if extra == true or utils.table_contains(config.recal_hooks, func_name) then
+	if extra == true or utils.does_table_contain(config.recal_hooks, func_name) then
 		M.recal()
 	end
 end
@@ -31,7 +38,7 @@ local function modify(prev, pattern)
 	-- the brackets capture {pattern} and they release on %1
 	local matched, nsubs = prev:gsub("^(%s*" .. pattern .. "%s?).*$", "%1", 1)
 	-- trim off spaces
-	if utils.trim_end(matched) == utils.trim_end(prev) then
+	if utils.get_whitespace_trimmed(matched) == utils.get_whitespace_trimmed(prev) then
 		-- if replaced smth
 		if nsubs == 1 then
 			-- filler return value
@@ -40,13 +47,13 @@ local function modify(prev, pattern)
 			return ""
 		end
 	end
-	return utils.ordered_add(matched, 1)
+	return utils.get_ordered_add(matched, 1)
 end
 
 function M.new(before)
 	if fn.line(".") <= 0 then return end
 	local prev_line = fn.getline(fn.line(".") - 1)
-	local filetype_lists = utils.get_lists(config.ft_lists)
+	local filetype_lists = get_lists()
 	if before and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
 		prev_line = fn.getline(fn.line(".") + 1)
 	end
@@ -76,7 +83,7 @@ function M.new(before)
 				if config.colon.preferred ~= "" then
 					modded = modded:gsub("^(%s*).*", "%1", 1) .. config.colon.preferred .. " "
 				end
-				modded = utils.tab_value() .. modded
+				modded = utils.get_tab_value() .. modded
 				before = true -- just to recal
 			end
 			local cur_line = fn.getline(".")
@@ -101,76 +108,71 @@ end
 function M.tab()
 	-- recalculate part of the parent list
 	if utils.is_ordered(fn.getline(".")) then
-		M.recal(utils.get_parent_list(fn.line(".")))
+		M.recal()
 	end
 end
 
 function M.detab()
-	if utils.is_ordered(fn.getline(".")) then
+	if utils.is_list(fn.getline("."), get_lists()) then
 		M.recal()
 	end
 end
 
 -- recalculates the current list scope
 function M.recal(override_start_num)
+	local types = get_lists()
 	local list_start_num
 	if override_start_num then
-		list_start_num = utils.get_list_start(override_start_num)
+		list_start_num = override_start_num
 	else
-		list_start_num = utils.get_list_start(fn.line("."))
+		list_start_num = utils.get_list_start(fn.line("."), get_lists())
+		utils.set_value(fn.getline(list_start_num), list_start_num, 1)
 	end
 	if not list_start_num then return end -- returns nil if not ordered list
 	local list_start = fn.getline(list_start_num)
 	local list_indent = utils.get_indent_lvl(list_start)
+	local list_ordered = utils.is_ordered(list_start)
+	local list_marker = utils.get_marker(list_start, types)
+	if not list_marker then return end -- only returns list type if is list
 
-	-- set first entry to one, returns false if fails (not ordered)
-	if not utils.set_value_ordered(list_start_num, list_start, 1) then
-		return
-	end
-
-	local target = 2 -- start plus one
+	local target = utils.get_value_ordered(list_start) -- start plus one
 	local linenum = list_start_num + 1
 	local line = fn.getline(linenum)
-	local lineval = utils.get_value_ordered(line)
 	local line_indent = utils.get_indent_lvl(line)
-	local nextline = fn.getline(linenum + 1)
-	local childlist_indent = -1
+
+	local last_indent = -1
 	while line_indent >= list_indent
 		and linenum < list_start_num + config.list_cap
 	do
 		if line_indent == list_indent then
-			if utils.is_ordered(line) then
-				-- you set like 50 every time you press j, a few more cant hurt, right?
-				-- btw this calls set_value_ordered
-				if not utils.set_value_ordered(linenum, line, target) then
-					return
-				end
+			-- if its a list and its the same type of list
+			-- only returns linesub if is list
+			if select(2, utils.is_list(line, get_lists())) then
+				utils.set_list_line(linenum, utils.get_marker(utils.get_ordered_add(list_start, target), get_lists()), get_lists())
 				-- only increase target if increased list
 				target = target + 1
 				-- escaped the child list
-				childlist_indent = -1
+				last_indent = -1
 			else
 				-- same indent and isnt ordered
 				return
 			end
 		-- this part recalculates a child list with recursion
-		-- tab_value() returns the amount as the second value
+		-- get_tab_value() returns the amount as the second value
 		-- the not_equal prevents it from recalculating multiple times
-		elseif utils.is_ordered(line)
-			and line_indent ~= childlist_indent
-			and line_indent == list_indent + select(2, utils.tab_value())
+		elseif utils.is_list(line, get_lists())
+			and line_indent ~= last_indent
+			and line_indent == list_indent + select(2, utils.get_tab_value())
 		then
-			local new_indent = utils.get_indent_lvl(line)
 			-- the first time this runs, linenum is the first entry in the list
 			M.recal(linenum)
-			childlist_indent = new_indent -- so you don't repeat recalculate()
+			-- so you don't repeat recalculate()
+			last_indent = utils.get_indent_lvl(line)
 		end
 		-- do these at the end so it can check it at the start of the loop
 		linenum = linenum + 1
 		line = fn.getline(linenum)
-		lineval = utils.get_value_ordered(line)
 		line_indent = utils.get_indent_lvl(line)
-		nextline = fn.getline(linenum + 1)
 	end
 end
 
@@ -195,7 +197,7 @@ function M.invert()
 		end
 	end
 
-	local list, cur_marker_pat = utils.is_list(cur_line, utils.get_lists(config.ft_lists))
+	local list, cur_marker_pat = utils.is_list(cur_line, get_lists())
 	if list then
 		-- if ul change to 1.
 		if utils.is_ordered(cur_line) then
@@ -208,5 +210,9 @@ function M.invert()
 	end
 	check_recal("invert")
 end
+
+
+-- TODO
+-- for dedenting only use parent list
 
 return M
