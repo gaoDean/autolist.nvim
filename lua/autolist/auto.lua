@@ -147,8 +147,8 @@ function M.recal(override_start_num)
 		if line_indent == list_indent then
 			-- if its a list and its the same type of list
 			-- only returns linesub if is list
-			if select(2, utils.is_list(line, get_lists())) then
-				utils.set_list_line(linenum, utils.get_marker(utils.get_ordered_add(list_start, target), get_lists()), get_lists())
+			if utils.get_marker_pat(line, get_lists()) then
+				utils.set_line_marker(linenum, utils.get_marker(utils.get_ordered_add(list_start, target), get_lists()), get_lists())
 				-- only increase target if increased list
 				target = target + 1
 				-- escaped the child list

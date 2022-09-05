@@ -57,14 +57,17 @@ local function char_add(char, amount)
 	return string.char(charwrap(char:byte() + amount))
 end
 
+-- add a number to a digit (thats a string)
 local function str_add(str, amount)
 	-- if not a str (a string)
-	if tonumber(str) then
-		return tostring(tonumber(str) + amount)
+	local num = tonumber(str)
+	if num then
+		return tostring(num + amount)
 	end
 	return nil
 end
 
+-- convert list number to char (1 -> a, 27 -> A)
 local function number_to_char(number)
 	if number <= lenalph then
 		-- 1 equates to byteform of lowercase a
@@ -102,9 +105,10 @@ end
 
 -- ================================ setters ==( set, reset )================ --
 
-function M.set_list_line(linenum, marker, list_types)
+-- change the list marker of the current line
+function M.set_line_marker(linenum, marker, list_types)
 	local line = fn.getline(linenum)
-	local line = line:gsub("^(%s*)" .. select(2, M.is_list(line, list_types)), "%1" .. marker, 1)
+	local line = line:gsub("^(%s*)" .. M.get_marker_pat(line, list_types), "%1" .. marker, 1)
 	fn.setline(linenum, line)
 end
 
@@ -134,14 +138,10 @@ end
 -- returns the number of tabs/spaces before a character
 function M.get_indent_lvl(entry) return #(entry:match("^%s*")) end
 
--- returns the tabs/spaces before a character
-function M.get_indent(entry) return entry:match("^%s*") end
-
--- get the place where the indented list began
-function M.get_parent_list(line) return M.get_list_start(line) - 1 end
-
 -- get the list marker from the line
 function M.get_marker(line, list_types) return select(3, M.is_list(line, list_types)) end
+
+function M.get_marker_pat(line, list_types) return select(2, M.is_list(line, list_types)) end
 
 -- trim whitespace
 function M.get_whitespace_trimmed(str) return str:gsub("%s*$", "", 1) end
@@ -151,8 +151,7 @@ function M.get_percent_filtered(pat) return pat:gsub("%%", "") end
 
 -- get the value of the ordered list
 function M.get_value_ordered(entry)
-	local function digitfunc(input) return tonumber(input) end
-	return exec_ordered(entry, digitfunc, char_to_number, 0)
+	return exec_ordered(entry, tonumber, char_to_number, 0)
 end
 
 -- return add {amount} to the current ordered list
@@ -222,18 +221,6 @@ function M.does_table_contain(table, element)
   return false
 end
 
-function M.is_same_list_type(la, lb, list_types)
-	for _, pat in ipairs(list_types) do
-		local _, asub = la:gsub(prefix .. pat .. suffix, "%1", 1)
-		local _, bsub = lb:gsub(prefix .. pat .. suffix, "%1", 1)
-		-- if they sub something, asub should be 1 cus this ---^ (and bsub)
-		if asub > 0 and bsub > 0 then
-			return true
-		end
-	end
-	return false
-end
-
 -- is a list, returns true, the pattern and the result of the pattern
 function M.is_list(entry, list_types, more)
 	if not list_types then
@@ -244,11 +231,11 @@ function M.is_list(entry, list_types, more)
 	else
 		more = ""
 	end
-	for i, pat in ipairs(list_types) do
+	for _, pat in ipairs(list_types) do
 		local sub, nsubs = entry:gsub(prefix .. pat .. more .. suffix, "%1", 1)
 		-- if replaced something
 		if nsubs > 0 then
-			return true, pat, sub, i
+			return true, pat, sub
 		end
 	end
 	return false
