@@ -4,8 +4,6 @@ changelog:
   exclude:
     labels:
       - ignore-for-release
-    authors:
-      - gaoDean
   categories:
     - title: Breaking Changes
       labels:
