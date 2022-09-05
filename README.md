@@ -62,52 +62,61 @@ See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 ## Configuration
+See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki/Configuration) for instructions.
+
 This is the default config:
 ```lua
 require('autolist').setup({
-	generic = {
-
-		enabled = true,
-
-		-- for if you have something else that you want to map when press return
-		-- with the create enter being false, you must create your own mapping
-		create_enter_mapping = true,
-
-		-- the mapping to invert the list type e.g ol -> ul, ul -> ol
-		-- set this to empty ("") to disable
-		invert_mapping = "<c-r>",
-
-		-- when there is a list like - [x] content, when invert mapping is
-		-- pressed and below option is true the list will turn into
-		-- - [ ] content, instead of 1. [x] content
-		invert_toggles_checkbox = true,
-
-		-- invert mapping in normal mode
-		invert_normal_mapping = "",
-
-		-- when pressing the relist mapping and current marker is ordered list,
-		-- change to invert_ul_marker.
-		invert_ul_marker = "-",
-
-		-- This just allows the relisting function to use the current list
-		-- formatting to search for the right list type.
-		-- Important: if your markdown ordered lists are badly formatted e.g a one
-		-- followed by a three, the relist cant find the right list. most of the
-		-- time you'll have the correct formatting, and its not a big deal if you
-		-- dont, the program wont throw an error, you just wont get a relist.
-		context_optimisaton = true,
-
-		-- when key o pressed, new list entry. Enables fo_o. see :h fo-table
-		new_entry_on_o = true,
-
-		-- filetypes that this plugin is enabled for.
-		-- must put file name, not the extension.
-		-- if you are not sure, just run :echo &filetype. or :set filetype?
-		enabled_filetypes = { "markdown", "text" },
+	enabled = true,
+	create_enter_mapping = true,
+	new_entry_on_o = true,
+	list_cap = 50,
+	colon = {
+		indent_raw = true,
+		indent = true,
+		preferred = "-"
+	},
+	invert = {
+		mapping = "<c-r>",
+		normal_mapping = "",
+		toggles_checkbox = true,
+		ul_marker = "-",
+		ol_incrementable = "1",
+		ol_delim = ".",
+	},
+	lists = {
+		preloaded = {
+			generic = {
+				"unordered",
+				"digit",
+				"ascii",
+			},
+			latex = {
+				"latex_item",
+			},
+		},
+		filetypes = {
+			generic = {
+				"markdown",
+				"text",
+			},
+			latex = {
+				"tex",
+				"plaintex",
+			},
+		},
+	},
+	recal_hooks = {
+		"invert",
+		"new",
+	},
+	checkbox = {
+		left = "%[",
+		right = "%]",
+		fill = "x",
 	},
 })
 ```
-The `config.lua` contains good information about the mappings and config that the docs are sometimes behind on.
 
 ## Credit
 
