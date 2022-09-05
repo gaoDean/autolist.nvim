@@ -17,55 +17,6 @@ local lenalph = 26 -- length of alphabet
 -- the difference between capital A and lenalph minus 1
 local diffAalph = 38 -- 27 plus 38 equals capital A in byteform
 
--- ================================ utilities ============================== --
-
-local function char_add(char, amount)
-	return string.char(charwrap(char:byte() + amount))
-end
-
-local function str_add(str, amount)
-	-- if not a str (a string)
-	if tonumber(str) then
-		return tostring(tonumber(str) + amount)
-	end
-	return nil
-end
-
-local function number_to_char(number)
-	if number <= lenalph then
-		-- 1 equates to byteform of lowercase a
-		return number + va - 1
-	else
-		-- 27 equates to byteform of uppercase A
-		return number + diffAalph
-	end
-end
-
--- reduce boilerplate
-local function exec_ordered(entry, func_digit, func_char, return_else, return_last)
-	local digit = entry:gsub("^%s*(%d+)%..*$", "%1", 1)
-	local char = entry:gsub("^%s*(%a)[.)].*$", "%1", 1)
-	if digit and digit ~= entry then
-		return func_digit(digit)
-	elseif char and char ~= entry then
-		return func_char(char)
-	else
-		return return_else
-	end
-	return return_last -- nil if not defined
-end
-
-local function char_to_number(char)
-	local byteform = char:byte()
-	if byteform >= va then
-		byteform = byteform - (va - 1) -- lowercase a is 1
-	elseif byteform >= vA then
-		-- capital A comes after lowercase z in numbered form
-		byteform = byteform - diffAalph -- (-64) + 26
-	end
-	return byteform
-end
-
 local function custom_round(a, b, val)
 	-- if val bigger than the middle of a and b
 	if val > (a + b) / 2 then
@@ -95,6 +46,58 @@ local function charwrap(byte)
 		return custom_round(vZ, va, byte) == va and vZ or vA
 	end
 	return byte
+end
+
+-- just remember, to use a local function inside a function, you must
+-- declare the local function before the current function.
+
+-- ================================ utilities ============================== --
+
+local function char_add(char, amount)
+	return string.char(charwrap(char:byte() + amount))
+end
+
+local function str_add(str, amount)
+	-- if not a str (a string)
+	if tonumber(str) then
+		return tostring(tonumber(str) + amount)
+	end
+	return nil
+end
+
+local function number_to_char(number)
+	if number <= lenalph then
+		-- 1 equates to byteform of lowercase a
+		return string.char(number + va - 1)
+	else
+		-- 27 equates to byteform of uppercase A
+		return string.char(number + diffAalph)
+	end
+end
+
+-- reduce boilerplate
+local function exec_ordered(entry, func_digit, func_char, return_else, return_last)
+	local digit = entry:gsub("^%s*(%d+)%..*$", "%1", 1)
+	local char = entry:gsub("^%s*(%a)[.)].*$", "%1", 1)
+	if digit and digit ~= entry then
+		return func_digit(digit)
+	elseif char and char ~= entry then
+		return func_char(char)
+	else
+		return return_else
+	end
+	return return_last -- nil if not defined
+end
+
+local function char_to_number(char)
+	local byteform = char:byte()
+	if byteform >= va then
+		byteform = byteform - (va - 1) -- lowercase a is 1
+	elseif byteform >= vA then
+		-- capital A comes after lowercase z in numbered form
+		byteform = byteform - diffAalph -- (-64) + 26
+	end
+	return byteform
 end
 
 -- ================================ setters ==( set, reset )================ --
