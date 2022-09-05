@@ -7,8 +7,8 @@ local pat_colon = ":%s*$"
 local checkbox_filled_pat = config.checkbox.left .. config.checkbox.fill .. config.checkbox.right
 local checkbox_empty_pat = config.checkbox.left .. " " .. config.checkbox.right
 -- filter_pat() removes the % signs
-local checkbox_filled = utils.filter_pat(checkbox_filled_pat)
-local checkbox_empty = utils.filter_pat(checkbox_empty_pat)
+local checkbox_filled = utils.get_percent_filtered(checkbox_filled_pat)
+local checkbox_empty = utils.get_percent_filtered(checkbox_empty_pat)
 
 local M = {}
 
@@ -29,7 +29,7 @@ local function checkbox_is_filled(line)
 end
 
 local function check_recal(func_name, extra)
-	if extra == true or utils.table_contains(config.recal_hooks, func_name) then
+	if extra == true or utils.does_table_contain(config.recal_hooks, func_name) then
 		M.recal()
 	end
 end
@@ -38,7 +38,7 @@ local function modify(prev, pattern)
 	-- the brackets capture {pattern} and they release on %1
 	local matched, nsubs = prev:gsub("^(%s*" .. pattern .. "%s?).*$", "%1", 1)
 	-- trim off spaces
-	if utils.trim_end(matched) == utils.trim_end(prev) then
+	if utils.get_whitespace_trimmed(matched) == utils.get_whitespace_trimmed(prev) then
 		-- if replaced smth
 		if nsubs == 1 then
 			-- filler return value
@@ -47,7 +47,7 @@ local function modify(prev, pattern)
 			return ""
 		end
 	end
-	return utils.ordered_add(matched, 1)
+	return utils.get_ordered_add(matched, 1)
 end
 
 function M.new(before)
@@ -83,7 +83,7 @@ function M.new(before)
 				if config.colon.preferred ~= "" then
 					modded = modded:gsub("^(%s*).*", "%1", 1) .. config.colon.preferred .. " "
 				end
-				modded = utils.tab_value() .. modded
+				modded = utils.get_tab_value() .. modded
 				before = true -- just to recal
 			end
 			local cur_line = fn.getline(".")
@@ -108,7 +108,7 @@ end
 function M.tab()
 	-- recalculate part of the parent list
 	if utils.is_ordered(fn.getline(".")) then
-		M.recal(utils.get_parent_list(fn.line(".")))
+		M.recal()
 	end
 end
 
@@ -123,9 +123,10 @@ function M.recal(override_start_num)
 	local types = get_lists()
 	local list_start_num
 	if override_start_num then
-		list_start_num = utils.get_list_start(override_start_num, get_lists())
+		list_start_num = override_start_num
 	else
 		list_start_num = utils.get_list_start(fn.line("."), get_lists())
+		utils.set_value(fn.getline(list_start_num), list_start_num, 1)
 	end
 	if not list_start_num then return end -- returns nil if not ordered list
 	local list_start = fn.getline(list_start_num)
@@ -135,51 +136,43 @@ function M.recal(override_start_num)
 	if not list_marker then return end -- only returns list type if is list
 
 	local target = utils.get_value_ordered(list_start) -- start plus one
-	print(target, list_start_num)
 	local linenum = list_start_num + 1
 	local line = fn.getline(linenum)
-	local line_marker_pat = select(2, utils.is_list(line, get_lists()))
-	local line_ordered = utils.is_ordered(line)
 	local line_indent = utils.get_indent_lvl(line)
-	local nextline = fn.getline(linenum + 1)
-	local childlist_indent = -1
 
+	local last_indent = -1
 	while line_indent >= list_indent
 		and linenum < list_start_num + config.list_cap
 	do
 		if line_indent == list_indent then
 			-- if its a list and its the same type of list
 			-- only returns linesub if is list
-			if line_marker_pat then
-				utils.set_list_line(linenum, utils.get_marker(utils.ordered_add(list_start, target), get_lists()), get_lists())
+			if select(2, utils.is_list(line, get_lists())) then
+				utils.set_list_line(linenum, utils.get_marker(utils.get_ordered_add(list_start, target), get_lists()), get_lists())
 				-- only increase target if increased list
 				target = target + 1
 				-- escaped the child list
-				childlist_indent = -1
+				last_indent = -1
 			else
-				print(linenum)
 				-- same indent and isnt ordered
 				return
 			end
 		-- this part recalculates a child list with recursion
-		-- tab_value() returns the amount as the second value
+		-- get_tab_value() returns the amount as the second value
 		-- the not_equal prevents it from recalculating multiple times
 		elseif utils.is_list(line, get_lists())
-			and line_indent ~= childlist_indent
-			and line_indent == list_indent + select(2, utils.tab_value())
+			and line_indent ~= last_indent
+			and line_indent == list_indent + select(2, utils.get_tab_value())
 		then
-			local new_indent = utils.get_indent_lvl(line)
 			-- the first time this runs, linenum is the first entry in the list
 			M.recal(linenum)
-			childlist_indent = new_indent -- so you don't repeat recalculate()
+			-- so you don't repeat recalculate()
+			last_indent = utils.get_indent_lvl(line)
 		end
 		-- do these at the end so it can check it at the start of the loop
 		linenum = linenum + 1
 		line = fn.getline(linenum)
 		line_indent = utils.get_indent_lvl(line)
-		nextline = fn.getline(linenum + 1)
-		line_marker_pat = select(2, utils.is_list(line, get_lists()))
-		line_ordered = utils.is_ordered(line)
 	end
 end
 
