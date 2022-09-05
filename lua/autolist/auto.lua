@@ -185,13 +185,13 @@ function M.invert()
 		local filled = checkbox_is_filled(cur_line)
 		if filled == true then
 			-- replace current line's empty checkbox with filled checkbox
-			fn.setline(".", (cur_line:gsub(checkbox_filled_pat, checkbox_empty)))
+			fn.setline(".", (cur_line:gsub(checkbox_filled_pat, checkbox_empty, 1)))
 			check_recal("invert")
 			return
 		-- it is a checkbox, but not empty
 		elseif filled == false then
 			-- replace current line's filled checkbox with empty checkbox
-			fn.setline(".", (cur_line:gsub(checkbox_empty_pat, checkbox_filled)))
+			fn.setline(".", (cur_line:gsub(checkbox_empty_pat, checkbox_filled, 1)))
 			check_recal("invert")
 			return
 		end

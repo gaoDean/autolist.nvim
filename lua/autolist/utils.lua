@@ -104,7 +104,7 @@ end
 
 function M.set_list_line(linenum, marker, list_types)
 	local line = fn.getline(linenum)
-	local line = line:gsub(select(2, M.is_list(line, list_types)), marker)
+	local line = line:gsub("^(%s*)" .. select(2, M.is_list(line, list_types)), "%1" .. marker, 1)
 	fn.setline(linenum, line)
 end
 
@@ -144,7 +144,7 @@ function M.get_parent_list(line) return M.get_list_start(line) - 1 end
 function M.get_marker(line, list_types) return select(3, M.is_list(line, list_types)) end
 
 -- trim whitespace
-function M.get_whitespace_trimmed(str) return str:gsub("%s*$", "") end
+function M.get_whitespace_trimmed(str) return str:gsub("%s*$", "", 1) end
 
 -- delete % signs
 function M.get_percent_filtered(pat) return pat:gsub("%%", "") end
