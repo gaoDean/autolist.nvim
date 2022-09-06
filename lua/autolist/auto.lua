@@ -30,7 +30,11 @@ end
 
 local function check_recal(func_name, extra)
 	if extra == true or utils.does_table_contain(config.recal_hooks, func_name) then
-		M.recal(utils.get_list_start(fn.line("."), get_lists()) - 1)
+		if config.recal_full then
+			M.recal()
+		else
+			M.recal(utils.get_list_start(fn.line("."), get_lists()))
+		end
 	end
 end
 
