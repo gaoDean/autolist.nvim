@@ -30,7 +30,11 @@ end
 
 local function check_recal(func_name, extra)
 	if extra == true or utils.does_table_contain(config.recal_hooks, func_name) then
-		M.recal()
+		if config.recal_full then
+			M.recal()
+		else
+			M.recal(utils.get_list_start(fn.line("."), get_lists()))
+		end
 	end
 end
 
@@ -50,11 +54,11 @@ local function modify(prev, pattern)
 	return utils.get_ordered_add(matched, 1)
 end
 
-function M.new(before)
+function M.new(O_pressed)
 	if fn.line(".") <= 0 then return end
 	local prev_line = fn.getline(fn.line(".") - 1)
 	local filetype_lists = get_lists()
-	if before and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
+	if O_pressed and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
 		prev_line = fn.getline(fn.line(".") + 1)
 	end
 
@@ -76,19 +80,19 @@ function M.new(before)
 					matched = true
 					break
 				end
-			elseif not before
+			elseif not O_pressed
 				and config.colon.indent
 				and prev_line:match(pat_colon)
 			then
 				if config.colon.preferred ~= "" then
 					modded = modded:gsub("^(%s*).*", "%1", 1) .. config.colon.preferred .. " "
 				end
-				modded = utils.get_tab_value() .. modded
-				before = true -- just to recal
+				modded = config.tab .. modded
+				O_pressed = true -- just to recal
 			end
 			local cur_line = fn.getline(".")
 			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
-			check_recal("new", before)
+			check_recal("new", O_pressed)
 			return
 		end
 	end
@@ -107,8 +111,9 @@ end
 
 function M.tab()
 	-- recalculate part of the parent list
-	if utils.is_ordered(fn.getline(".")) then
-		M.recal()
+	if utils.is_list(fn.getline("."), get_lists()) then
+		-- recalculate starting from the parent list
+		M.recal(utils.get_list_start(fn.line("."), get_lists()) - 1, 1)
 	end
 end
 
@@ -119,55 +124,60 @@ function M.detab()
 end
 
 -- recalculates the current list scope
-function M.recal(override_start_num)
+function M.recal(override_start_num, reset_list)
+	-- the var base names: list and line
+	-- x is the actual line (fn.getline)
+	-- x_num is the line number (fn.line)
+	-- x_indent is the indent of the line (utils.get_indent_lvl)
+
 	local types = get_lists()
 	local list_start_num
 	if override_start_num then
 		list_start_num = override_start_num
 	else
 		list_start_num = utils.get_list_start(fn.line("."), get_lists())
-		utils.set_value(fn.getline(list_start_num), list_start_num, 1)
+		reset_list = 0
+	end
+	if reset_list then
+		local next_num = list_start_num + reset_list
+		local nxt = fn.getline(next_num)
+		if utils.is_ordered(nxt) then
+			fn.setline(next_num, utils.set_ordered_value(nxt, 1))
+		end
 	end
 	if not list_start_num then return end -- returns nil if not ordered list
 	local list_start = fn.getline(list_start_num)
 	local list_indent = utils.get_indent_lvl(list_start)
-	local list_ordered = utils.is_ordered(list_start)
-	local list_marker = utils.get_marker(list_start, types)
-	if not list_marker then return end -- only returns list type if is list
 
-	local target = utils.get_value_ordered(list_start) -- start plus one
+	local target = utils.get_value_ordered(list_start) + 1 -- start plus one
 	local linenum = list_start_num + 1
 	local line = fn.getline(linenum)
 	local line_indent = utils.get_indent_lvl(line)
+	local prev_indent = -1
 
-	local last_indent = -1
 	while line_indent >= list_indent
 		and linenum < list_start_num + config.list_cap
 	do
-		if line_indent == list_indent then
-			-- if its a list and its the same type of list
-			-- only returns linesub if is list
-			if utils.get_marker_pat(line, get_lists()) then
-				utils.set_line_marker(linenum, utils.get_marker(utils.get_ordered_add(list_start, target), get_lists()), get_lists())
-				-- only increase target if increased list
-				target = target + 1
-				-- escaped the child list
-				last_indent = -1
-			else
-				-- same indent and isnt ordered
-				return
+		if utils.is_list(line, get_lists()) then
+			if line_indent == list_indent then
+				local val = utils.set_ordered_value(list_start, target)
+				if val then
+					utils.set_line_marker(linenum, utils.get_marker(val, get_lists()), get_lists())
+					-- only increase target if increased list
+					target = target + 1
+					-- escaped the child list
+					prev_indent = -1
+				end
+			elseif line_indent ~= prev_indent -- small difference between var names
+				and line_indent == list_indent + config.tabstop then
+				-- this part recalculates a child list with recursion
+				-- the prev_indent prevents it from recalculating multiple times.
+				-- the first time this runs, linenum is the first entry in the list
+				M.recal(linenum)
+				prev_indent = line_indent -- so you don't repeat recalculate()
 			end
-		-- this part recalculates a child list with recursion
-		-- get_tab_value() returns the amount as the second value
-		-- the not_equal prevents it from recalculating multiple times
-		elseif utils.is_list(line, get_lists())
-			and line_indent ~= last_indent
-			and line_indent == list_indent + select(2, utils.get_tab_value())
-		then
-			-- the first time this runs, linenum is the first entry in the list
-			M.recal(linenum)
-			-- so you don't repeat recalculate()
-			last_indent = utils.get_indent_lvl(line)
+		else
+			return
 		end
 		-- do these at the end so it can check it at the start of the loop
 		linenum = linenum + 1
@@ -210,9 +220,5 @@ function M.invert()
 	end
 	check_recal("invert")
 end
-
-
--- TODO
--- for dedenting only use parent list
 
 return M

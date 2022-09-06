@@ -80,7 +80,7 @@ end
 
 -- reduce boilerplate
 local function exec_ordered(entry, func_digit, func_char, return_else, return_last)
-	local digit = entry:gsub("^%s*(%d+)%..*$", "%1", 1)
+	local digit = entry:gsub("^%s*(%d+)[.)].*$", "%1", 1)
 	local char = entry:gsub("^%s*(%a)[.)].*$", "%1", 1)
 	if digit and digit ~= entry then
 		return func_digit(digit)
@@ -112,9 +112,9 @@ function M.set_line_marker(linenum, marker, list_types)
 	fn.setline(linenum, line)
 end
 
-function M.set_value(line, linenum, val)
-	local function digitfunc() fn.setline(linenum, (line:gsub("%d+", val, 1))) end
-	local function charfunc() fn.setline(linenum, (line:gsub("%a", number_to_char(val), 1))) end
+function M.set_ordered_value(line, val)
+	local function digitfunc() return (line:gsub("^(%s*)%d+", "%1" .. val, 1)) end
+	local function charfunc() return (line:gsub("^(%s*)%a", "%1" .. number_to_char(val), 1)) end
 	return exec_ordered(line, digitfunc, charfunc)
 end
 
@@ -160,21 +160,6 @@ function M.get_ordered_add(entry, amount)
 	local function digitfunc(digit) return entry:gsub(digit, str_add(digit, amount), 1) end
 	local function charfunc(char) return entry:gsub(char, char_add(char, amount), 1) end
 	return exec_ordered(entry, digitfunc, charfunc, entry)
-end
-
--- returns a lua pattern with the current vim tab value
-function M.get_tab_value()
-	if vim.opt.expandtab:get() then
-		local pattern = ""
-		local tabstop = vim.opt.tabstop:get()
-		-- get tabstop in spaces
-		for i = 1, tabstop, 1 do
-			pattern = pattern .. " "
-		end
-		return pattern, tabstop
-	else
-		return "\t", 1
-	end
 end
 
 -- get the start of the current list scope (indent)
