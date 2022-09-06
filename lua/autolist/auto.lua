@@ -54,11 +54,11 @@ local function modify(prev, pattern)
 	return utils.get_ordered_add(matched, 1)
 end
 
-function M.new(before)
+function M.new(O_pressed)
 	if fn.line(".") <= 0 then return end
 	local prev_line = fn.getline(fn.line(".") - 1)
 	local filetype_lists = get_lists()
-	if before and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
+	if O_pressed and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
 		prev_line = fn.getline(fn.line(".") + 1)
 	end
 
@@ -80,19 +80,19 @@ function M.new(before)
 					matched = true
 					break
 				end
-			elseif not before
+			elseif not O_pressed
 				and config.colon.indent
 				and prev_line:match(pat_colon)
 			then
 				if config.colon.preferred ~= "" then
 					modded = modded:gsub("^(%s*).*", "%1", 1) .. config.colon.preferred .. " "
 				end
-				modded = utils.get_tab_value() .. modded
-				before = true -- just to recal
+				modded = config.tab .. modded
+				O_pressed = true -- just to recal
 			end
 			local cur_line = fn.getline(".")
 			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
-			check_recal("new", before)
+			check_recal("new", O_pressed)
 			return
 		end
 	end
