@@ -125,6 +125,11 @@ end
 
 -- recalculates the current list scope
 function M.recal(override_start_num, reset_list)
+	-- the var base names: list and line
+	-- x is the actual line (fn.getline)
+	-- x_num is the line number (fn.line)
+	-- x_indent is the indent of the line (utils.get_indent_lvl)
+
 	local types = get_lists()
 	local list_start_num
 	if override_start_num then
