@@ -16,4 +16,4 @@ tags: $(SRC)/*
 
 # make gives error 1 if no prints found
 test:
-	rg "print" $(SRC)/*
+	rg "^\s*print" $(SRC)/*
