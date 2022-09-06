@@ -139,19 +139,21 @@ function M.recal(override_start_num, reset_list)
 		reset_list = 0
 	end
 	if reset_list then
-		local nxt = list_start_num + reset_list
-		fn.setline(nxt, utils.set_ordered_value(fn.getline(nxt), 1))
+		local next_num = list_start_num + reset_list
+		local nxt = fn.getline(next_num)
+		if utils.is_ordered(nxt) then
+			fn.setline(next_num, utils.set_ordered_value(nxt, 1))
+		end
 	end
 	if not list_start_num then return end -- returns nil if not ordered list
 	local list_start = fn.getline(list_start_num)
 	local list_indent = utils.get_indent_lvl(list_start)
 
 	local target = utils.get_value_ordered(list_start) + 1 -- start plus one
-				print(target)
 	local linenum = list_start_num + 1
 	local line = fn.getline(linenum)
 	local line_indent = utils.get_indent_lvl(line)
-	local last_indent = -1
+	local prev_indent = -1
 
 	while line_indent >= list_indent
 		and linenum < list_start_num + config.list_cap
@@ -159,22 +161,20 @@ function M.recal(override_start_num, reset_list)
 		if utils.is_list(line, get_lists()) then
 			if line_indent == list_indent then
 				local val = utils.set_ordered_value(list_start, target)
-				if marker then
+				if val then
 					utils.set_line_marker(linenum, utils.get_marker(val, get_lists()), get_lists())
 					-- only increase target if increased list
 					target = target + 1
 					-- escaped the child list
-					last_indent = -1
+					prev_indent = -1
 				end
-			elseif line_indent == list_indent + select(2, utils.get_tab_value()) then
+			elseif line_indent ~= prev_indent -- small difference between var names
+				and line_indent == list_indent + config.tabstop then
 				-- this part recalculates a child list with recursion
-				-- get_tab_value() returns the amount as the second value
-				-- the last_indent prevents it from recalculating multiple times.
+				-- the prev_indent prevents it from recalculating multiple times.
 				-- the first time this runs, linenum is the first entry in the list
 				M.recal(linenum)
-				-- so you don't repeat recalculate()
-				last_indent = line_indent
-				print(last_indent)
+				prev_indent = line_indent -- so you don't repeat recalculate()
 			end
 		else
 			return
@@ -220,9 +220,5 @@ function M.invert()
 	end
 	check_recal("invert")
 end
-
-
--- TODO
--- replace utils.get_tab_value with a config option
 
 return M
