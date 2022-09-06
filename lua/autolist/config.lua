@@ -187,6 +187,20 @@ M.update = function(opts)
 
 	-- options that are hidden from config options but accessible by the scripts
 	M.ft_lists = filetype_lists
+	M.tabstop = vim.opt.tabstop:get()
+	if vim.opt.expandtab:get() then
+		local pattern = ""
+		-- pattern is tabstop in the form of spaces
+		for i = 1, M.tabstop, 1 do
+			pattern = pattern .. " "
+		end
+		M.tab = pattern
+	else
+		M.tab = "\t"
+
+		-- just for logistics
+		M.tabstop = 1 -- honestly i bet tmr i will not know why i did this
+	end
 end
 
 return M
