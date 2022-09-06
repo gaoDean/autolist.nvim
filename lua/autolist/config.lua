@@ -201,6 +201,7 @@ M.update = function(opts)
 		-- just for logistics
 		M.tabstop = 1 -- honestly i bet tmr i will not know why i did this
 	end
+	M.recal_full = full -- I don't think this should be a config option
 end
 
 return M
