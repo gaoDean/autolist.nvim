@@ -30,7 +30,7 @@ end
 
 local function check_recal(func_name, extra)
 	if extra == true or utils.does_table_contain(config.recal_hooks, func_name) then
-		M.recal()
+		M.recal(utils.get_list_start(fn.line("."), get_lists()) - 1)
 	end
 end
 
@@ -107,8 +107,9 @@ end
 
 function M.tab()
 	-- recalculate part of the parent list
-	if utils.is_ordered(fn.getline(".")) then
-		M.recal()
+	if utils.is_list(fn.getline("."), get_lists()) then
+		-- recalculate starting from the parent list
+		M.recal(utils.get_list_start(fn.line("."), get_lists()) - 1, 1)
 	end
 end
 
@@ -119,55 +120,55 @@ function M.detab()
 end
 
 -- recalculates the current list scope
-function M.recal(override_start_num)
+function M.recal(override_start_num, reset_list)
 	local types = get_lists()
 	local list_start_num
 	if override_start_num then
 		list_start_num = override_start_num
 	else
 		list_start_num = utils.get_list_start(fn.line("."), get_lists())
-		utils.set_value(fn.getline(list_start_num), list_start_num, 1)
+		reset_list = 0
+	end
+	if reset_list then
+		local nxt = list_start_num + reset_list
+		fn.setline(nxt, utils.set_ordered_value(fn.getline(nxt), 1))
 	end
 	if not list_start_num then return end -- returns nil if not ordered list
 	local list_start = fn.getline(list_start_num)
 	local list_indent = utils.get_indent_lvl(list_start)
-	local list_ordered = utils.is_ordered(list_start)
-	local list_marker = utils.get_marker(list_start, types)
-	if not list_marker then return end -- only returns list type if is list
 
-	local target = utils.get_value_ordered(list_start) -- start plus one
+	local target = utils.get_value_ordered(list_start) + 1 -- start plus one
+				print(target)
 	local linenum = list_start_num + 1
 	local line = fn.getline(linenum)
 	local line_indent = utils.get_indent_lvl(line)
-
 	local last_indent = -1
+
 	while line_indent >= list_indent
 		and linenum < list_start_num + config.list_cap
 	do
-		if line_indent == list_indent then
-			-- if its a list and its the same type of list
-			-- only returns linesub if is list
-			if utils.get_marker_pat(line, get_lists()) then
-				utils.set_line_marker(linenum, utils.get_marker(utils.get_ordered_add(list_start, target), get_lists()), get_lists())
-				-- only increase target if increased list
-				target = target + 1
-				-- escaped the child list
-				last_indent = -1
-			else
-				-- same indent and isnt ordered
-				return
+		if utils.is_list(line, get_lists()) then
+			if line_indent == list_indent then
+				local val = utils.set_ordered_value(list_start, target)
+				if marker then
+					utils.set_line_marker(linenum, utils.get_marker(val, get_lists()), get_lists())
+					-- only increase target if increased list
+					target = target + 1
+					-- escaped the child list
+					last_indent = -1
+				end
+			elseif line_indent == list_indent + select(2, utils.get_tab_value()) then
+				-- this part recalculates a child list with recursion
+				-- get_tab_value() returns the amount as the second value
+				-- the last_indent prevents it from recalculating multiple times.
+				-- the first time this runs, linenum is the first entry in the list
+				M.recal(linenum)
+				-- so you don't repeat recalculate()
+				last_indent = line_indent
+				print(last_indent)
 			end
-		-- this part recalculates a child list with recursion
-		-- get_tab_value() returns the amount as the second value
-		-- the not_equal prevents it from recalculating multiple times
-		elseif utils.is_list(line, get_lists())
-			and line_indent ~= last_indent
-			and line_indent == list_indent + select(2, utils.get_tab_value())
-		then
-			-- the first time this runs, linenum is the first entry in the list
-			M.recal(linenum)
-			-- so you don't repeat recalculate()
-			last_indent = utils.get_indent_lvl(line)
+		else
+			return
 		end
 		-- do these at the end so it can check it at the start of the loop
 		linenum = linenum + 1
@@ -213,6 +214,6 @@ end
 
 
 -- TODO
--- for dedenting only use parent list
+-- replace utils.get_tab_value with a config option
 
 return M

@@ -80,7 +80,7 @@ end
 
 -- reduce boilerplate
 local function exec_ordered(entry, func_digit, func_char, return_else, return_last)
-	local digit = entry:gsub("^%s*(%d+)%..*$", "%1", 1)
+	local digit = entry:gsub("^%s*(%d+)[.)].*$", "%1", 1)
 	local char = entry:gsub("^%s*(%a)[.)].*$", "%1", 1)
 	if digit and digit ~= entry then
 		return func_digit(digit)
@@ -112,9 +112,9 @@ function M.set_line_marker(linenum, marker, list_types)
 	fn.setline(linenum, line)
 end
 
-function M.set_value(line, linenum, val)
-	local function digitfunc() fn.setline(linenum, (line:gsub("%d+", val, 1))) end
-	local function charfunc() fn.setline(linenum, (line:gsub("%a", number_to_char(val), 1))) end
+function M.set_ordered_value(line, val)
+	local function digitfunc() return (line:gsub("^(%s*)%d+", "%1" .. val, 1)) end
+	local function charfunc() return (line:gsub("^(%s*)%a", "%1" .. number_to_char(val), 1)) end
 	return exec_ordered(line, digitfunc, charfunc)
 end
 
