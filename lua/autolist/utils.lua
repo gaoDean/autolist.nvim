@@ -162,21 +162,6 @@ function M.get_ordered_add(entry, amount)
 	return exec_ordered(entry, digitfunc, charfunc, entry)
 end
 
--- returns a lua pattern with the current vim tab value
-function M.get_tab_value()
-	if vim.opt.expandtab:get() then
-		local pattern = ""
-		local tabstop = vim.opt.tabstop:get()
-		-- get tabstop in spaces
-		for i = 1, tabstop, 1 do
-			pattern = pattern .. " "
-		end
-		return pattern, tabstop
-	else
-		return "\t", 1
-	end
-end
-
 -- get the start of the current list scope (indent)
 function M.get_list_start(cur_linenum, list_types)
 	if not cur_linenum then
