@@ -118,9 +118,10 @@ function M.set_ordered_value(line, val)
 	return exec_ordered(line, digitfunc, charfunc)
 end
 
-function M.reset_cursor_column()
+function M.reset_cursor_column(col)
+	if not col then col = 1 end
 	local pos = fn.getpos(".")
-	pos[3] = 1
+	pos[3] = col
 	fn.setpos(".", pos)
 end
 

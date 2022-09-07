@@ -38,6 +38,10 @@ local default_config = {
 		-- invert mapping in normal mode
 		normal_mapping = "",
 
+		-- when no indent and it wants to change the list marker (not checkbox)
+		-- indent the line then change the list marker.
+		indent = true,
+
 		-- when there is a list like - [x] content, when invert mapping is
 		-- pressed and below option is true the list will turn into
 		-- - [ ] content, instead of 1. [x] content
@@ -201,7 +205,7 @@ M.update = function(opts)
 		-- just for logistics
 		M.tabstop = 1 -- honestly i bet tmr i will not know why i did this
 	end
-	M.recal_full = full -- I don't think this should be a config option
+	M.recal_full = false -- I don't think this should be a config option
 end
 
 return M

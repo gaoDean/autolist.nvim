@@ -188,6 +188,7 @@ end
 
 function M.invert()
 	local cur_line = fn.getline(".")
+	local cur_linenum = fn.line(".")
 
 	-- if toggle checkbox true and is checkbox, toggle checkbox
 	if config.invert.toggles_checkbox then
@@ -207,15 +208,21 @@ function M.invert()
 		end
 	end
 
-	local list, cur_marker_pat = utils.is_list(cur_line, get_lists())
-	if list then
+	if utils.is_list(cur_line, get_lists()) then
+		-- indent the line if current indent is zero
+		if utils.get_indent_lvl(cur_line) == 0
+			and config.invert.indent == true
+		then
+			fn.setline(".", config.tab .. cur_line)
+		end
 		-- if ul change to 1.
 		if utils.is_ordered(cur_line) then
-			utils.set_current_line(cur_line:gsub(cur_marker_pat, config.invert.ul_marker, 1))
+			utils.set_line_marker(cur_linenum, config.invert.ul_marker, get_lists())
 		else
-			-- if ol change to {config.invert.ul_marker}
+			-- if ol change to {config.invert.ol_incrementable}
 			local new_marker = config.invert.ol_incrementable .. config.invert.ol_delim
-			utils.set_current_line(cur_line:gsub(cur_marker_pat, new_marker, 1))
+			utils.set_line_marker(cur_linenum, new_marker, get_lists())
+			utils.reset_cursor_column(fn.col("$"))
 		end
 	end
 	check_recal("invert")
