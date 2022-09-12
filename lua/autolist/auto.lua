@@ -137,6 +137,7 @@ function M.recal(override_start_num, reset_list)
 		list_start_num = utils.get_list_start(fn.line("."), types)
 		reset_list = 0
 	end
+	if not list_start_num then return end -- returns nil if not ordered list
 	if reset_list then
 		local next_num = list_start_num + reset_list
 		local nxt = fn.getline(next_num)
@@ -144,7 +145,6 @@ function M.recal(override_start_num, reset_list)
 			fn.setline(next_num, utils.set_ordered_value(nxt, 1))
 		end
 	end
-	if not list_start_num then return end -- returns nil if not ordered list
 	local list_start = fn.getline(list_start_num)
 	local list_indent = utils.get_indent_lvl(list_start)
 
