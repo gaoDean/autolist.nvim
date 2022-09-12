@@ -40,7 +40,7 @@ local default_config = {
 
 		-- when no indent and it wants to change the list marker (not checkbox)
 		-- indent the line then change the list marker.
-		indent = true,
+		indent = false,
 
 		-- when there is a list like - [x] content, when invert mapping is
 		-- pressed and below option is true the list will turn into
