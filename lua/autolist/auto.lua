@@ -129,13 +129,12 @@ function M.recal(override_start_num, reset_list)
 	-- x is the actual line (fn.getline)
 	-- x_num is the line number (fn.line)
 	-- x_indent is the indent of the line (utils.get_indent_lvl)
-
 	local types = get_lists()
 	local list_start_num
 	if override_start_num then
 		list_start_num = override_start_num
 	else
-		list_start_num = utils.get_list_start(fn.line("."), get_lists())
+		list_start_num = utils.get_list_start(fn.line("."), types)
 		reset_list = 0
 	end
 	if reset_list then
@@ -158,16 +157,17 @@ function M.recal(override_start_num, reset_list)
 	while line_indent >= list_indent
 		and linenum < list_start_num + config.list_cap
 	do
-		if utils.is_list(line, get_lists()) then
+		if utils.is_list(line, types) then
 			if line_indent == list_indent then
 				local val = utils.set_ordered_value(list_start, target)
-				if val then
-					utils.set_line_marker(linenum, utils.get_marker(val, get_lists()), get_lists())
-					-- only increase target if increased list
-					target = target + 1
-					-- escaped the child list
-					prev_indent = -1
+				if not val then
+					val = list_start
 				end
+				utils.set_line_marker(linenum, utils.get_marker(val, types), types)
+				-- only increase target if increased list
+				target = target + 1
+				-- escaped the child list
+				prev_indent = -1
 			elseif line_indent ~= prev_indent -- small difference between var names
 				and line_indent == list_indent + config.tabstop then
 				-- this part recalculates a child list with recursion
@@ -189,6 +189,7 @@ end
 function M.invert()
 	local cur_line = fn.getline(".")
 	local cur_linenum = fn.line(".")
+	local types = get_lists()
 
 	-- if toggle checkbox true and is checkbox, toggle checkbox
 	if config.invert.toggles_checkbox then
@@ -208,7 +209,7 @@ function M.invert()
 		end
 	end
 
-	if utils.is_list(cur_line, get_lists()) then
+	if utils.is_list(cur_line, types) then
 		-- indent the line if current indent is zero
 		if utils.get_indent_lvl(cur_line) == 0
 			and config.invert.indent == true
@@ -217,13 +218,15 @@ function M.invert()
 		end
 		-- if ul change to 1.
 		if utils.is_ordered(cur_line) then
-			utils.set_line_marker(cur_linenum, config.invert.ul_marker, get_lists())
+			-- utils.set_line_marker(cur_linenum, config.invert.ul_marker, types)
+			utils.set_line_marker(utils.get_list_start(cur_linenum, types), config.invert.ul_marker, types)
 		else
 			-- if ol change to {config.invert.ol_incrementable}
 			local new_marker = config.invert.ol_incrementable .. config.invert.ol_delim
-			utils.set_line_marker(cur_linenum, new_marker, get_lists())
-			utils.reset_cursor_column(fn.col("$"))
+			-- utils.set_line_marker(cur_linenum, new_marker, types)
+			utils.set_line_marker(utils.get_list_start(cur_linenum, types), new_marker, types)
 		end
+		utils.reset_cursor_column(fn.col("$"))
 	end
 	check_recal("invert")
 end
