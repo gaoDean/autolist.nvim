@@ -198,15 +198,6 @@ end
 
 -- ================================ checkers ==( does, is )================= --
 
-function M.does_table_contain(table, element)
-  for _, value in pairs(table) do
-    if value == element then
-      return true
-    end
-  end
-  return false
-end
-
 -- is a list, returns true, the pattern and the result of the pattern
 function M.is_list(entry, list_types, more)
 	if not list_types then
