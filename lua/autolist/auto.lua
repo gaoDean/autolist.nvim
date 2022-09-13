@@ -29,7 +29,7 @@ local function checkbox_is_filled(line)
 end
 
 local function check_recal(func_name, extra)
-	if extra == true or utils.does_table_contain(config.recal_hooks, func_name) then
+	if extra == true or utils.does_table_contain(config.recal_function_hooks, func_name) then
 		if config.recal_full then
 			M.recal()
 		else

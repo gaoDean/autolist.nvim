@@ -6,14 +6,6 @@ local default_config = {
 	-- enables/disables the plugin
 	enabled = true,
 
-	-- for if you have something else that you want to map when press return
-	-- with the create enter being false, you must create your own mapping
-	create_enter_mapping = true,
-
-	-- when key o pressed, new list entry, functions like <cr> but normal mode
-	-- also enables capital O
-	new_entry_on_o = true,
-
 	-- the max list entries it will recalculate
 	list_cap = 50,
 
@@ -31,13 +23,6 @@ local default_config = {
 	},
 
 	invert = {
-		-- the mapping to invert the list type e.g ol -> ul, ul -> ol
-		-- set this to empty ("") to disable
-		mapping = "<c-r>",
-
-		-- invert mapping in normal mode
-		normal_mapping = "",
-
 		-- when no indent and it wants to change the list marker (not checkbox)
 		-- indent the line then change the list marker.
 		indent = false,
@@ -100,7 +85,7 @@ local default_config = {
 
 	-- a list of functions you run recal() on finish
 	-- currently you can do invert() and/or new()
-	recal_hooks = {
+	recal_function_hooks = {
 		"invert",
 		"new",
 	},
@@ -111,6 +96,22 @@ local default_config = {
 		left = "%[",
 		right = "%]",
 		fill = "x",
+	},
+	-- each hook (insert and normal) just remaps the map to itself, plus the function
+	insert_hooks = {
+		invert = { "<c-r>" },
+		new = { "<CR>" },
+		tab = { "<c-t>" },
+		detab = { "<c-d>" },
+	},
+	normal_hooks = {
+		new = {
+			"o",
+			"O+true", -- everything after the + becomes args
+		},
+		tab = { ">>" },
+		detab = { "<<" },
+		recal = { "dd" },
 	},
 }
 
@@ -162,26 +163,20 @@ M.update = function(opts)
 
 		-- for each filetype in th enabled filetypes
 		for ft, _ in pairs(filetype_lists) do
-			if newconf.create_enter_mapping then
-				au("Filetype", ft, "inoremap <buffer> <cr> <cr><cmd>lua require('autolist').new()<cr>")
+			for func, mappings in pairs(newconf.normal_hooks) do
+				for _, map in pairs(mappings) do
+					local args = (map:match("%+.*") or ""):sub(2, -1)
+					map = map:gsub("%+.*", "", 1)
+					au("Filetype", ft, "nnoremap <buffer> " .. map .. " " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
+				end
 			end
-			if newconf.new_entry_on_o then
-				au("Filetype", ft, "nnoremap <buffer> o o<cmd>lua require('autolist').new()<cr>")
-				au("Filetype", ft, "nnoremap <buffer> O O<cmd>lua require('autolist').new(true)<cr>")
+			for func, mappings in pairs(newconf.insert_hooks) do
+				for _, map in pairs(mappings) do
+					local args = (map:match("%+.*") or ""):sub(2, -1)
+					map = map:gsub("%+.*", "", 1)
+					au("Filetype", ft, "inoremap <buffer> " .. map .. " " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
+				end
 			end
-			if newconf.invert.normal_mapping ~= "" then
-				au("Filetype", ft, "nnoremap <buffer> " .. newconf.invert.normal_mapping .. " <cmd>lua require('autolist').invert()<cr>")
-			end
-			if newconf.invert.mapping ~= "" then
-				au("Filetype", ft, "inoremap <buffer> " .. newconf.invert.mapping .. " <cmd>lua require('autolist').invert()<cr>")
-			end
-
-			-- to change mapping, just do a imap (not inoremap) to <c-t> to recursively remap
-			au("Filetype", ft, "inoremap <buffer> <c-d> <c-d><cmd>lua require('autolist').detab()<cr>")
-			au("Filetype", ft, "inoremap <buffer> <c-t> <c-t><cmd>lua require('autolist').tab()<cr>")
-			au("Filetype", ft, "nnoremap <buffer> << <<<cmd>lua require('autolist').detab()<cr>")
-			au("Filetype", ft, "nnoremap <buffer> >> >><cmd>lua require('autolist').tab()<cr>")
-			-- au("Filetype", ft, "nnoremap <buffer> dd dd<cmd>lua require('autolist').unlist()<cr>")
 		end
 	end
 
