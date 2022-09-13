@@ -107,7 +107,7 @@ local default_config = {
 	normal_hooks = {
 		new = {
 			"o",
-			"O+true", -- everything after the + becomes args
+			"O+(true)", -- everything after the + becomes args
 		},
 		tab = { ">>" },
 		detab = { "<<" },
@@ -165,14 +165,14 @@ M.update = function(opts)
 		for ft, _ in pairs(filetype_lists) do
 			for func, mappings in pairs(newconf.normal_hooks) do
 				for _, map in pairs(mappings) do
-					local args = (map:match("%+.*") or ""):sub(2, -1)
+					local args = (map:match("%+.*") or ""):sub(3, -2)
 					map = map:gsub("%+.*", "", 1)
 					au("Filetype", ft, "nnoremap <buffer> " .. map .. " " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
 				end
 			end
 			for func, mappings in pairs(newconf.insert_hooks) do
 				for _, map in pairs(mappings) do
-					local args = (map:match("%+.*") or ""):sub(2, -1)
+					local args = (map:match("%+.*") or ""):sub(3, -2)
 					map = map:gsub("%+.*", "", 1)
 					au("Filetype", ft, "inoremap <buffer> " .. map .. " " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
 				end
