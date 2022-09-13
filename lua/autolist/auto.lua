@@ -59,7 +59,9 @@ function M.new(O_pressed)
 	local prev_line = fn.getline(fn.line(".") - 1)
 	local filetype_lists = get_lists()
 	if O_pressed and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
-		prev_line = fn.getline(fn.line(".") + 1)
+		-- makes it think theres a list entry before current that was 0
+		-- if it happens in the middle of the list, recal fixes it
+		prev_line = utils.set_ordered_value(fn.getline(fn.line(".") + 1), 0)
 	end
 
 	local matched = false
@@ -84,6 +86,7 @@ function M.new(O_pressed)
 				and config.colon.indent
 				and prev_line:match(pat_colon)
 			then
+				-- handle colons
 				if config.colon.preferred ~= "" then
 					modded = modded:gsub("^(%s*).*", "%1", 1) .. config.colon.preferred .. " "
 				end
@@ -129,6 +132,7 @@ function M.recal(override_start_num, reset_list)
 	-- x is the actual line (fn.getline)
 	-- x_num is the line number (fn.line)
 	-- x_indent is the indent of the line (utils.get_indent_lvl)
+
 	local types = get_lists()
 	local list_start_num
 	if override_start_num then
