@@ -45,7 +45,7 @@ local default_config = {
 		fill = "x",
 	},
 	insert_hooks = {
-		invert = { "<c-r>" },
+		invert = { "<c-r>+[catch]" },
 		new = { "<CR>" },
 		tab = { "<c-t>" },
 		detab = { "<c-d>" },
@@ -113,14 +113,22 @@ M.update = function(opts)
 				for _, map in pairs(mappings) do
 					local args = (map:match("%+.*") or ""):sub(3, -2)
 					map = map:gsub("%+.*", "", 1)
-					au("Filetype", ft, "nnoremap <buffer> " .. map .. " " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
+					if args == "catch" then
+						au("Filetype", ft, "nnoremap <buffer> " .. map .. " <cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
+					else
+						au("Filetype", ft, "nnoremap <buffer> " .. map .. " " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
+					end
 				end
 			end
 			for func, mappings in pairs(newconf.insert_hooks) do
 				for _, map in pairs(mappings) do
 					local args = (map:match("%+.*") or ""):sub(3, -2)
 					map = map:gsub("%+.*", "", 1)
-					au("Filetype", ft, "inoremap <buffer> " .. map .. " " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
+					if args == "catch" then
+						au("Filetype", ft, "inoremap <buffer> " .. map .. " <cmd>lua require('autolist')." .. func .. "()<cr>")
+					else
+						au("Filetype", ft, "inoremap <buffer> " .. map .. " " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
+					end
 				end
 			end
 		end
