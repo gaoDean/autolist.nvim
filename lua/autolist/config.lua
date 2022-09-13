@@ -1,56 +1,20 @@
--- credit to https://github.com/stevearc/dressing.nvim
--- because i couldn't figure out how to do the config override
--- my excuse is this is my first plugin so ykyk
-
 local default_config = {
-	-- enables/disables the plugin
 	enabled = true,
-
-	-- the max list entries it will recalculate
 	list_cap = 50,
-
-	-- line ending with a colon
 	colon = {
-		-- when a line ends with a colon, the list is automatically indented
 		indent_raw = true,
-
-		-- when a *list* ends with a colon, the list is automatically indented
 		indent = true,
-
-		-- the preferred marker when starting a list from a colon
-		-- set to empty to use current
 		preferred = "-"
 	},
-
 	invert = {
-		-- when no indent and it wants to change the list marker (not checkbox)
-		-- indent the line then change the list marker.
 		indent = false,
-
-		-- when there is a list like - [x] content, when invert mapping is
-		-- pressed and below option is true the list will turn into
-		-- - [ ] content, instead of 1. [x] content
 		toggles_checkbox = true,
-
-		-- when pressing the relist mapping and current marker is ordered list,
-		-- change to {ul_marker}.
 		ul_marker = "-",
-
-		-- the following two settings configure changing from ul to ol
-		-- the incrementable part of the ordered list
-		-- this can be a number or a char (depending on what you want)
-		-- so if the following was "a" (or "b" or "c" etc), ul -> "a. " (or "b. ")
 		ol_incrementable = "1",
-
-		-- if you put ")", ul -> "1) " (or "2) ")
-		-- basically what goes after {ol_incrementable}
 		ol_delim = ".",
 	},
-
-	-- the list entries that will be autocompleted
 	lists = {
 		preloaded = {
-			-- these options correspond to the options in the {filetypes} table
 			generic = {
 				"unordered",
 				"digit",
@@ -59,45 +23,27 @@ local default_config = {
 			latex = {
 				"latex_item",
 			},
-			-- you can set your own list types using lua's patterns, take a
-			-- look at the preloaded_lists variable in this file
 		},
-
-		-- its hard to wrap your mind around but in preloaded_lists, each table
-		-- is a "group" of list types, and in this filetypes table, each
-		-- filetype is a filetype that this "group" is applied to.
 		filetypes = {
-			-- must put file name, not the extension.
-			-- if you are not sure, just run :set filetype? or :echo &filetype
-
-			-- this means the generic lists will be applied to markdown and text
 			generic = {
 				"markdown",
 				"text",
 			},
-			-- this means the latex preloaded group is applied to latex files only
 			latex = {
 				"tex",
 				"plaintex",
 			},
 		},
 	},
-
-	-- a list of functions you run recal() on finish
-	-- currently you can do invert() and/or new()
 	recal_function_hooks = {
 		"invert",
 		"new",
 	},
-
-	-- used to configure what is matched as a checkbox
-	-- in this case a filled checkbox would be "%[x%]" or "[x]"
 	checkbox = {
 		left = "%[",
 		right = "%]",
 		fill = "x",
 	},
-	-- each hook (insert and normal) just remaps the map to itself, plus the function
 	insert_hooks = {
 		invert = { "<c-r>" },
 		new = { "<CR>" },
@@ -107,7 +53,7 @@ local default_config = {
 	normal_hooks = {
 		new = {
 			"o",
-			"O+(true)", -- everything after the + becomes args
+			"O+(true)",
 		},
 		tab = { ">>" },
 		detab = { "<<" },
