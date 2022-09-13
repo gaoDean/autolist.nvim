@@ -12,6 +12,7 @@ M.setup = function(opts)
 	M.detab = auto.detab
 	M.tab = auto.tab
 	M.invert = auto.invert
+	M.recal = auto.recal
 end
 
 return M
