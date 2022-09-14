@@ -126,6 +126,20 @@ function M.detab()
 	end
 end
 
+function M.indent(direction)
+	if utils.is_list(fn.getline("."), get_lists()) then
+		if direction == ">>" then
+			fn.execute("normal! >>x")
+			utils.reset_cursor_column(fn.col("$"))
+			M.tab()
+		else M.detab()
+			fn.execute("normal! <<x")
+			utils.reset_cursor_column(fn.col("$"))
+			M.detab()
+		end
+	end
+end
+
 -- recalculates the current list scope
 function M.recal(override_start_num, reset_list)
 	-- the var base names: list and line
