@@ -44,7 +44,7 @@ local default_config = {
 		right = "%]",
 		fill = "x",
 	},
-	insert_hooks = {
+	insert_mappings = {
 		invert = { "<c-r>+[catch]" },
 		new = { "<CR>" },
 		tab = { "<c-t>" },
@@ -55,7 +55,7 @@ local default_config = {
 			"<s-tab>+('<<')",
 		},
 	},
-	normal_hooks = {
+	normal_mappings = {
 		new = {
 			"o",
 			"O+(true)",
@@ -128,8 +128,8 @@ M.update = function(opts)
 
 		-- for each filetype in th enabled filetypes
 		for ft, _ in pairs(filetype_lists) do
-			for func, mappings in pairs(newconf.normal_hooks) do setmap(func, mappings, "nnoremap") end
-			for func, mappings in pairs(newconf.insert_hooks) do setmap(func, mappings, "inoremap") end
+			for func, mappings in pairs(newconf.normal_mapping) do setmap(func, mappings, "nnoremap") end
+			for func, mappings in pairs(newconf.insert_mapping) do setmap(func, mappings, "inoremap") end
 		end
 	end
 
