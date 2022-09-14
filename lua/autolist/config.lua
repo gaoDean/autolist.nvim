@@ -49,6 +49,7 @@ local default_config = {
 		new = { "<CR>" },
 		tab = { "<c-t>" },
 		detab = { "<c-d>" },
+		recal = { "<c-z>" },
 	},
 	normal_hooks = {
 		new = {
