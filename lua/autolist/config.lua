@@ -128,8 +128,8 @@ M.update = function(opts)
 
 		-- for each filetype in th enabled filetypes
 		for ft, _ in pairs(filetype_lists) do
-			for func, mappings in pairs(newconf.normal_mapping) do setmap(func, mappings, "nnoremap") end
-			for func, mappings in pairs(newconf.insert_mapping) do setmap(func, mappings, "inoremap") end
+			for func, mappings in pairs(newconf.normal_mappings) do setmap(func, mappings, "nnoremap") end
+			for func, mappings in pairs(newconf.insert_mappings) do setmap(func, mappings, "inoremap") end
 		end
 	end
 
