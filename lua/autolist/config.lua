@@ -86,7 +86,7 @@ local function get_preloaded_pattern(pre)
 	return val
 end
 
-local function setmap(func, mappings, mode)
+local function setmap(func, mappings, ft, mode)
 	for _, map in pairs(mappings) do
 		local args = (map:match("%+%(.*%)") or ""):sub(3, -2)
 		local catch = (map:match("%+%[.*%]") or ""):sub(3, -2)
@@ -128,8 +128,8 @@ M.update = function(opts)
 
 		-- for each filetype in th enabled filetypes
 		for ft, _ in pairs(filetype_lists) do
-			for func, mappings in pairs(newconf.normal_mappings) do setmap(func, mappings, "nnoremap") end
-			for func, mappings in pairs(newconf.insert_mappings) do setmap(func, mappings, "inoremap") end
+			for func, mappings in pairs(newconf.normal_mappings) do setmap(func, mappings, ft, "nnoremap") end
+			for func, mappings in pairs(newconf.insert_mappings) do setmap(func, mappings, ft, "inoremap") end
 		end
 	end
 
