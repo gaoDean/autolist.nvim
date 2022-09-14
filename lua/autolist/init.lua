@@ -13,6 +13,7 @@ M.setup = function(opts)
 	M.tab = auto.tab
 	M.invert = auto.invert
 	M.recal = auto.recal
+	M.indent = auto.indent
 end
 
 return M

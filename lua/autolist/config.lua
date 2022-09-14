@@ -50,6 +50,10 @@ local default_config = {
 		tab = { "<c-t>" },
 		detab = { "<c-d>" },
 		recal = { "<c-z>" },
+		indent = {
+			"<tab>+('>>')",
+			"<s-tab>+('<<')",
+		},
 	},
 	normal_hooks = {
 		new = {
@@ -82,6 +86,20 @@ local function get_preloaded_pattern(pre)
 	return val
 end
 
+local function setmap(func, mappings, mode)
+	for _, map in pairs(mappings) do
+		local args = (map:match("%+%(.*%)") or ""):sub(3, -2)
+		local catch = (map:match("%+%[.*%]") or ""):sub(3, -2)
+		map = map:gsub("%+.*", "")
+		if catch == "catch" then
+			map = map .. " " -- catch the mapping, dont execute
+		else
+			map = map .. " " .. map -- execute the mapping
+		end
+		au("Filetype", ft, mode .. " <buffer> " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
+	end
+end
+
 local M = vim.deepcopy(default_config)
 
 M.update = function(opts)
@@ -110,28 +128,8 @@ M.update = function(opts)
 
 		-- for each filetype in th enabled filetypes
 		for ft, _ in pairs(filetype_lists) do
-			for func, mappings in pairs(newconf.normal_hooks) do
-				for _, map in pairs(mappings) do
-					local args = (map:match("%+.*") or ""):sub(3, -2)
-					map = map:gsub("%+.*", "", 1)
-					if args == "catch" then
-						au("Filetype", ft, "nnoremap <buffer> " .. map .. " <cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
-					else
-						au("Filetype", ft, "nnoremap <buffer> " .. map .. " " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
-					end
-				end
-			end
-			for func, mappings in pairs(newconf.insert_hooks) do
-				for _, map in pairs(mappings) do
-					local args = (map:match("%+.*") or ""):sub(3, -2)
-					map = map:gsub("%+.*", "", 1)
-					if args == "catch" then
-						au("Filetype", ft, "inoremap <buffer> " .. map .. " <cmd>lua require('autolist')." .. func .. "()<cr>")
-					else
-						au("Filetype", ft, "inoremap <buffer> " .. map .. " " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
-					end
-				end
-			end
+			for func, mappings in pairs(newconf.normal_hooks) do setmap(func, mappings, "nnoremap") end
+			for func, mappings in pairs(newconf.insert_hooks) do setmap(func, mappings, "inoremap") end
 		end
 	end
 
