@@ -105,6 +105,8 @@ local M = vim.deepcopy(default_config)
 M.update = function(opts)
 	local newconf = vim.tbl_deep_extend("force", default_config, opts or {})
 
+	if not newconf.enabled then return end
+
 	local filetype_lists = {}
 	for list, filetypes in pairs(newconf.lists.filetypes) do
 		for _, filetype in pairs(filetypes) do
@@ -117,19 +119,10 @@ M.update = function(opts)
 		end
 	end
 
-	-- DEBUG: this lists the patterns for each filetype
-	-- for filetype, table in pairs(filetype_lists) do
-	-- 	for _, pattern in pairs(table) do
-	-- 		print(filetype, pattern)
-	-- 	end
-	-- end
-
-	if newconf.enabled then
-		-- for each filetype in th enabled filetypes
-		for ft, _ in pairs(filetype_lists) do
-			for func, mappings in pairs(newconf.normal_mappings) do setmap(func, mappings, ft, "nnoremap") end
-			for func, mappings in pairs(newconf.insert_mappings) do setmap(func, mappings, ft, "inoremap") end
-		end
+	-- only runs the inside once per filetype
+	for ft, _ in pairs(filetype_lists) do
+		for func, mappings in pairs(newconf.normal_mappings) do setmap(func, mappings, ft, "nnoremap") end
+		for func, mappings in pairs(newconf.insert_mappings) do setmap(func, mappings, ft, "inoremap") end
 	end
 
 	for k, v in pairs(newconf) do
@@ -148,11 +141,10 @@ M.update = function(opts)
 		M.tab = pattern
 	else
 		M.tab = "\t"
-
 		-- just for logistics
 		M.tabstop = 1 -- honestly i bet tmr i will not know why i did this
 	end
-	M.recal_full = false -- I don't think this should be a config option
+	M.recal_full = false
 end
 
 return M
