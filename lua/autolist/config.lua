@@ -66,10 +66,6 @@ local default_config = {
 	},
 }
 
-local function au(evt, pat, cmd) -- (string|recalle), (string|table), (string)
-	vim.api.nvim_create_autocmd(evt, { pattern = pat, command = cmd, })
-end
-
 local preloaded_lists = {
 	unordered = "[-+*]",
 	digit = "%d+[.)]",
@@ -84,6 +80,10 @@ local function get_preloaded_pattern(pre)
 		return pre
 	end
 	return val
+end
+
+local function au(evt, pat, cmd) -- (string|table), (string|table), (string)
+	vim.api.nvim_create_autocmd(evt, { pattern = pat, command = cmd, })
 end
 
 local function setmap(func, mappings, ft, mode)
@@ -125,7 +125,6 @@ M.update = function(opts)
 	-- end
 
 	if newconf.enabled then
-
 		-- for each filetype in th enabled filetypes
 		for ft, _ in pairs(filetype_lists) do
 			for func, mappings in pairs(newconf.normal_mappings) do setmap(func, mappings, ft, "nnoremap") end
