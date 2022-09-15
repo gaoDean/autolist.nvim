@@ -21,7 +21,7 @@ CONTENTS                                                       *autolist_content
     <p align="center">
         <a href="https://github.com/gaoDean/autolist.nvim/stargazers">
             <img alt="Stars" src="https://img.shields.io/github/stars/gaoDean/autolist.nvim?style=for-the-badge&logo=starship&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41"></a>
-        <a href="https://github.com/Pocco81/autolist.nvim/issues">
+        <a href="https://github.com/gaoDean/autolist.nvim/issues">
             <img alt="Issues" src="https://img.shields.io/github/issues/gaoDean/autolist.nvim?style=for-the-badge&logo=bilibili&color=F5E0DC&logoColor=D9E0EE&labelColor=302D41"></a>
         <a href="https://github.com/gaoDean/autolist.nvim">
             <img alt="Repo Size" src="https://img.shields.io/github/repo-size/gaoDean/autolist.nvim?color=%23DDB6F2&label=SIZE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41"/></a>
@@ -41,7 +41,7 @@ This question can be interpreted in two ways. Why did I create autolist, and why
         <dt>Why did I create autolist?</dt>
         <dd>It sounds simple, but all I wanted was a list continuation plugin in lua that makes lists function better. Bullets.vim works, but it is written in vimscript and is more than a thousand lines long. Needless to say, I couldn't find a suitable one, so I decided to create my own.</dd>
         <dt>Why use autolist?</dt>
-        <dd>Autolist lua directory is just 18K (according to <code>du -Ah</code>), with the files complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, and implements context aware renumbering/marking of list entries, to take your mind off the formatting, and have it work in the background while you write down your thoughts.</dd>
+        <dd>Autolist's lua directory is 20K (according to <code>du -Ah</code>), with the files complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, and implements context aware renumbering/marking of list entries, to take your mind off the formatting, and have it work in the background while you write down your thoughts.</dd>
     </dl>
 <
 

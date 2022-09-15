@@ -179,10 +179,8 @@ function M.recal(override_start_num, reset_list)
 			if line_indent == list_indent then
 				local val = utils.set_ordered_value(list_start, target)
 				utils.set_line_marker(linenum, utils.get_marker(val, types), types)
-				-- only increase target if increased list
-				target = target + 1
-				-- escaped the child list
-				prev_indent = -1
+				target = target + 1 -- only increase target if increased list
+				prev_indent = -1 -- escaped the child list
 			elseif line_indent ~= prev_indent -- small difference between var names
 				and line_indent == list_indent + config.tabstop then
 				-- this part recalculates a child list with recursion
