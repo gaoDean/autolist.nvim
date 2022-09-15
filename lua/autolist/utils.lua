@@ -79,7 +79,7 @@ local function number_to_char(number)
 end
 
 -- reduce boilerplate
-local function exec_ordered(entry, func_digit, func_char, return_else, return_last)
+local function exec_ordered(entry, func_digit, func_char, return_else)
 	local digit = entry:gsub("^%s*(%d+)[.)].*$", "%1", 1)
 	local char = entry:gsub("^%s*(%a)[.)].*$", "%1", 1)
 	if digit and digit ~= entry then
@@ -89,7 +89,6 @@ local function exec_ordered(entry, func_digit, func_char, return_else, return_la
 	else
 		return return_else
 	end
-	return return_last -- nil if not defined
 end
 
 local function char_to_number(char)
@@ -115,7 +114,7 @@ end
 function M.set_ordered_value(line, val)
 	local function digitfunc() return (line:gsub("^(%s*)%d+", "%1" .. val, 1)) end
 	local function charfunc() return (line:gsub("^(%s*)%a", "%1" .. number_to_char(val), 1)) end
-	return exec_ordered(line, digitfunc, charfunc)
+	return exec_ordered(line, digitfunc, charfunc, line)
 end
 
 function M.reset_cursor_column(col)
