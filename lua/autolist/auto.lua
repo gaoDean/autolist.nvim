@@ -178,9 +178,6 @@ function M.recal(override_start_num, reset_list)
 		if utils.is_list(line, types) then
 			if line_indent == list_indent then
 				local val = utils.set_ordered_value(list_start, target)
-				if not val then
-					val = list_start
-				end
 				utils.set_line_marker(linenum, utils.get_marker(val, types), types)
 				-- only increase target if increased list
 				target = target + 1
