@@ -132,12 +132,12 @@ end
 function M.indent(direction)
 	if utils.is_list(fn.getline("."), get_lists()) then
 		if direction == ">>" then
-			fn.execute("normal! >>x")
-			utils.reset_cursor_column(fn.col("$"))
+			local ctrl_t = vim.api.nvim_replace_termcodes("<c-t>", true, true, true)
+			vim.cmd.normal{"i" .. ctrl_t, bang = true}
 			M.tab()
 		else M.detab()
-			fn.execute("normal! <<x")
-			utils.reset_cursor_column(fn.col("$"))
+			local ctrl_d = vim.api.nvim_replace_termcodes("<c-d>", true, true, true)
+			vim.cmd.normal{"i" .. ctrl_d, bang = true}
 			M.detab()
 		end
 	end
