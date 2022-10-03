@@ -124,9 +124,12 @@ inspired by [my gist](https://gist.github.com/gaoDean/288d01dfe64da66569fb6615c7
 which is in turn inspired by [this gist](https://gist.github.com/sedm0784/dffda43bcfb4728f8e90)
 
 ## Other
-I started learning lua like a month ago, plus this is my first plugin, so there's probably a bunch of badly written code in there. Feel free to critique harshly and pull request.
 
-If you submit a good enough pull request and show that you are trusted, you could perhaps become a contributor, as I have limited time cus you know *school*.
+> "All software adds fetures until it is annoyingly complicated. It is then replaced by a "simpler" solution which adds features until it is exactly as complicated."
+
+I started learning lua like a month ago, plus this is my first plugin, so there's probably a bunch of badly written code in there. Feel free to critique harshly.
+
+If you submit a good enough pull request, you could perhaps become a contributor, as I have school lol.
 
 To get a overview of code, this removes all the comments and empty lines. Idk, I just like to do this to polish, might be useful to you.
 
