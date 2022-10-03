@@ -125,7 +125,7 @@ which is in turn inspired by [this gist](https://gist.github.com/sedm0784/dffda4
 
 ## Other
 
-> "All software adds fetures until it is annoyingly complicated. It is then replaced by a "simpler" solution which adds features until it is exactly as complicated."
+> "All software adds features until it is annoyingly complicated. It is then replaced by a "simpler" solution which adds features until it is exactly as complicated."
 
 I started learning lua like a month ago, plus this is my first plugin, so there's probably a bunch of badly written code in there. Feel free to critique harshly.
 
