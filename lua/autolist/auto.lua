@@ -40,7 +40,10 @@ end
 
 local function modify(prev, pattern)
 	-- the brackets capture {pattern} and they release on %1
-	local matched, nsubs = prev:gsub("^(%s*" .. pattern .. "%s?).*$", "%1", 1)
+	local matched, nsubs = prev:gsub("^(%s*" .. pattern .. "%s).*$", "%1", 1)
+	if nsubs == 0 then
+		matched, nsubs = prev:gsub("^(%s*" .. pattern .. ")$", "%1", 1)
+	end
 	-- trim off spaces
 	if utils.get_whitespace_trimmed(matched) == utils.get_whitespace_trimmed(prev) then
 		-- if replaced smth
