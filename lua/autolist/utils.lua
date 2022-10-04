@@ -107,8 +107,10 @@ end
 -- change the list marker of the current line
 function M.set_line_marker(linenum, marker, list_types)
 	local line = fn.getline(linenum)
-	local line = line:gsub("^(%s*)" .. M.get_marker_pat(line, list_types), "%1" .. marker, 1)
+	line = line:gsub("%s*$", "", 1)
+	line = line:gsub("^(%s*)" .. M.get_marker_pat(line, list_types) .. "%s*", "%1" .. marker .. " ", 1)
 	fn.setline(linenum, line)
+	M.reset_cursor_column(fn.col("$"))
 end
 
 function M.set_ordered_value(line, val)
