@@ -51,8 +51,8 @@ local default_config = {
 		detab = { "<c-d>" },
 		recal = { "<c-z>" },
 		indent = {
-			"<tab>+('>>')",
-			"<s-tab>+('<<')",
+			"<tab>+[catch]('>>')",
+			"<s-tab>+[catch]('<<')",
 		},
 	},
 	normal_mappings = {
@@ -88,8 +88,11 @@ end
 
 local function setmap(func, mappings, ft, mode)
 	for _, map in pairs(mappings) do
-		local args = (map:match("%+%(.*%)") or ""):sub(3, -2)
 		local catch = (map:match("%+%[.*%]") or ""):sub(3, -2)
+		local args = map:gsub(".*%+.*%((.*)%).*", "%1", 1)
+		if args == map then -- if not subbed, map doesn't change
+			args = ""
+		end
 		map = map:gsub("%+.*", "")
 		if catch == "catch" then
 			map = map .. " " -- catch the mapping, dont execute
