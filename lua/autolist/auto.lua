@@ -142,6 +142,8 @@ function M.indent(direction)
 		else
 			vim.cmd.normal{"i" .. config.tab, bang = true}
 		end
+	else
+		vim.cmd.normal{"i" .. config.tab, bang = true}
 	end
 end
 
