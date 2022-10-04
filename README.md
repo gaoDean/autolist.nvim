@@ -10,7 +10,7 @@
 	<a href="https://github.com/gaoDean/autolist.nvim/issues">
 		<img alt="Issues" src="https://img.shields.io/github/issues/gaoDean/autolist.nvim?style=for-the-badge&logo=bilibili&color=F5E0DC&logoColor=D9E0EE&labelColor=302D41"></a>
 	<a href="https://github.com/gaoDean/autolist.nvim">
-		<img alt="Repo Size" src="https://img.shields.io/github/repo-size/gaoDean/autolist.nvim?color=%23DDB6F2&label=SIZE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41"/></a>
+	<img alt="Code Size" src="https://img.shields.io/github/languages/code-size/gaoDean/autolist.nvim?color=%23DDB6F2&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41"/></a>
 </p>
 
 https://user-images.githubusercontent.com/97860672/186395300-2225ce49-af81-45cc-8ec0-87f14fc80cd4.mp4
@@ -57,8 +57,8 @@ See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on
 1. Type in a list marker (a list marker is just the delimiter used to start the list (`-|+|*` or `1.|2.|3.`)
 2. Type in your content
 3. When you're ready, press `enter`/`return` and a new list entry will be automatically created
-4. Indent your list with `<c-t>` (**t**ab) and your *whole line* gets indented. When indenting, ordered lists will automatically be reset to one
-5. Dedent your list with `<c-d>` (**d**edent) and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
+4. Indent your list with tab and your *whole line* gets indented. When indenting, ordered lists will automatically be reset to one
+5. Dedent your list with shift-tab and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 ## Configuration
