@@ -14,6 +14,7 @@
 </p>
 
 This is slightly outdated but I can't be bothered to change it...
+
 https://user-images.githubusercontent.com/97860672/186395300-2225ce49-af81-45cc-8ec0-87f14fc80cd4.mp4
 
 Note: this plugin is early in development, so expect breaking changes with updates. All breaking changes will be listed in the [releases](https://github.com/gaoDean/autolist.nvim/releases) page.
