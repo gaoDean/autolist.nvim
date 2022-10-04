@@ -13,9 +13,7 @@
 	<img alt="Code Size" src="https://img.shields.io/github/languages/code-size/gaoDean/autolist.nvim?color=%23DDB6F2&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41"/></a>
 </p>
 
-https://user-images.githubusercontent.com/97860672/186395300-2225ce49-af81-45cc-8ec0-87f14fc80cd4.mp4
-
-The above demo is slightly outdated but I can't be bothered to change it...
+https://user-images.githubusercontent.com/97860672/193787598-56abba13-3710-43d1-b8b3-4fd81074dbd4.mp4
 
 ## Why autolist.nvim
 This question can be interpreted in two ways. Why did I create autolist, and why you should use autolist.
