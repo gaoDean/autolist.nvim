@@ -133,17 +133,16 @@ function M.indent(direction)
 	if utils.is_list(fn.getline("."), get_lists()) then
 		if direction == ">>" then
 			local ctrl_t = vim.api.nvim_replace_termcodes("<c-t>", true, true, true)
-			vim.cmd.normal{"i" .. ctrl_t .. " ", bang = true}
-			M.tab()
+			vim.api.nvim_feedkeys(ctrl_t, "m", false)
 		elseif direction == "<<" then
 			local ctrl_d = vim.api.nvim_replace_termcodes("<c-d>", true, true, true)
-			vim.cmd.normal{"i" .. ctrl_d .. " ", bang = true}
-			M.detab()
+			vim.api.nvim_feedkeys(ctrl_d, "m", false)
 		else
-			vim.cmd.normal{"i" .. config.tab, bang = true}
+			print("autolist: must provide a direction to indent")
 		end
 	else
-		vim.cmd.normal{"i" .. config.tab, bang = true}
+		local tab = vim.api.nvim_replace_termcodes("<Tab>", true, true, true)
+		vim.api.nvim_feedkeys(tab, "n", false)
 	end
 end
 
