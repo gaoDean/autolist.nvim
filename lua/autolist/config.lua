@@ -60,9 +60,12 @@ local default_config = {
 			"o",
 			"O+(true)",
 		},
+		recal = {
+			"dd",
+			"p"
+		},
 		tab = { ">>" },
 		detab = { "<<" },
-		recal = { "dd" },
 	},
 }
 
