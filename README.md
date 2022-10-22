@@ -71,10 +71,8 @@ See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki/Configuration) for 
 
 This is the default config:
 ```lua
-require('autolist').setup({
+local default_config = {
 	enabled = true,
-	create_enter_mapping = true,
-	new_entry_on_o = true,
 	list_cap = 50,
 	colon = {
 		indent_raw = true,
@@ -82,8 +80,7 @@ require('autolist').setup({
 		preferred = "-"
 	},
 	invert = {
-		mapping = "<c-r>",
-		normal_mapping = "",
+		indent = false,
 		toggles_checkbox = true,
 		ul_marker = "-",
 		ol_incrementable = "1",
@@ -111,7 +108,7 @@ require('autolist').setup({
 			},
 		},
 	},
-	recal_hooks = {
+	recal_function_hooks = {
 		"invert",
 		"new",
 	},
@@ -120,7 +117,30 @@ require('autolist').setup({
 		right = "%]",
 		fill = "x",
 	},
-})
+	insert_mappings = {
+		invert = { "<c-r>+[catch]" },
+		new = { "<CR>" },
+		tab = { "<c-t>" },
+		detab = { "<c-d>" },
+		recal = { "<c-z>" },
+		indent = {
+			"<tab>+[catch]('>>')",
+			"<s-tab>+[catch]('<<')",
+		},
+	},
+	normal_mappings = {
+		new = {
+			"o",
+			"O+(true)",
+		},
+		recal = {
+			"dd",
+			"p"
+		},
+		tab = { ">>" },
+		detab = { "<<" },
+	},
+}
 ```
 
 ## Credit

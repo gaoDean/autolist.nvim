@@ -6,11 +6,12 @@ CONTENTS                                                       *autolist_content
 
     1. Why autolist.nvim..............................|autolist_why_autolist.nvim|
     2. Installation........................................|autolist_installation|
-    3. Usage......................................................|autolist_usage|
-            3.1. An intro to autolist..............|autolist_an_intro_to_autolist|
-    4. Configuration......................................|autolist_configuration|
-    5. Credit....................................................|autolist_credit|
-    6. Other......................................................|autolist_other|
+    3. Features................................................|autolist_features|
+    4. Usage......................................................|autolist_usage|
+            4.1. An intro to autolist..............|autolist_an_intro_to_autolist|
+    5. Configuration......................................|autolist_configuration|
+    6. Credit....................................................|autolist_credit|
+    7. Other......................................................|autolist_other|
 >
     <p align="center">
       <h2 align="center">autolist.nvim</h2>
@@ -24,13 +25,11 @@ CONTENTS                                                       *autolist_content
         <a href="https://github.com/gaoDean/autolist.nvim/issues">
             <img alt="Issues" src="https://img.shields.io/github/issues/gaoDean/autolist.nvim?style=for-the-badge&logo=bilibili&color=F5E0DC&logoColor=D9E0EE&labelColor=302D41"></a>
         <a href="https://github.com/gaoDean/autolist.nvim">
-            <img alt="Repo Size" src="https://img.shields.io/github/repo-size/gaoDean/autolist.nvim?color=%23DDB6F2&label=SIZE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41"/></a>
+        <img alt="Code Size" src="https://img.shields.io/github/languages/code-size/gaoDean/autolist.nvim?color=%23DDB6F2&logo=hackthebox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41"/></a>
     </p>
 <
 
-https://user-images.githubusercontent.com/97860672/186395300-2225ce49-af81-45cc-8ec0-87f14fc80cd4.mp4
-
-Note: this plugin is early in development, so expect breaking changes with updates. All breaking changes will be listed in the releases (https://github.com/gaoDean/autolist.nvim/releases) page.
+https://user-images.githubusercontent.com/97860672/193787598-56abba13-3710-43d1-b8b3-4fd81074dbd4.mp4
 
 --------------------------------------------------------------------------------
 WHY AUTOLIST.NVIM                                     *autolist_why_autolist.nvim*
@@ -41,7 +40,7 @@ This question can be interpreted in two ways. Why did I create autolist, and why
         <dt>Why did I create autolist?</dt>
         <dd>It sounds simple, but all I wanted was a list continuation plugin in lua that makes lists function better. Bullets.vim works, but it is written in vimscript and is more than a thousand lines long. Needless to say, I couldn't find a suitable one, so I decided to create my own.</dd>
         <dt>Why use autolist?</dt>
-        <dd>Autolist's lua directory is 20K (according to <code>du -Ah</code>), with the files complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, and implements context aware renumbering/marking of list entries, to take your mind off the formatting, and have it work in the background while you write down your thoughts.</dd>
+        <dd>Autolist's files are relatively small, with the files complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, and implements context aware renumbering/marking of list entries, to take your mind off the formatting, and have it work in the background while you write down your thoughts.</dd>
     </dl>
 <
 
@@ -72,6 +71,15 @@ and with both:
 <
 
 --------------------------------------------------------------------------------
+FEATURES                                                       *autolist_features*
+
+*   Automatic list continuation
+*   Automatic list formatting
+*   List recalculation/renumbering
+*   Supports checkboxes
+*   Set custom list markers
+
+--------------------------------------------------------------------------------
 USAGE                                                             *autolist_usage*
 
 See the wiki (https://github.com/gaoDean/autolist.nvim/wiki) for information on supported list types and their usage (https://github.com/gaoDean/autolist.nvim/wiki/Usage).
@@ -81,8 +89,8 @@ AN INTRO TO AUTOLIST                               *autolist_an_intro_to_autolis
 1.  Type in a list marker (a list marker is just the delimiter used to start the list (`-|+|*` or `1.|2.|3.`)
 2.  Type in your content
 3.  When you're ready, press `enter`/`return` and a new list entry will be automatically created
-4.  Indent your list with `<c-t>` (tab) and your whole line gets indented. When indenting, ordered lists will automatically be reset to one
-5.  Dedent your list with `<c-d>` (dedent) and your whole line gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
+4.  Indent your list with tab and your whole line gets indented. When indenting, ordered lists will automatically be reset to one
+5.  Dedent your list with shift-tab and your whole line gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
 6.  Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 --------------------------------------------------------------------------------
@@ -152,10 +160,13 @@ which is in turn inspired by this gist (https://gist.github.com/sedm0784/dffda43
 
 --------------------------------------------------------------------------------
 OTHER                                                             *autolist_other*
+>
+    "All software adds features until it is annoyingly complicated. It is then replaced by a "simpler" solution which adds features until it is exactly as complicated."
+<
 
-I started learning lua like a month ago, plus this is my first plugin, so there's probably a bunch of badly written code in there. Feel free to critique harshly and pull request.
+I started learning lua like a month ago, plus this is my first plugin, so there's probably a bunch of badly written code in there. Feel free to critique harshly.
 
-If you submit a good enough pull request and show that you are trusted, you could perhaps become a contributor, as I have limited time cus you know school.
+If you submit a good enough pull request, you could perhaps become a contributor, as I have school lol.
 
 To get a overview of code, this removes all the comments and empty lines. Idk, I just like to do this to polish, might be useful to you.
 >
