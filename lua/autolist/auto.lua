@@ -28,8 +28,8 @@ local function checkbox_is_filled(line)
 	return nil
 end
 
-local function check_recal(func_name, extra)
-	if extra == true or vim.tbl_contains(config.recal_function_hooks, func_name) then
+local function check_recal(func_name, force)
+	if force == true or vim.tbl_contains(config.recal_function_hooks, func_name) then
 		if config.recal_full then
 			M.recal()
 		else
@@ -184,7 +184,7 @@ function M.recal(override_start_num, reset_list)
 		if utils.is_list(line, types) then
 			if line_indent == list_indent then
 				local val = utils.set_ordered_value(list_start, target)
-				utils.set_line_marker(linenum, utils.get_marker(val, types), types)
+				utils.set_line_marker(linenum, utils.get_marker(val, types), types, line:match(pat_checkbox))
 				target = target + 1 -- only increase target if increased list
 				prev_indent = -1 -- escaped the child list
 			elseif line_indent ~= prev_indent -- small difference between var names
