@@ -67,7 +67,7 @@ See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
 ## Configuration
-See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki/Configuration) for instructions.
+Please see the [wiki](https://github.com/gaoDean/autolist.nvim/wiki/Configuration) for instructions, the below config might be outdated, but the wiki is always up to date.
 
 This is the default config:
 ```lua
