@@ -48,6 +48,13 @@ and with both:
 require('autolist').setup({})
 ```
 
+## Features
+- Automatic list continuation
+- Automatic list formatting
+- List recalculation
+- Supports checkboxes
+- Set custom list markers
+
 ## Usage
 See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on supported list types and their [usage](https://github.com/gaoDean/autolist.nvim/wiki/Usage).
 
