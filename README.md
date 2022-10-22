@@ -51,7 +51,7 @@ require('autolist').setup({})
 ## Features
 - Automatic list continuation
 - Automatic list formatting
-- List recalculation
+- List recalculation/renumbering
 - Supports checkboxes
 - Set custom list markers
 
