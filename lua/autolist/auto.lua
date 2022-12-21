@@ -57,6 +57,10 @@ local function modify(prev, pattern)
 	return utils.get_ordered_add(matched, 1)
 end
 
+function M.new_before()
+  M.new(true)
+end
+
 function M.new(O_pressed)
 	if fn.line(".") <= 0 then return end
 	local prev_line = fn.getline(fn.line(".") - 1)
@@ -107,8 +111,7 @@ function M.new(O_pressed)
 		utils.reset_cursor_column()
 		return
 	end
-	if not before
-		and config.colon.indent_raw
+	if config.colon.indent_raw
 		and prev_line:match(pat_colon)
 	then
 		utils.set_current_line(config.colon.preferred .. " " .. fn.getline("."):gsub("^%s*", "", 1))
@@ -144,6 +147,11 @@ function M.indent(direction)
 		local tab = vim.api.nvim_replace_termcodes("<Tab>", true, true, true)
 		vim.api.nvim_feedkeys(tab, "n", false)
 	end
+end
+
+
+function M.normal_recal()
+  M.recal()
 end
 
 -- recalculates the current list scope
