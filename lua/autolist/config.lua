@@ -56,11 +56,9 @@ local default_config = {
 		},
 	},
 	normal_mappings = {
-		new = {
-			"o",
-			"O+(true)",
-		},
-		recal = {
+		new = { "o" },
+    new_before = { "O" },
+		normal_recal = {
 			"dd",
 			"p"
 		},
@@ -102,7 +100,11 @@ local function setmap(func, mappings, ft, mode)
 		else
 			map = map .. " " .. map -- execute the mapping
 		end
-		au("Filetype", ft, mode .. " <buffer> " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
+    if mode == 'inoremap' then
+      au("Filetype", ft, mode .. " <buffer> " .. map .. "<cmd>lua require('autolist')." .. func .. "(" .. args .. ")<cr>")
+    else
+      au("Filetype", ft, mode .. " <buffer> " .. map .. "<cmd>lua vim.o.operatorfunc=\"v:lua.require'autolist'." .. func .. "\"<cr><cmd>normal! g@g@<cr> ")
+    end
 	end
 end
 
