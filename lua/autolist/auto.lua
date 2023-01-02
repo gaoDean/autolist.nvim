@@ -10,7 +10,21 @@ local checkbox_empty_pat = config.checkbox.left .. " " .. config.checkbox.right
 local checkbox_filled = utils.get_percent_filtered(checkbox_filled_pat)
 local checkbox_empty = utils.get_percent_filtered(checkbox_empty_pat)
 
+local new_before_pressed = false
+local next_keypress = ""
+local edit_mode = "n"
+
 local M = {}
+
+local function press(key, mode)
+  local parsed_key = vim.api.nvim_replace_termcodes(key, true, true, true)
+  if not parsed_key or parsed_key == "" then return end
+  if mode == "i" then
+    vim.cmd.normal({ "a" .. parsed_key, bang = true})
+  else
+    vim.cmd.normal({ parsed_key, bang = true})
+  end
+end
 
 -- returns the correct lists for the current filetype
 local function get_lists()
@@ -31,9 +45,9 @@ end
 local function check_recal(func_name, force)
 	if force == true or vim.tbl_contains(config.recal_function_hooks, func_name) then
 		if config.recal_full then
-			M.recal()
+			recal()
 		else
-			M.recal(utils.get_list_start(fn.line("."), get_lists()))
+			recal(utils.get_list_start(fn.line("."), get_lists()))
 		end
 	end
 end
@@ -57,15 +71,29 @@ local function modify(prev, pattern)
 	return utils.get_ordered_add(matched, 1)
 end
 
-function M.new_before()
-  M.new(true)
+function M.new_before(motion)
+  new_before_pressed = true
+  return M.new(motion)
 end
 
-function M.new(O_pressed)
+function M.new(motion, mapping)
+  if motion == nil then
+    next_keypress = mapping
+    vim.o.operatorfunc = "v:lua.require'autolist'.new"
+    edit_mode = vim.api.nvim_get_mode().mode
+    return "<esc>g@la"
+  end
+
+  press(next_keypress, edit_mode)
+
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
+  end
+
 	if fn.line(".") <= 0 then return end
 	local prev_line = fn.getline(fn.line(".") - 1)
-	local filetype_lists = get_lists()
-	if O_pressed and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
+	if new_before_pressed and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
 		-- makes it think theres a list entry before current that was 0
 		-- if it happens in the middle of the list, recal fixes it
 		prev_line = utils.set_ordered_value(fn.getline(fn.line(".") + 1), 0)
@@ -89,7 +117,7 @@ function M.new(O_pressed)
 					matched = true
 					break
 				end
-			elseif not O_pressed
+			elseif not new_before_pressed
 				and config.colon.indent
 				and prev_line:match(pat_colon)
 			then
@@ -98,17 +126,19 @@ function M.new(O_pressed)
 					modded = modded:gsub("^(%s*).*", "%1", 1) .. config.colon.preferred .. " "
 				end
 				modded = config.tab .. modded
-				O_pressed = true -- just to recal
+				new_before_pressed = true -- just to recal
 			end
 			local cur_line = fn.getline(".")
 			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
-			check_recal("new", O_pressed)
+			check_recal("new", new_before_pressed)
+      new_before_pressed = false
 			return
 		end
 	end
 	if matched then
 		fn.setline(fn.line(".") - 1, "")
 		utils.reset_cursor_column()
+    new_before_pressed = false
 		return
 	end
 	if config.colon.indent_raw
@@ -116,46 +146,34 @@ function M.new(O_pressed)
 	then
 		utils.set_current_line(config.colon.preferred .. " " .. fn.getline("."):gsub("^%s*", "", 1))
 	end
+  new_before_pressed = false
 end
 
-function M.tab()
-	-- recalculate part of the parent list
+function M.indent(motion, mapping)
+  if motion == nil then
+    next_keypress = mapping
+    vim.o.operatorfunc = "v:lua.require'autolist'.indent"
+    edit_mode = vim.api.nvim_get_mode().mode
+    if edit_mode == "i" then
+      return "<esc>g@la"
+    end
+    return "g@l"
+  end
+
+  press(next_keypress, edit_mode)
+
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
+  end
+
 	if utils.is_list(fn.getline("."), get_lists()) then
-		-- recalculate starting from the parent list
-		M.recal(utils.get_list_start(fn.line("."), get_lists()) - 1, 1)
+		recal()
 	end
-end
-
-function M.detab()
-	if utils.is_list(fn.getline("."), get_lists()) then
-		M.recal()
-	end
-end
-
-function M.indent(direction)
-	if utils.is_list(fn.getline("."), get_lists()) then
-		if direction == ">>" then
-			local ctrl_t = vim.api.nvim_replace_termcodes("<c-t>", true, true, true)
-			vim.api.nvim_feedkeys(ctrl_t, "m", false)
-		elseif direction == "<<" then
-			local ctrl_d = vim.api.nvim_replace_termcodes("<c-d>", true, true, true)
-			vim.api.nvim_feedkeys(ctrl_d, "m", false)
-		else
-			print("autolist: must provide a direction to indent")
-		end
-	else
-		local tab = vim.api.nvim_replace_termcodes("<Tab>", true, true, true)
-		vim.api.nvim_feedkeys(tab, "n", false)
-	end
-end
-
-
-function M.normal_recal()
-  M.recal()
 end
 
 -- recalculates the current list scope
-function M.recal(override_start_num, reset_list)
+function recal(override_start_num, reset_list)
 	-- the var base names: list and line
 	-- x is the actual line (fn.getline)
 	-- x_num is the line number (fn.line)
@@ -200,7 +218,7 @@ function M.recal(override_start_num, reset_list)
 				-- this part recalculates a child list with recursion
 				-- the prev_indent prevents it from recalculating multiple times.
 				-- the first time this runs, linenum is the first entry in the list
-				M.recal(linenum)
+				recal(linenum)
 				prev_indent = line_indent -- so you don't repeat recalculate()
 			end
 		else
@@ -213,7 +231,28 @@ function M.recal(override_start_num, reset_list)
 	end
 end
 
-function M.invert()
+function M.force_recalculate(motion, mapping)
+  if motion == nil then
+    next_keypress = mapping
+    vim.o.operatorfunc = "v:lua.require'autolist'.force_recalculate"
+    edit_mode = vim.api.nvim_get_mode().mode
+    if edit_mode == "i" then
+      return "<esc>g@la"
+    end
+    return "g@l"
+  end
+
+  press(next_keypress, edit_mode)
+
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
+  end
+
+  recal()
+end
+
+local function invert()
 	local cur_line = fn.getline(".")
 	local cur_linenum = fn.line(".")
 	local types = get_lists()
@@ -253,7 +292,44 @@ function M.invert()
 		end
 		utils.reset_cursor_column(fn.col("$"))
 	end
-	check_recal("invert")
+	-- check_recal("invert")
+end
+
+function M.invert_entry(motion, mapping)
+  if motion == nil then
+    next_keypress = mapping
+    vim.o.operatorfunc = "v:lua.require'autolist'.invert_entry"
+    edit_mode = vim.api.nvim_get_mode().mode
+    if edit_mode == "i" then
+      return "<esc>g@la"
+    end
+    return "g@l"
+  end
+
+  press(next_keypress, edit_mode)
+
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
+  end
+
+  invert()
+
+  -- -- it doubles up, doesn't work just yet
+  -- local range = {
+  --   starting = unpack(vim.api.nvim_buf_get_mark(0, "[")),
+  --   ending = unpack(vim.api.nvim_buf_get_mark(0, "]")),
+  -- }
+
+  -- if motion == "char" then
+  --   invert()
+  --   return
+  -- end
+
+  -- for linenum = range.starting, range.ending, 1 do
+  --   utils.set_line_number(linenum)
+  --   invert()
+  -- end
 end
 
 return M

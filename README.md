@@ -46,6 +46,33 @@ and with both:
 ```lua
 -- lua
 require('autolist').setup({})
+
+-- recommended keymaps
+-- for better performance, move these into ftplugin files
+
+function create_mapping_hook(mode, mapping, hook, capture)
+  vim.keymap.set(
+    mode,
+    mapping,
+    function(motion)
+      if capture then mapping = "" end
+      local keys = hook(motion, mapping)
+      if not keys then keys = "" end
+      return keys
+    end,
+    { expr = true}
+  )
+end
+
+create_mapping_hook("i", "<cr>", require("autolist").new)
+create_mapping_hook("i", "<c-t>", require("autolist").indent)
+create_mapping_hook("i", "<c-d>", require("autolist").indent)
+create_mapping_hook("n", "o", require("autolist").new)
+create_mapping_hook("n", "O", require("autolist").new_before)
+create_mapping_hook("n", ">>", require("autolist").indent)
+create_mapping_hook("n", "<<", require("autolist").indent)
+create_mapping_hook("n", "<c-r>", require("autolist").force_recalculate)
+create_mapping_hook("n", "<leader>x", require("autolist").invert_entry)
 ```
 
 ## Features
@@ -117,29 +144,6 @@ local default_config = {
 		right = "%]",
 		fill = "x",
 	},
-	insert_mappings = {
-		invert = { "<c-r>+[catch]" },
-		new = { "<CR>" },
-		tab = { "<c-t>" },
-		detab = { "<c-d>" },
-		recal = { "<c-z>" },
-		indent = {
-			"<tab>+[catch]('>>')",
-			"<s-tab>+[catch]('<<')",
-		},
-	},
-	normal_mappings = {
-		new = {
-			"o",
-			"O+(true)",
-		},
-		recal = {
-			"dd",
-			"p"
-		},
-		tab = { ">>" },
-		detab = { "<<" },
-	},
 }
 ```
 
@@ -152,10 +156,4 @@ which is in turn inspired by [this gist](https://gist.github.com/sedm0784/dffda4
 
 > "All software adds features until it is annoyingly complicated. It is then replaced by a "simpler" solution which adds features until it is exactly as complicated."
 
-I started learning lua like a month ago, plus this is my first plugin, so there's probably a bunch of badly written code in there. Feel free to critique harshly.
-
-If you submit a good enough pull request, you could perhaps become a contributor, as I have school lol.
-
-To get a overview of code, this removes all the comments and empty lines. Idk, I just like to do this to polish, might be useful to you.
-
-	:%s/--.*//g | g/^\s*$/d
+looking for contributors because i have schoolwork which means i sometimes cant keep up with issues

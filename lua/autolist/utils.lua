@@ -138,6 +138,13 @@ function M.set_current_line(new_line)
 	fn.setpos(".", pos)
 end
 
+function M.set_line_number(num)
+	local pos = fn.getpos(".")
+	-- the second value is the row
+	pos[2] = num
+	fn.setpos(".", pos)
+end
+
 -- ================================ getters ==( get )======================= --
 
 -- returns the number of tabs/spaces before a character
