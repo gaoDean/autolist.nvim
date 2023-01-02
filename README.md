@@ -72,7 +72,7 @@ create_mapping_hook("n", "O", require("autolist").new_before)
 create_mapping_hook("n", ">>", require("autolist").indent)
 create_mapping_hook("n", "<<", require("autolist").indent)
 create_mapping_hook("n", "<c-r>", require("autolist").force_recalculate)
-create_mapping_hook("n", "<leader>x", require("autolist").invert_entry)
+create_mapping_hook("n", "<leader>x", require("autolist").invert_entry, "")
 ```
 
 ## Features
