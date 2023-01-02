@@ -65,9 +65,9 @@ local function modify(prev, pattern)
 	return utils.get_ordered_add(matched, 1)
 end
 
-function M.new_before()
+function M.new_before(motion)
   new_before_pressed = true
-  M.new()
+  return M.new(motion)
 end
 
 function M.new(motion)
@@ -227,7 +227,7 @@ function M.recal(override_start_num, reset_list)
 	end
 end
 
-function M.invert()
+local function invert()
 	local cur_line = fn.getline(".")
 	local cur_linenum = fn.line(".")
 	local types = get_lists()
@@ -268,6 +268,31 @@ function M.invert()
 		utils.reset_cursor_column(fn.col("$"))
 	end
 	check_recal("invert")
+end
+
+function M.invert_entry(motion)
+  if motion == nil then
+    vim.o.operatorfunc = "v:lua.require'autolist'.invert_entry"
+    return "g@l"
+  end
+
+  invert()
+
+  -- -- it doubles up, doesn't work just yet
+  -- local range = {
+  --   starting = unpack(vim.api.nvim_buf_get_mark(0, "[")),
+  --   ending = unpack(vim.api.nvim_buf_get_mark(0, "]")),
+  -- }
+
+  -- if motion == "char" then
+  --   invert()
+  --   return
+  -- end
+
+  -- for linenum = range.starting, range.ending, 1 do
+  --   utils.set_line_number(linenum)
+  --   invert()
+  -- end
 end
 
 return M
