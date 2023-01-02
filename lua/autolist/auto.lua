@@ -138,35 +138,6 @@ function M.new(motion)
   new_before_pressed = false
 end
 
-function M.tab()
-  if motion == nil then
-    vim.o.operatorfunc = "v:lua.require'autolist'.tab"
-    return "g@"
-  end
-
-  local range = {
-    starting = vim.api.nvim_buf_get_mark(0, "["),
-    ending = vim.api.nvim_buf_get_mark(0, "]"),
-  }
-
-  for linenum = range.starting, range.ending, 1 do
-    utils.set_line_number(linenum)
-    M.indent('>>')
-  end
-
-	-- recalculate part of the parent list
-	if utils.is_list(fn.getline("."), get_lists()) then
-		-- recalculate starting from the parent list
-		M.recal(utils.get_list_start(fn.line("."), get_lists()) - 1, 1)
-	end
-end
-
-function M.detab()
-	if utils.is_list(fn.getline("."), get_lists()) then
-		M.recal()
-	end
-end
-
 function M.indent(motion)
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.indent"
