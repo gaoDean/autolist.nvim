@@ -35,10 +35,6 @@ local default_config = {
 			},
 		},
 	},
-	recal_function_hooks = {
-		"invert",
-		"new",
-	},
 	checkbox = {
 		left = "%[",
 		right = "%]",

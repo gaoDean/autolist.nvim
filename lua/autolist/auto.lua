@@ -42,7 +42,7 @@ local function checkbox_is_filled(line)
 	return nil
 end
 
-local function check_recal(func_name, force)
+local function check_recal(force)
 	if force == true or vim.tbl_contains(config.recal_function_hooks, func_name) then
 		if config.recal_full then
 			recal()
@@ -130,7 +130,7 @@ function M.new(motion, mapping)
 			end
 			local cur_line = fn.getline(".")
 			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
-			check_recal("new", new_before_pressed)
+			check_recal(new_before_pressed)
       new_before_pressed = false
 			return
 		end
@@ -292,7 +292,7 @@ local function invert()
 		end
 		utils.reset_cursor_column(fn.col("$"))
 	end
-	-- check_recal("invert")
+	check_recal()
 end
 
 function M.invert_entry(motion, mapping)
