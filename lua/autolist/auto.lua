@@ -17,8 +17,8 @@ local edit_mode = "n"
 local M = {}
 
 local function press(key, mode)
+  if not key or key == "" then return end
   local parsed_key = vim.api.nvim_replace_termcodes(key, true, true, true)
-  if not parsed_key or parsed_key == "" then return end
   if mode == "i" then
     vim.cmd.normal({ "a" .. parsed_key, bang = true})
   else
@@ -43,13 +43,11 @@ local function checkbox_is_filled(line)
 end
 
 local function check_recal(force)
-	if force == true or vim.tbl_contains(config.recal_function_hooks, func_name) then
-		if config.recal_full then
-			recal()
-		else
-			recal(utils.get_list_start(fn.line("."), get_lists()))
-		end
-	end
+  if config.recal_full then
+    recal()
+  else
+    recal(utils.get_list_start(fn.line("."), get_lists()))
+  end
 end
 
 local function modify(prev, pattern)
@@ -71,9 +69,9 @@ local function modify(prev, pattern)
 	return utils.get_ordered_add(matched, 1)
 end
 
-function M.new_before(motion)
+function M.new_before(motion, mapping)
   new_before_pressed = true
-  return M.new(motion)
+  return M.new(motion, mapping)
 end
 
 function M.new(motion, mapping)
