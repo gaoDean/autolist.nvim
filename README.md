@@ -48,31 +48,31 @@ and with both:
 require('autolist').setup({})
 
 -- recommended keymaps
+-- for better performance, move these into ftplugin files
+
 function create_mapping_hook(mode, mapping, hook, capture)
   vim.keymap.set(
     mode,
     mapping,
     function(motion)
-		local keys = hook(motion)
-		if not keys then keys = "" end
-    if capture then return keys end
-		return mapping .. keys
-	end,
+      if capture then mapping = "" end
+      local keys = hook(motion, mapping)
+      if not keys then keys = "" end
+      return keys
+    end,
     { expr = true}
   )
 end
 
 create_mapping_hook("i", "<cr>", require("autolist").new)
 create_mapping_hook("i", "<c-t>", require("autolist").indent)
-create_mapping_hook("i", "<c-d>", require("autolist").dedent)
+create_mapping_hook("i", "<c-d>", require("autolist").indent)
 create_mapping_hook("n", "o", require("autolist").new)
 create_mapping_hook("n", "O", require("autolist").new_before)
 create_mapping_hook("n", ">>", require("autolist").indent)
-create_mapping_hook("n", "<<", require("autolist").dedent)
+create_mapping_hook("n", "<<", require("autolist").indent)
 create_mapping_hook("n", "<c-r>", require("autolist").force_recalculate)
-
--- leader keys should be captured
-create_mapping_hook("n", "<leader>x", require("autolist").invert_entry, true)
+create_mapping_hook("n", "<leader>x", require("autolist").invert_entry)
 ```
 
 ## Features
