@@ -140,11 +140,12 @@ function M.indent(motion)
     return
   end
 
-  print(motion)
-
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.indent"
-    return "<esc>g@la"
+    if vim.api.nvim_get_mode().mode == "i" then
+      return "<esc>g@la"
+    end
+    return "g@l"
   end
 
 	if utils.is_list(fn.getline("."), get_lists()) then
@@ -160,7 +161,10 @@ function M.dedent(motion)
 
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.dedent"
-    return "<esc>g@la"
+    if vim.api.nvim_get_mode().mode == "i" then
+      return "<esc>g@la"
+    end
+    return "g@l"
   end
 
 	if utils.is_list(fn.getline("."), get_lists()) then
@@ -235,6 +239,9 @@ function M.force_recalculate(motion)
 
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.force_recalculate"
+    if vim.api.nvim_get_mode().mode == "i" then
+      return "<esc>g@la"
+    end
     return "g@l"
   end
   recal()
@@ -291,6 +298,9 @@ function M.invert_entry(motion)
 
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.invert_entry"
+    if vim.api.nvim_get_mode().mode == "i" then
+      return "<esc>g@la"
+    end
     return "g@l"
   end
 
