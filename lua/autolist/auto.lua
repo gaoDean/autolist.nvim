@@ -147,9 +147,36 @@ function M.new(motion, mapping)
   new_before_pressed = false
 end
 
+function M.tab(motion, mapping)
+  if motion == nil then
+    vim.o.operatorfunc = "v:lua.require'autolist'.indent"
+    edit_mode = vim.api.nvim_get_mode().mode
+    if edit_mode == "i" then
+      return "<esc>g@la"
+    end
+    return "g@l"
+  end
+
+  press(next_keypress, edit_mode)
+
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
+  end
+
+	if utils.is_list(fn.getline("."), get_lists()) then
+		recal()
+	end
+end
+
 function M.indent(motion, mapping)
   if motion == nil then
     next_keypress = mapping
+    if string.lower(mapping) == "<tab>" then
+      if utils.is_list(fn.getline("."), get_lists()) then
+        next_keypress = "<c-t>"
+      end
+    end
     vim.o.operatorfunc = "v:lua.require'autolist'.indent"
     edit_mode = vim.api.nvim_get_mode().mode
     if edit_mode == "i" then
