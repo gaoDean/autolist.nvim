@@ -12,8 +12,19 @@ local checkbox_empty = utils.get_percent_filtered(checkbox_empty_pat)
 
 local new_before_pressed = false
 local next_keypress = ""
+local edit_mode = "n"
 
 local M = {}
+
+local function press(key, mode)
+  local parsed_key = vim.api.nvim_replace_termcodes(key, true, true, true)
+  if not parsed_key or parsed_key == "" then return end
+  if mode == "i" then
+    vim.cmd.normal({ "a" .. parsed_key, bang = true})
+  else
+    vim.cmd.normal({ parsed_key, bang = true})
+  end
+end
 
 -- returns the correct lists for the current filetype
 local function get_lists()
@@ -65,15 +76,19 @@ function M.new_before(motion)
   return M.new(motion)
 end
 
-function M.new(motion)
+function M.new(motion, mapping)
+  if motion == nil then
+    next_keypress = mapping
+    vim.o.operatorfunc = "v:lua.require'autolist'.new"
+    edit_mode = vim.api.nvim_get_mode().mode
+    return "<esc>g@la"
+  end
+
+  press(next_keypress, edit_mode)
+
 	local filetype_lists = get_lists()
   if not filetype_lists then -- this filetype is disabled
     return
-  end
-
-  if motion == nil then
-    vim.o.operatorfunc = "v:lua.require'autolist'.new"
-    return "<esc>g@la"
   end
 
 	if fn.line(".") <= 0 then return end
@@ -134,37 +149,22 @@ function M.new(motion)
   new_before_pressed = false
 end
 
-function M.indent(motion)
-	local filetype_lists = get_lists()
-  if not filetype_lists then -- this filetype is disabled
-    return
-  end
-
+function M.indent(motion, mapping)
   if motion == nil then
+    next_keypress = mapping
     vim.o.operatorfunc = "v:lua.require'autolist'.indent"
-    if vim.api.nvim_get_mode().mode == "i" then
+    edit_mode = vim.api.nvim_get_mode().mode
+    if edit_mode == "i" then
       return "<esc>g@la"
     end
     return "g@l"
   end
 
-	if utils.is_list(fn.getline("."), get_lists()) then
-		recal(utils.get_list_start(fn.line("."), get_lists()) - 1, 1)
-	end
-end
+  press(next_keypress, edit_mode)
 
-function M.dedent(motion)
 	local filetype_lists = get_lists()
   if not filetype_lists then -- this filetype is disabled
     return
-  end
-
-  if motion == nil then
-    vim.o.operatorfunc = "v:lua.require'autolist'.dedent"
-    if vim.api.nvim_get_mode().mode == "i" then
-      return "<esc>g@la"
-    end
-    return "g@l"
   end
 
 	if utils.is_list(fn.getline("."), get_lists()) then
@@ -231,19 +231,24 @@ function recal(override_start_num, reset_list)
 	end
 end
 
-function M.force_recalculate(motion)
+function M.force_recalculate(motion, mapping)
+  if motion == nil then
+    next_keypress = mapping
+    vim.o.operatorfunc = "v:lua.require'autolist'.force_recalculate"
+    edit_mode = vim.api.nvim_get_mode().mode
+    if edit_mode == "i" then
+      return "<esc>g@la"
+    end
+    return "g@l"
+  end
+
+  press(next_keypress, edit_mode)
+
 	local filetype_lists = get_lists()
   if not filetype_lists then -- this filetype is disabled
     return
   end
 
-  if motion == nil then
-    vim.o.operatorfunc = "v:lua.require'autolist'.force_recalculate"
-    if vim.api.nvim_get_mode().mode == "i" then
-      return "<esc>g@la"
-    end
-    return "g@l"
-  end
   recal()
 end
 
@@ -287,21 +292,25 @@ local function invert()
 		end
 		utils.reset_cursor_column(fn.col("$"))
 	end
-	check_recal("invert")
+	-- check_recal("invert")
 end
 
-function M.invert_entry(motion)
-	local filetype_lists = get_lists()
-  if not filetype_lists then -- this filetype is disabled
-    return
-  end
-
+function M.invert_entry(motion, mapping)
   if motion == nil then
+    next_keypress = mapping
     vim.o.operatorfunc = "v:lua.require'autolist'.invert_entry"
-    if vim.api.nvim_get_mode().mode == "i" then
+    edit_mode = vim.api.nvim_get_mode().mode
+    if edit_mode == "i" then
       return "<esc>g@la"
     end
     return "g@l"
+  end
+
+  press(next_keypress, edit_mode)
+
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
   end
 
   invert()
