@@ -34,9 +34,9 @@ end
 local function check_recal(func_name, force)
 	if force == true or vim.tbl_contains(config.recal_function_hooks, func_name) then
 		if config.recal_full then
-			M.recal()
+			recal()
 		else
-			M.recal(utils.get_list_start(fn.line("."), get_lists()))
+			recal(utils.get_list_start(fn.line("."), get_lists()))
 		end
 	end
 end
@@ -66,6 +66,11 @@ function M.new_before(motion)
 end
 
 function M.new(motion)
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
+  end
+
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.new"
     return "<esc>g@la"
@@ -73,10 +78,6 @@ function M.new(motion)
 
 	if fn.line(".") <= 0 then return end
 	local prev_line = fn.getline(fn.line(".") - 1)
-	local filetype_lists = get_lists()
-  if not filetype_lists then
-    return
-  end
 	if new_before_pressed and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
 		-- makes it think theres a list entry before current that was 0
 		-- if it happens in the middle of the list, recal fixes it
@@ -134,37 +135,39 @@ function M.new(motion)
 end
 
 function M.indent(motion)
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
+  end
+
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.indent"
     return "g@l"
   end
 
 	if utils.is_list(fn.getline("."), get_lists()) then
-		M.recal(utils.get_list_start(fn.line("."), get_lists()) - 1, 1)
+		recal(utils.get_list_start(fn.line("."), get_lists()) - 1, 1)
 	end
 end
 
 function M.dedent(motion)
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
+  end
+
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.dedent"
     return "g@l"
   end
 
 	if utils.is_list(fn.getline("."), get_lists()) then
-		M.recal()
+		recal()
 	end
 end
 
-function M.force_recalculate(motion)
-  if motion == nil then
-    vim.o.operatorfunc = "v:lua.require'autolist'.force_recalculate"
-    return "g@l"
-  end
-  M.recal()
-end
-
 -- recalculates the current list scope
-function M.recal(override_start_num, reset_list)
+function recal(override_start_num, reset_list)
 	-- the var base names: list and line
 	-- x is the actual line (fn.getline)
 	-- x_num is the line number (fn.line)
@@ -209,7 +212,7 @@ function M.recal(override_start_num, reset_list)
 				-- this part recalculates a child list with recursion
 				-- the prev_indent prevents it from recalculating multiple times.
 				-- the first time this runs, linenum is the first entry in the list
-				M.recal(linenum)
+				recal(linenum)
 				prev_indent = line_indent -- so you don't repeat recalculate()
 			end
 		else
@@ -220,6 +223,19 @@ function M.recal(override_start_num, reset_list)
 		line = fn.getline(linenum)
 		line_indent = utils.get_indent_lvl(line)
 	end
+end
+
+function M.force_recalculate(motion)
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
+  end
+
+  if motion == nil then
+    vim.o.operatorfunc = "v:lua.require'autolist'.force_recalculate"
+    return "g@l"
+  end
+  recal()
 end
 
 local function invert()
@@ -266,6 +282,11 @@ local function invert()
 end
 
 function M.invert_entry(motion)
+	local filetype_lists = get_lists()
+  if not filetype_lists then -- this filetype is disabled
+    return
+  end
+
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.invert_entry"
     return "g@l"
