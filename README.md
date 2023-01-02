@@ -67,6 +67,7 @@ end
 create_mapping_hook("i", "<cr>", require("autolist").new)
 create_mapping_hook("i", "<c-t>", require("autolist").indent)
 create_mapping_hook("i", "<c-d>", require("autolist").indent)
+create_mapping_hook("i", "dd", require("autolist").force_recalculate)
 create_mapping_hook("n", "o", require("autolist").new)
 create_mapping_hook("n", "O", require("autolist").new_before)
 create_mapping_hook("n", ">>", require("autolist").indent)
