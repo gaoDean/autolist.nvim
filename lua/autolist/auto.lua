@@ -160,6 +160,14 @@ function M.dedent(motion)
 	end
 end
 
+function M.force_recalculate(motion)
+  if motion == nil then
+    vim.o.operatorfunc = "v:lua.require'autolist'.force_recalculate"
+    return "g@l"
+  end
+  M.recal()
+end
+
 -- recalculates the current list scope
 function M.recal(override_start_num, reset_list)
 	-- the var base names: list and line
