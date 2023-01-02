@@ -15,11 +15,6 @@ local next_keypress = ""
 
 local M = {}
 
-local function press(key)
-  local parsed_key = vim.api.nvim_replace_termcodes(key, true, true, true)
-  vim.cmd.normal({parsed_key, bang = true})
-end
-
 -- returns the correct lists for the current filetype
 local function get_lists()
 	-- each table in filetype lists has the key of a filetype
