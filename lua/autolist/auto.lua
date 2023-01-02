@@ -67,22 +67,13 @@ end
 
 function M.new_before()
   new_before_pressed = true
-  if motion == nil then
-    vim.o.operatorfunc = "v:lua.require'autolist'.new"
-    if vim.api.nvim_get_mode().mode == "i" then
-      return "<esc>O<esc>g@la"
-    end
-    return "O<esc>g@la"
-  end
+  M.new()
 end
 
 function M.new(motion)
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.new"
-    if vim.api.nvim_get_mode().mode == "i" then
-      return "<cr><esc>g@la"
-    end
-    return "o<esc>g@la"
+    return "<esc>g@la"
   end
 
 	if fn.line(".") <= 0 then return end
@@ -148,6 +139,21 @@ function M.new(motion)
 end
 
 function M.tab()
+  if motion == nil then
+    vim.o.operatorfunc = "v:lua.require'autolist'.tab"
+    return "g@"
+  end
+
+  local range = {
+    starting = vim.api.nvim_buf_get_mark(0, "["),
+    ending = vim.api.nvim_buf_get_mark(0, "]"),
+  }
+
+  for linenum = range.starting, range.ending, 1 do
+    utils.set_line_number(linenum)
+    M.indent('>>')
+  end
+
 	-- recalculate part of the parent list
 	if utils.is_list(fn.getline("."), get_lists()) then
 		-- recalculate starting from the parent list
@@ -161,26 +167,26 @@ function M.detab()
 	end
 end
 
-function M.indent(direction)
+function M.indent(motion)
+  if motion == nil then
+    vim.o.operatorfunc = "v:lua.require'autolist'.indent"
+    return "g@l"
+  end
+
 	if utils.is_list(fn.getline("."), get_lists()) then
-		if direction == ">>" then
-			local ctrl_t = vim.api.nvim_replace_termcodes("<c-t>", true, true, true)
-			vim.api.nvim_feedkeys(ctrl_t, "m", false)
-		elseif direction == "<<" then
-			local ctrl_d = vim.api.nvim_replace_termcodes("<c-d>", true, true, true)
-			vim.api.nvim_feedkeys(ctrl_d, "m", false)
-		else
-			print("autolist: must provide a direction to indent")
-		end
-	else
-		local tab = vim.api.nvim_replace_termcodes("<Tab>", true, true, true)
-		vim.api.nvim_feedkeys(tab, "n", false)
+		M.recal(utils.get_list_start(fn.line("."), get_lists()) - 1, 1)
 	end
 end
 
+function M.dedent(motion)
+  if motion == nil then
+    vim.o.operatorfunc = "v:lua.require'autolist'.dedent"
+    return "g@l"
+  end
 
-function M.normal_recal()
-  M.recal()
+	if utils.is_list(fn.getline("."), get_lists()) then
+		M.recal()
+	end
 end
 
 -- recalculates the current list scope
