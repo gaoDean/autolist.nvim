@@ -10,7 +10,15 @@ local checkbox_empty_pat = config.checkbox.left .. " " .. config.checkbox.right
 local checkbox_filled = utils.get_percent_filtered(checkbox_filled_pat)
 local checkbox_empty = utils.get_percent_filtered(checkbox_empty_pat)
 
+local new_before_pressed = false
+local next_keypress = ""
+
 local M = {}
+
+local function press(key)
+  local parsed_key = vim.api.nvim_replace_termcodes(key, true, true, true)
+  vim.cmd.normal({parsed_key, bang = true})
+end
 
 -- returns the correct lists for the current filetype
 local function get_lists()
@@ -58,14 +66,32 @@ local function modify(prev, pattern)
 end
 
 function M.new_before()
-  M.new(true)
+  new_before_pressed = true
+  if motion == nil then
+    vim.o.operatorfunc = "v:lua.require'autolist'.new"
+    if vim.api.nvim_get_mode().mode == "i" then
+      return "<esc>O<esc>g@la"
+    end
+    return "O<esc>g@la"
+  end
 end
 
-function M.new(O_pressed)
+function M.new(motion)
+  if motion == nil then
+    vim.o.operatorfunc = "v:lua.require'autolist'.new"
+    if vim.api.nvim_get_mode().mode == "i" then
+      return "<cr><esc>g@la"
+    end
+    return "o<esc>g@la"
+  end
+
 	if fn.line(".") <= 0 then return end
 	local prev_line = fn.getline(fn.line(".") - 1)
 	local filetype_lists = get_lists()
-	if O_pressed and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
+  if not filetype_lists then
+    return
+  end
+	if new_before_pressed and fn.line(".") + 1 == utils.get_list_start(fn.line("."), filetype_lists) then
 		-- makes it think theres a list entry before current that was 0
 		-- if it happens in the middle of the list, recal fixes it
 		prev_line = utils.set_ordered_value(fn.getline(fn.line(".") + 1), 0)
@@ -89,7 +115,7 @@ function M.new(O_pressed)
 					matched = true
 					break
 				end
-			elseif not O_pressed
+			elseif not new_before_pressed
 				and config.colon.indent
 				and prev_line:match(pat_colon)
 			then
@@ -98,17 +124,19 @@ function M.new(O_pressed)
 					modded = modded:gsub("^(%s*).*", "%1", 1) .. config.colon.preferred .. " "
 				end
 				modded = config.tab .. modded
-				O_pressed = true -- just to recal
+				new_before_pressed = true -- just to recal
 			end
 			local cur_line = fn.getline(".")
 			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
-			check_recal("new", O_pressed)
+			check_recal("new", new_before_pressed)
+      new_before_pressed = false
 			return
 		end
 	end
 	if matched then
 		fn.setline(fn.line(".") - 1, "")
 		utils.reset_cursor_column()
+    new_before_pressed = false
 		return
 	end
 	if config.colon.indent_raw
@@ -116,6 +144,7 @@ function M.new(O_pressed)
 	then
 		utils.set_current_line(config.colon.preferred .. " " .. fn.getline("."):gsub("^%s*", "", 1))
 	end
+  new_before_pressed = false
 end
 
 function M.tab()

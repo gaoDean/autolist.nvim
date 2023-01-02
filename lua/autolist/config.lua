@@ -45,25 +45,25 @@ local default_config = {
 		fill = "x",
 	},
 	insert_mappings = {
-		invert = { "<c-r>+[catch]" },
-		new = { "<CR>" },
-		tab = { "<c-t>" },
-		detab = { "<c-d>" },
-		recal = { "<c-z>" },
-		indent = {
-			"<tab>+[catch]('>>')",
-			"<s-tab>+[catch]('<<')",
-		},
+		-- invert = { "<c-r>+[catch]" },
+		-- new = { "<CR>" },
+		-- tab = { "<c-t>" },
+		-- detab = { "<c-d>" },
+		-- recal = { "<c-z>" },
+		-- indent = {
+		-- 	"<tab>+[catch]('>>')",
+		-- 	"<s-tab>+[catch]('<<')",
+		-- },
 	},
 	normal_mappings = {
-		new = { "o" },
-    new_before = { "O" },
-		normal_recal = {
-			"dd",
-			"p"
-		},
-		tab = { ">>" },
-		detab = { "<<" },
+		-- new = { "o" },
+		--   new_before = { "O" },
+		-- normal_recal = {
+		-- 	"dd",
+		-- 	"p"
+		-- },
+		-- tab = { ">>" },
+		-- detab = { "<<" },
 	},
 }
 
