@@ -140,9 +140,11 @@ function M.indent(motion)
     return
   end
 
+  print(motion)
+
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.indent"
-    return "g@l"
+    return "<esc>g@la"
   end
 
 	if utils.is_list(fn.getline("."), get_lists()) then
@@ -158,7 +160,7 @@ function M.dedent(motion)
 
   if motion == nil then
     vim.o.operatorfunc = "v:lua.require'autolist'.dedent"
-    return "g@l"
+    return "<esc>g@la"
   end
 
 	if utils.is_list(fn.getline("."), get_lists()) then
