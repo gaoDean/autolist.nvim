@@ -200,11 +200,8 @@ function M.get_list_start(cur_linenum, list_types)
 	local cur_indent = M.get_indent_lvl(line)
 	if cur_indent < 0 then cur_indent = 0 end
 	if list_types then
-		while
-			(
-				M.is_list(line, list_types)
-				and M.get_indent_lvl(line) >= cur_indent
-			) or M.get_indent_lvl(line) > cur_indent
+		while M.is_list(line, list_types)
+			and M.get_indent_lvl(line) >= cur_indent
 		do
 			linenum = linenum - 1
 			line = fn.getline(linenum)
