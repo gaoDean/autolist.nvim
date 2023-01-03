@@ -110,6 +110,14 @@ The `alias` argument converts the `mapping` to `alias` when passing to the funct
 create_mapping_hook("i", "<s-tab>", require("autolist").indent, "<c-d>")
 ```
 
+Here are all the public functions:
+```lua
+autolist.new() -- new list entry after current line
+autolist.new_before() -- new list entry before current line
+autolist.indent() -- indent the current list, replacing <tab> with indent line when it sees fit
+autolist.invert_entry()	-- inverts the list entry, described above
+autolist.force_recalculate() -- recalculates the list
+```
 
 ## Configuration
 ```lua
@@ -119,7 +127,7 @@ local default_config = {
 	colon = {
 		indent_raw = true,
 		indent = true,
-		preferred = "-"
+		preferred = "-",
 	},
 	invert = {
 		indent = false,
@@ -132,15 +140,21 @@ local default_config = {
 		markdown = {
 			"unordered",
 			"digit",
-			"ascii"
+			"ascii",
 		},
 		text = {
 			"unordered",
 			"digit",
-			"ascii"
+			"ascii",
 		},
 		tex = { "latex_item" },
 		plaintex = { "latex_item" },
+	},
+	list_patterns = {
+		unordered = "[-+*]", -- - + *
+		digit = "%d+[.)]", -- 1. 2. 3.
+		ascii = "%a[.)]", -- a) b) c)
+		latex_item = "\\item",
 	},
 	checkbox = {
 		left = "%[",
@@ -166,11 +180,8 @@ Misc:
 
 `lists`: Configures the list behaviors
 - Each key in `lists` represents a filetype. The value is a table of all the list patterns that the filetype implements.
-- For the pattern, you can:
-	a) choose a preloaded pattern from `config.preloaded_lists`
-	b) modify or create a new pattern in `config.preloaded_lists`
-	c) write your own lua pattern and insert it in place of the preloaded name i.e replace "unordered" with your own pattern
-- You can see a few preloaded options in the default configuration such as "unordered" and "digit", of which the full set you can find in the `config.preloaded_lists`
+- See how to define your custom list below
+- You can see a few preloaded options in the default configuration such as "unordered" and "digit", of which the full set you can find in the `config.list_patterns`
 - You must put the -file name- for the filetype, not the -file extension-. To get the "file name", it is just `:set filetype?` or `:se ft?`.
 
 `checkbox`: Configures the options for checkboxes
@@ -179,50 +190,34 @@ Misc:
 - `fill`: The pattern for the checkbox fill.
 - To make checkboxes look like `(-)`, make `left = "%("`, `right = "%)`, `fill = "%-"`. Search for lua patterns on how to configure the patterns.
 
-### Preloaded lists
-```lua
-local preloaded_lists = {
-	unordered = "[-+*]",
-	digit = "%d+[.)]",
-	ascii = "%a[.)]",
-	latex_item = "\\item"
-}
-```
-
-## Faq
-#### On defining custom lists
+#### Defining custom lists
 In a nutshell, all you need to do is make a lua pattern match that allows autolist to find your new list marker.
 
 [Here's](https://riptutorial.com/lua/example/20315/lua-pattern-matching) a not-bad article on lua patterns, but you can find examples for these patterns in the preloaded patterns section.
 
-I'll walk you through step by step on how to define your custom list:
-
+Here's how to define your custom list:
 ```lua
 require('autolist').setup({
 	lists = {
-		preloaded = {
-			custom = {
-				"%a[.)]", // insert your custom lua pattern here
-			}
+			markdown = {
+				"%a[.)]", -- insert your custom lua pattern here
+				"test", -- or use the test pattern defined below
+			},
 		},
-		filetypes = {
-			custom = { // insert your filetypes here
-				"markdown",
-				"text"
-			}
-		},
+	}
+	list_patterns = {
+		test = "%a[.)]", -- insert your custom lua pattern here
 	}
 })
 ```
 
-Now your lua pattern (in this case `%a[.)]` which matches ascii lists) will be applied to the filetypes `markdown` and `text`. Also note that the filetype is not the file extension, it is what you get when you run `:set filetype?`.
+Now your lua pattern (in this case `%a[.)]` which matches ascii lists) will be applied to markdown files.
 
 #### Frequently asked questions
 
 Does it have a mapping for toggling a checkbox like bullets.vim has? Yes.
 
 Does it support checkbox lists? Yes.
-
 
 ## Credit
 
