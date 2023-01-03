@@ -86,10 +86,21 @@ See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on
 5. Dedent your list with shift-tab and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
-## Configuration
-Please see the [wiki](https://github.com/gaoDean/autolist.nvim/wiki/Configuration) for instructions, the below config might be outdated, but the wiki is always up to date.
+## Mappings
 
-This is the default config:
+Most of the mappings you'll create will look like this:
+```lua
+create_mapping_hook("i", "<cr>", require("autolist").new)
+```
+It starts with the helper function, then the mode, mapping and the hook function. With the above mapping, it runs `autolist.new` **after** `<cr>` is pressed.
+
+The `alias` argument converts the `mapping` to `alias` when passing to the function, for example in the below mapping, `<s-tab>` is captured and converted to `<c-d>` to pass to the function.
+```lua
+create_mapping_hook("i", "<s-tab>", require("autolist").indent, "<c-d>")
+```
+
+
+## Configuration
 ```lua
 local default_config = {
 	enabled = true,
@@ -136,10 +147,85 @@ local default_config = {
 }
 ```
 
+## Options explanation
+Misc:
+- `enabled`: enables/disables the plugin
+- `list_cap`: when recalculating an ordered list, this is the max number of entries it will calculate.
+
+`colon`: If a line ends in a colon
+- `indent`: if autolist creates a new indented list after the current line when the current line *is a list* and ends in a colon. Emphasis on the current line *is a list*.
+- `indent_raw`: if autolist creates a new list after the current line when the current line ends in a colon. Works on non-list lines as well.
+- `preferred`: the preferred list marker when creating a new list. Put `1.` or `a)` for an ordered list.
+
+`invert`: Inverts the list type (`ol -> ul`, `ul -> ol`, `[ ] -> [x]`)
+- `indent`: when on the top level list, pressing invert inverts the list and indents it. Think about it.
+- Dot repeat is also available for inverting in normal mode
+
+`lists`: Configures the list behaviors
+- `preloaded`: This is a list of preloaded lua patterns.
+	- `generic`: This is a *"list group"*, such is the `latex` table just below. Each "list group" corresponds to a "list group" in the `filetypes` table explained below.
+	- Inside a "list group", there are definitions for what "list types" this "list group" supports. For the "list types", you can have either a preloaded option, which you can use by putting the key for a preloaded option into the *list group*, or a custom lua pattern, which you just type into the list group.
+	- You can see a few preloaded options in the default configuration such as "unordered" and "digit", of which the full set you can find in the #preloaded-lists header.
+- `filetypes`:
+	- As explained before, each list group inside the `filetypes` table corresponds to a list group inside the `preloaded` table. For each list group in `filetypes`, you can put the filetypes that this list group is activated for. For example, in the default configuration, the `latex` list group is activated for `tex` files and `plaintex` files.
+	- **IMPORTANT**: You must put the -file name- for the filetype, not the -file extension-. To get the "file name", it is just `:set filetype?` or `:se ft?`.
+
+`recal_function_hooks`: Configures what functions recalculate the list at the end of their execution. In the default config, it will recalculate when it creates a new bullet, and also recalculate when you invert.
+
+`checkbox`: Configures the options for checkboxes
+- `left`: The pattern for the left checkbox delimiter.
+- `right`: The pattern for the right checkbox delimiter.
+- `fill`: The pattern for the checkbox fill.
+- To make checkboxes look like `(-)`, make `left = "%("`, `right = "%)`, `fill = "%-"`. Search for lua patterns on how to configure the patterns.
+
+### Preloaded lists
+```lua
+local preloaded_lists = {
+	unordered = "[-+*]",
+	digit = "%d+[.)]",
+	ascii = "%a[.)]",
+	latex_item = "\\item"
+}
+```
+
+## Faq
+#### On defining custom lists
+In a nutshell, all you need to do is make a lua pattern match that allows autolist to find your new list marker.
+
+[Here's](https://riptutorial.com/lua/example/20315/lua-pattern-matching) a not-bad article on lua patterns, but you can find examples for these patterns in the preloaded patterns section.
+
+I'll walk you through step by step on how to define your custom list:
+
+```lua
+require('autolist').setup({
+	lists = {
+		preloaded = {
+			custom = {
+				"%a[.)]", // insert your custom lua pattern here
+			}
+		},
+		filetypes = {
+			custom = { // insert your filetypes here
+				"markdown",
+				"text"
+			}
+		},
+	}
+})
+```
+
+Now your lua pattern (in this case `%a[.)]` which matches ascii lists) will be applied to the filetypes `markdown` and `text`. Also note that the filetype is not the file extension, it is what you get when you run `:set filetype?`.
+
+#### Frequently asked questions
+
+Does it have a mapping for toggling a checkbox like bullets.vim has? Yes.
+
+Does it support checkbox lists? Yes.
+
+
 ## Credit
 
-inspired by [my gist](https://gist.github.com/gaoDean/288d01dfe64da66569fb6615c767e081)
-which is in turn inspired by [this gist](https://gist.github.com/sedm0784/dffda43bcfb4728f8e90)
+inspired by [this gist](https://gist.github.com/sedm0784/dffda43bcfb4728f8e90)
 
 ## Other
 
