@@ -30,35 +30,42 @@ This question can be interpreted in two ways. Why did I create autolist, and why
 This is using lazy.nvim, but you can adapt it to other package managers as well:
 ```lua
 {
-    "gaoDean/autolist.nvim",
-    event = "VeryLazy",
-    config = function()
-      require("autolist").setup()
-      function create_mapping_hook(mode, mapping, hook, alias)
-        vim.keymap.set(
-          mode,
-          mapping,
-          function(motion)
-            local keys = hook(motion, alias or mapping)
-            if not keys then keys = "" end
-            return keys
-          end,
-          { expr = true }
-        )
-      end
+  "gaoDean/autolist.nvim",
+  ft = {
+    "markdown",
+    "txt",
+    "tex",
+    "plaintex",
+  },
+  config = function()
+    local autolist = require("autolist")
+    autolist.setup()
 
-      create_mapping_hook("i", "<cr>", require("autolist").new)
-      create_mapping_hook("i", "<tab>", require("autolist").indent)
-      create_mapping_hook("i", "<s-tab>", require("autolist").indent, "<c-d>")
-      create_mapping_hook("n", "dd", require("autolist").force_recalculate)
-      create_mapping_hook("n", "o", require("autolist").new)
-      create_mapping_hook("n", "O", require("autolist").new_before)
-      create_mapping_hook("n", ">>", require("autolist").indent)
-      create_mapping_hook("n", "<<", require("autolist").indent)
-      create_mapping_hook("n", "<c-r>", require("autolist").force_recalculate)
-      create_mapping_hook("n", "<leader>x", require("autolist").invert_entry, "")
-    end,
-}
+    local function mapping_hook(mode, mapping, hook, alias)
+      vim.keymap.set(
+        mode,
+        mapping,
+        function(motion)
+          local keys = hook(motion, alias or mapping)
+          if not keys then keys = '' end
+          return keys
+        end,
+        { expr = true, buffer = true }
+      )
+    end
+
+    mapping_hook("i", "<cr>", autolist.new)
+    mapping_hook("i", "<tab>", autolist.indent)
+    mapping_hook("i", "<s-tab>", autolist.indent, "<c-d>")
+    mapping_hook("n", "dd", autolist.force_recalculate)
+    mapping_hook("n", "o", autolist.new)
+    mapping_hook("n", "O", autolist.new_before)
+    mapping_hook("n", ">>", autolist.indent)
+    mapping_hook("n", "<<", autolist.indent)
+    mapping_hook("n", "<c-r>", autolist.force_recalculate)
+    mapping_hook("n", "<leader>x", autolist.invert_entry, "")
+  end,
+},
 ```
 
 ## Features
