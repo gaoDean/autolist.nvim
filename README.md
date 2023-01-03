@@ -78,9 +78,22 @@ This is using lazy.nvim, but you can adapt it to other package managers as well:
 1. Type in a list marker (a list marker is just the delimiter used to start the list (`-|+|*` or `1.|2.|3.`)
 2. Type in your content
 3. When you're ready, press `enter`/`return` and a new list entry will be automatically created
-4. Indent your list with tab and your *whole line* gets indented. When indenting, ordered lists will automatically be reset to one
-5. Dedent your list with shift-tab and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
+4. If you're cursor is at the end of the line, you can indent your list with tab. When indenting, ordered lists will automatically be reset to one.
+5. Similarly, dedent your list with shift-tab and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
+
+- [x] checkboxes can be toggled with autolist.invert_entry, which is "<leader>x" if you used the default mappings
+
+1. [x] these can also be numbered
+
+a) [ ] or these can work too
+b) [x] see?
+
+- if the list type is not a checkbox, invert entry converts it from an ordered list to an unordered list (and vice versa)
+- below is a copy of this list, but after inverting
+
+1. if the list type is not a checkbox, invert entry converts it from an ordered list to an unordered list (and vice versa)
+2. below is a copy of this list, but after inverting
 
 ## Mappings
 
