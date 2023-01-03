@@ -14,18 +14,18 @@ local default_config = {
 		ol_delim = ".",
 	},
 	lists = {
-    markdown = {
-      "unordered",
-      "digit",
-      "ascii"
-    },
-    text = {
-      "unordered",
-      "digit",
-      "ascii"
-    },
-    tex = { "latex_item" },
-    plaintex = { "latex_item" },
+		markdown = {
+			"unordered",
+			"digit",
+			"ascii",
+		},
+		text = {
+			"unordered",
+			"digit",
+			"ascii",
+		},
+		tex = { "latex_item" },
+		plaintex = { "latex_item" },
 	},
 	checkbox = {
 		left = "%[",
@@ -55,11 +55,11 @@ M.update = function(opts)
 
 	if not newconf.enabled then return end
 
-  for filetype, patterns in pairs(newconf.lists) do
-    for i, pattern in pairs(patterns) do
-      patterns[i] = get_preloaded_pattern(pattern)
-    end
-  end
+	for filetype, patterns in pairs(newconf.lists) do
+		for i, pattern in pairs(patterns) do
+			patterns[i] = get_preloaded_pattern(pattern)
+		end
+	end
 
 	for k, v in pairs(newconf) do
 		M[k] = v

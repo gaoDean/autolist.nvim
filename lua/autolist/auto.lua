@@ -165,7 +165,11 @@ function M.indent(motion, mapping)
 	if motion == nil then
 		next_keypress = mapping
 		if string.lower(mapping) == "<tab>" then
-			if utils.is_list(fn.getline("."), get_lists()) then
+			local cur_line = fn.getline(".")
+			if
+				utils.is_list(cur_line, get_lists())
+				and fn.getpos(".")[3] - 1 == string.len(cur_line) -- cursor on last char of line
+			then
 				next_keypress = "<c-t>"
 			end
 		end
