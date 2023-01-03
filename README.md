@@ -82,12 +82,14 @@ This is using lazy.nvim, but you can adapt it to other package managers as well:
 5. Similarly, dedent your list with shift-tab and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
 
+```
 - [x] checkboxes can be toggled with autolist.invert_entry, which is "<leader>x" if you used the default mappings
 
 1. [x] these can also be numbered
 
 a) [ ] or these can work too
 b) [x] see?
+```
 
 - if the list type is not a checkbox, invert entry converts it from an ordered list to an unordered list (and vice versa)
 - below is a copy of this list, but after inverting
@@ -163,15 +165,13 @@ Misc:
 - Dot repeat is also available for inverting in normal mode
 
 `lists`: Configures the list behaviors
-- `preloaded`: This is a list of preloaded lua patterns.
-	- `generic`: This is a *"list group"*, such is the `latex` table just below. Each "list group" corresponds to a "list group" in the `filetypes` table explained below.
-	- Inside a "list group", there are definitions for what "list types" this "list group" supports. For the "list types", you can have either a preloaded option, which you can use by putting the key for a preloaded option into the *list group*, or a custom lua pattern, which you just type into the list group.
-	- You can see a few preloaded options in the default configuration such as "unordered" and "digit", of which the full set you can find in the #preloaded-lists header.
-- `filetypes`:
-	- As explained before, each list group inside the `filetypes` table corresponds to a list group inside the `preloaded` table. For each list group in `filetypes`, you can put the filetypes that this list group is activated for. For example, in the default configuration, the `latex` list group is activated for `tex` files and `plaintex` files.
-	- **IMPORTANT**: You must put the -file name- for the filetype, not the -file extension-. To get the "file name", it is just `:set filetype?` or `:se ft?`.
-
-`recal_function_hooks`: Configures what functions recalculate the list at the end of their execution. In the default config, it will recalculate when it creates a new bullet, and also recalculate when you invert.
+- Each key in `lists` represents a filetype. The value is a table of all the list patterns that the filetype implements.
+- For the pattern, you can:
+	a) choose a preloaded pattern from `config.preloaded_lists`
+	b) modify or create a new pattern in `config.preloaded_lists`
+	c) write your own lua pattern and insert it in place of the preloaded name i.e replace "unordered" with your own pattern
+- You can see a few preloaded options in the default configuration such as "unordered" and "digit", of which the full set you can find in the `config.preloaded_lists`
+- You must put the -file name- for the filetype, not the -file extension-. To get the "file name", it is just `:set filetype?` or `:se ft?`.
 
 `checkbox`: Configures the options for checkboxes
 - `left`: The pattern for the left checkbox delimiter.
