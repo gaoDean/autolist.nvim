@@ -4,7 +4,7 @@ local default_config = {
 	colon = {
 		indent_raw = true,
 		indent = true,
-		preferred = "-"
+		preferred = "-",
 	},
 	invert = {
 		indent = false,
@@ -46,7 +46,7 @@ local preloaded_lists = {
 	unordered = "[-+*]",
 	digit = "%d+[.)]",
 	ascii = "%a[.)]",
-	latex_item = "\\item"
+	latex_item = "\\item",
 }
 
 local function get_preloaded_pattern(pre)
@@ -63,7 +63,9 @@ local M = vim.deepcopy(default_config)
 M.update = function(opts)
 	local newconf = vim.tbl_deep_extend("force", default_config, opts or {})
 
-	if not newconf.enabled then return end
+	if not newconf.enabled then
+		return
+	end
 
 	local filetype_lists = {}
 	for list, filetypes in pairs(newconf.lists.filetypes) do
