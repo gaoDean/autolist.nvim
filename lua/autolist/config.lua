@@ -27,6 +27,12 @@ local default_config = {
 		tex = { "latex_item" },
 		plaintex = { "latex_item" },
 	},
+	list_patterns = {
+		unordered = "[-+*]", -- - + *
+		digit = "%d+[.)]", -- 1. 2. 3.
+		ascii = "%a[.)]", -- a) b) c)
+		latex_item = "\\item",
+	},
 	checkbox = {
 		left = "%[",
 		right = "%]",
@@ -34,15 +40,8 @@ local default_config = {
 	},
 }
 
-local preloaded_lists = {
-	unordered = "[-+*]",
-	digit = "%d+[.)]",
-	ascii = "%a[.)]",
-	latex_item = "\\item",
-}
-
-local function get_preloaded_pattern(pre)
-	local val = preloaded_lists[pre]
+local function get_preloaded_pattern(config, pre)
+	local val = config.list_patterns[pre]
 	-- if the option is not in preloaded_lists return the pattern
 	if not val then return pre end
 	return val
@@ -57,7 +56,7 @@ M.update = function(opts)
 
 	for filetype, patterns in pairs(newconf.lists) do
 		for i, pattern in pairs(patterns) do
-			patterns[i] = get_preloaded_pattern(pattern)
+			patterns[i] = get_preloaded_pattern(newconf, pattern)
 		end
 	end
 
