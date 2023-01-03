@@ -4,7 +4,7 @@ local default_config = {
 	colon = {
 		indent_raw = true,
 		indent = true,
-		preferred = "-"
+		preferred = "-",
 	},
 	invert = {
 		indent = false,
@@ -14,26 +14,18 @@ local default_config = {
 		ol_delim = ".",
 	},
 	lists = {
-		preloaded = {
-			generic = {
-				"unordered",
-				"digit",
-				"ascii",
-			},
-			latex = {
-				"latex_item",
-			},
+		markdown = {
+			"unordered",
+			"digit",
+			"ascii",
 		},
-		filetypes = {
-			generic = {
-				"markdown",
-				"text",
-			},
-			latex = {
-				"tex",
-				"plaintex",
-			},
+		text = {
+			"unordered",
+			"digit",
+			"ascii",
 		},
+		tex = { "latex_item" },
+		plaintex = { "latex_item" },
 	},
 	checkbox = {
 		left = "%[",
@@ -46,15 +38,13 @@ local preloaded_lists = {
 	unordered = "[-+*]",
 	digit = "%d+[.)]",
 	ascii = "%a[.)]",
-	latex_item = "\\item"
+	latex_item = "\\item",
 }
 
 local function get_preloaded_pattern(pre)
 	local val = preloaded_lists[pre]
 	-- if the option is not in preloaded_lists return the pattern
-	if not val then
-		return pre
-	end
+	if not val then return pre end
 	return val
 end
 
@@ -65,15 +55,9 @@ M.update = function(opts)
 
 	if not newconf.enabled then return end
 
-	local filetype_lists = {}
-	for list, filetypes in pairs(newconf.lists.filetypes) do
-		for _, filetype in pairs(filetypes) do
-			if not filetype_lists[filetype] then
-				filetype_lists[filetype] = {}
-			end
-			for _, list_type in pairs(newconf.lists.preloaded[list]) do
-				table.insert(filetype_lists[filetype], get_preloaded_pattern(list_type))
-			end
+	for filetype, patterns in pairs(newconf.lists) do
+		for i, pattern in pairs(patterns) do
+			patterns[i] = get_preloaded_pattern(pattern)
 		end
 	end
 
@@ -82,7 +66,6 @@ M.update = function(opts)
 	end
 
 	-- options that are hidden from config options but accessible by the scripts
-	M.ft_lists = filetype_lists
 	M.tabstop = vim.opt.tabstop:get()
 	if vim.opt.expandtab:get() then
 		local pattern = ""
