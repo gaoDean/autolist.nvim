@@ -25,6 +25,12 @@ This question can be interpreted in two ways. Why did I create autolist, and why
 	<dd>Autolist's files are relatively small, with the files complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, and implements context aware renumbering/marking of list entries, to take your mind off the formatting, and have it work in the background while you write down your thoughts.</dd>
 </dl>
 
+## Features
+- Automatic list continuation
+- Automatic list formatting
+- List recalculation/renumbering
+- Supports checkboxes
+- Set custom list markers
 
 ## Installation
 This is using lazy.nvim, but you can adapt it to other package managers as well:
@@ -33,7 +39,7 @@ This is using lazy.nvim, but you can adapt it to other package managers as well:
   "gaoDean/autolist.nvim",
   ft = {
     "markdown",
-    "txt",
+    "text",
     "tex",
     "plaintex",
   },
@@ -68,17 +74,7 @@ This is using lazy.nvim, but you can adapt it to other package managers as well:
 },
 ```
 
-## Features
-- Automatic list continuation
-- Automatic list formatting
-- List recalculation/renumbering
-- Supports checkboxes
-- Set custom list markers
-
 ## Usage
-See the [wiki](https://github.com/gaoDean/autolist.nvim/wiki) for information on supported list types and their [usage](https://github.com/gaoDean/autolist.nvim/wiki/Usage).
-
-#### An intro to autolist
 1. Type in a list marker (a list marker is just the delimiter used to start the list (`-|+|*` or `1.|2.|3.`)
 2. Type in your content
 3. When you're ready, press `enter`/`return` and a new list entry will be automatically created
