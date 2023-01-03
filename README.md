@@ -27,52 +27,38 @@ This question can be interpreted in two ways. Why did I create autolist, and why
 
 
 ## Installation
-Using vim-plug:
+This is using lazy.nvim, but you can adapt it to other package managers as well:
 ```lua
--- lua
-local Plug = vim.fn['plug#']
-vim.call('plug#begin', '~/.config/nvim/plugged')
-	Plug 'gaoDean/autolist.nvim'
-vim.call('plug#end')
-```
-or Paq:
-```lua
--- lua
-require "paq" {
-	"gaoDean/autolist.nvim"
-}
-```
-and with both:
-```lua
--- lua
-require('autolist').setup({})
+{
+    "gaoDean/autolist.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("autolist").setup()
+      function create_mapping_hook(mode, mapping, hook, alias)
+        vim.keymap.set(
+          mode,
+          mapping,
+          function(motion)
+            local keys = hook(motion, alias or mapping)
+            if not keys then keys = "" end
+            return keys
+          end,
+          { expr = true }
+        )
+      end
 
--- recommended keymaps
--- for better performance, move these into ftplugin files
-
-function create_mapping_hook(mode, mapping, hook, alias)
-  vim.keymap.set(
-    mode,
-    mapping,
-    function(motion)
-      local keys = hook(motion, alias or mapping)
-      if not keys then keys = "" end
-      return keys
+      create_mapping_hook("i", "<cr>", require("autolist").new)
+      create_mapping_hook("i", "<tab>", require("autolist").indent)
+      create_mapping_hook("i", "<s-tab>", require("autolist").indent, "<c-d>")
+      create_mapping_hook("n", "dd", require("autolist").force_recalculate)
+      create_mapping_hook("n", "o", require("autolist").new)
+      create_mapping_hook("n", "O", require("autolist").new_before)
+      create_mapping_hook("n", ">>", require("autolist").indent)
+      create_mapping_hook("n", "<<", require("autolist").indent)
+      create_mapping_hook("n", "<c-r>", require("autolist").force_recalculate)
+      create_mapping_hook("n", "<leader>x", require("autolist").invert_entry, "")
     end,
-    { expr = true}
-  )
-end
-
-create_mapping_hook("i", "<cr>", require("autolist").new)
-create_mapping_hook("i", "<tab>", require("autolist").indent)
-create_mapping_hook("i", "<s-tab>", require("autolist").indent, "<c-d>")
-create_mapping_hook("n", "dd", require("autolist").force_recalculate)
-create_mapping_hook("n", "o", require("autolist").new)
-create_mapping_hook("n", "O", require("autolist").new_before)
-create_mapping_hook("n", ">>", require("autolist").indent)
-create_mapping_hook("n", "<<", require("autolist").indent)
-create_mapping_hook("n", "<c-r>", require("autolist").force_recalculate)
-create_mapping_hook("n", "<leader>x", require("autolist").invert_entry, "")
+}
 ```
 
 ## Features
