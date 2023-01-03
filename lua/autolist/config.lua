@@ -4,7 +4,7 @@ local default_config = {
 	colon = {
 		indent_raw = true,
 		indent = true,
-		preferred = "-"
+		preferred = "-",
 	},
 	invert = {
 		indent = false,
@@ -38,15 +38,13 @@ local preloaded_lists = {
 	unordered = "[-+*]",
 	digit = "%d+[.)]",
 	ascii = "%a[.)]",
-	latex_item = "\\item"
+	latex_item = "\\item",
 }
 
 local function get_preloaded_pattern(pre)
 	local val = preloaded_lists[pre]
 	-- if the option is not in preloaded_lists return the pattern
-	if not val then
-		return pre
-	end
+	if not val then return pre end
 	return val
 end
 
