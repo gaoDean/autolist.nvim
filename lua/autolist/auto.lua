@@ -32,7 +32,7 @@ end
 local function get_lists()
 	-- each table in filetype lists has the key of a filetype
 	-- each value has the tables (of lists) that it is assigned to
-	return config.ft_lists[vim.bo.filetype]
+	return config.lists[vim.bo.filetype]
 end
 
 local function checkbox_is_filled(line)
