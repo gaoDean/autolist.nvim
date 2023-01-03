@@ -8,9 +8,7 @@ local M = {}
 
 -- search up ascii table
 -- value of char (value a)
-local function vo(char)
-	return char:byte()
-end
+local function vo(char) return char:byte() end
 local va = vo("a")
 local vA = vo("A")
 local vz = vo("z")
@@ -71,9 +69,7 @@ end
 local function str_add(str, amount)
 	-- if not a str (a string)
 	local num = tonumber(str)
-	if num then
-		return tostring(num + amount)
-	end
+	if num then return tostring(num + amount) end
 	return nil
 end
 
@@ -118,18 +114,18 @@ end
 function M.set_line_marker(linenum, marker, list_types, checkbox)
 	local line = fn.getline(linenum)
 	line = line:gsub("%s*$", "", 1)
-	line = line:gsub("^(%s*)" .. M.get_marker_pat(line, list_types) .. "%s*", "%1" .. marker .. " ", 1)
-	if checkbox then
-		line = line .. " "
-	end
+	line = line:gsub(
+		"^(%s*)" .. M.get_marker_pat(line, list_types) .. "%s*",
+		"%1" .. marker .. " ",
+		1
+	)
+	if checkbox then line = line .. " " end
 	fn.setline(linenum, line)
 	M.reset_cursor_column(fn.col("$"))
 end
 
 function M.set_ordered_value(line, val)
-	local function digitfunc()
-		return (line:gsub("^(%s*)%d+", "%1" .. val, 1))
-	end
+	local function digitfunc() return (line:gsub("^(%s*)%d+", "%1" .. val, 1)) end
 	local function charfunc()
 		return (line:gsub("^(%s*)%a", "%1" .. number_to_char(val), 1))
 	end
@@ -137,9 +133,7 @@ function M.set_ordered_value(line, val)
 end
 
 function M.reset_cursor_column(col)
-	if not col then
-		col = 1
-	end
+	if not col then col = 1 end
 	local pos = fn.getpos(".")
 	pos[3] = col
 	fn.setpos(".", pos)
@@ -164,9 +158,7 @@ end
 -- ================================ getters ==( get )======================= --
 
 -- returns the number of tabs/spaces before a character
-function M.get_indent_lvl(entry)
-	return #(entry:match("^%s*"))
-end
+function M.get_indent_lvl(entry) return #(entry:match("^%s*")) end
 
 -- get the list marker from the line
 function M.get_marker(line, list_types)
@@ -178,14 +170,10 @@ function M.get_marker_pat(line, list_types)
 end
 
 -- trim whitespace
-function M.get_whitespace_trimmed(str)
-	return str:gsub("%s*$", "", 1)
-end
+function M.get_whitespace_trimmed(str) return str:gsub("%s*$", "", 1) end
 
 -- delete % signs
-function M.get_percent_filtered(pat)
-	return pat:gsub("%%", "")
-end
+function M.get_percent_filtered(pat) return pat:gsub("%%", "") end
 
 -- get the value of the ordered list
 function M.get_value_ordered(entry)
@@ -194,9 +182,7 @@ end
 
 -- return add {amount} to the current ordered list
 function M.get_ordered_add(entry, amount)
-	if not amount then
-		amount = 1
-	end -- defaults to increment
+	if not amount then amount = 1 end -- defaults to increment
 	local function digitfunc(digit)
 		return entry:gsub(digit, str_add(digit, amount), 1)
 	end
@@ -208,33 +194,32 @@ end
 
 -- get the start of the current list scope (indent)
 function M.get_list_start(cur_linenum, list_types)
-	if not cur_linenum then
-		cur_linenum = fn.line(".")
-	end
+	if not cur_linenum then cur_linenum = fn.line(".") end
 	local linenum = cur_linenum
 	local line = fn.getline(linenum)
 	local cur_indent = M.get_indent_lvl(line)
-	if cur_indent < 0 then
-		cur_indent = 0
-	end
+	if cur_indent < 0 then cur_indent = 0 end
 	if list_types then
 		while
-			(M.is_list(line, list_types) and M.get_indent_lvl(line) >= cur_indent)
-			or M.get_indent_lvl(line) > cur_indent
+			(
+				M.is_list(line, list_types)
+				and M.get_indent_lvl(line) >= cur_indent
+			) or M.get_indent_lvl(line) > cur_indent
 		do
 			linenum = linenum - 1
 			line = fn.getline(linenum)
 		end
 	else
-		while (M.is_ordered(line) and M.get_indent_lvl(line) >= cur_indent) or M.get_indent_lvl(line) > cur_indent do
+		while
+			(M.is_ordered(line) and M.get_indent_lvl(line) >= cur_indent)
+			or M.get_indent_lvl(line) > cur_indent
+		do
 			linenum = linenum - 1
 			line = fn.getline(linenum)
 		end
 	end
 	line = fn.getline(linenum + 1)
-	if M.is_list(line, list_types) then
-		return linenum + 1
-	end
+	if M.is_list(line, list_types) then return linenum + 1 end
 	return nil
 end
 
@@ -242,9 +227,7 @@ end
 
 -- is a list, returns true, the pattern and the result of the pattern
 function M.is_list(entry, list_types, more)
-	if not list_types then
-		return M.is_ordered(entry)
-	end
+	if not list_types then return M.is_ordered(entry) end
 	if more then
 		more = "%s"
 	else
@@ -253,9 +236,7 @@ function M.is_list(entry, list_types, more)
 	for _, pat in ipairs(list_types) do
 		local sub, nsubs = entry:gsub(prefix .. pat .. more .. suffix, "%1", 1)
 		-- if replaced something
-		if nsubs > 0 then
-			return true, pat, sub
-		end
+		if nsubs > 0 then return true, pat, sub end
 	end
 	return false
 end
@@ -270,9 +251,7 @@ function M.is_ordered(entry, rise)
 		newval = M.get_ordered_add(entry, -1)
 	end
 	-- if increment changed {entry} it is changable thus ordered
-	if newval ~= entry then
-		return newval
-	end
+	if newval ~= entry then return newval end
 	return nil
 end
 

@@ -52,9 +52,7 @@ local preloaded_lists = {
 local function get_preloaded_pattern(pre)
 	local val = preloaded_lists[pre]
 	-- if the option is not in preloaded_lists return the pattern
-	if not val then
-		return pre
-	end
+	if not val then return pre end
 	return val
 end
 
@@ -63,9 +61,7 @@ local M = vim.deepcopy(default_config)
 M.update = function(opts)
 	local newconf = vim.tbl_deep_extend("force", default_config, opts or {})
 
-	if not newconf.enabled then
-		return
-	end
+	if not newconf.enabled then return end
 
 	local filetype_lists = {}
 	for list, filetypes in pairs(newconf.lists.filetypes) do
@@ -74,7 +70,10 @@ M.update = function(opts)
 				filetype_lists[filetype] = {}
 			end
 			for _, list_type in pairs(newconf.lists.preloaded[list]) do
-				table.insert(filetype_lists[filetype], get_preloaded_pattern(list_type))
+				table.insert(
+					filetype_lists[filetype],
+					get_preloaded_pattern(list_type)
+				)
 			end
 		end
 	end
