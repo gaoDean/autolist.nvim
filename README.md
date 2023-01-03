@@ -107,26 +107,18 @@ local default_config = {
 		ol_delim = ".",
 	},
 	lists = {
-		preloaded = {
-			generic = {
-				"unordered",
-				"digit",
-				"ascii",
-			},
-			latex = {
-				"latex_item",
-			},
+		markdown = {
+			"unordered",
+			"digit",
+			"ascii"
 		},
-		filetypes = {
-			generic = {
-				"markdown",
-				"text",
-			},
-			latex = {
-				"tex",
-				"plaintex",
-			},
+		text = {
+			"unordered",
+			"digit",
+			"ascii"
 		},
+		tex = { "latex_item" },
+		plaintex = { "latex_item" },
 	},
 	checkbox = {
 		left = "%[",

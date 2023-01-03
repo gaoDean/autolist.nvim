@@ -14,26 +14,18 @@ local default_config = {
 		ol_delim = ".",
 	},
 	lists = {
-		preloaded = {
-			generic = {
-				"unordered",
-				"digit",
-				"ascii",
-			},
-			latex = {
-				"latex_item",
-			},
-		},
-		filetypes = {
-			generic = {
-				"markdown",
-				"text",
-			},
-			latex = {
-				"tex",
-				"plaintex",
-			},
-		},
+    markdown = {
+      "unordered",
+      "digit",
+      "ascii"
+    },
+    text = {
+      "unordered",
+      "digit",
+      "ascii"
+    },
+    tex = { "latex_item" },
+    plaintex = { "latex_item" },
 	},
 	checkbox = {
 		left = "%[",
@@ -65,24 +57,17 @@ M.update = function(opts)
 
 	if not newconf.enabled then return end
 
-	local filetype_lists = {}
-	for list, filetypes in pairs(newconf.lists.filetypes) do
-		for _, filetype in pairs(filetypes) do
-			if not filetype_lists[filetype] then
-				filetype_lists[filetype] = {}
-			end
-			for _, list_type in pairs(newconf.lists.preloaded[list]) do
-				table.insert(filetype_lists[filetype], get_preloaded_pattern(list_type))
-			end
-		end
-	end
+  for filetype, patterns in pairs(newconf.lists) do
+    for i, pattern in pairs(patterns) do
+      patterns[i] = get_preloaded_pattern(pattern)
+    end
+  end
 
 	for k, v in pairs(newconf) do
 		M[k] = v
 	end
 
 	-- options that are hidden from config options but accessible by the scripts
-	M.ft_lists = filetype_lists
 	M.tabstop = vim.opt.tabstop:get()
 	if vim.opt.expandtab:get() then
 		local pattern = ""
