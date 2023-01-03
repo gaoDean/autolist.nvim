@@ -97,6 +97,8 @@ function M.new(motion, mapping)
 		prev_line = utils.set_ordered_value(fn.getline(fn.line(".") + 1), 0)
 	end
 
+  if not utils.is_list(prev_line, filetype_lists) then return end
+
 	local matched = false
 
 	-- ipairs is used to optimise list_types (most used checked first)
