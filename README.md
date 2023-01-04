@@ -47,15 +47,15 @@ This is using lazy.nvim, but you can adapt it to other package managers as well:
   config = function()
     local autolist = require("autolist")
     autolist.setup()
-    autolist.create_mapping_hook("i", "<cr>", autolist.new)
-    autolist.create_mapping_hook("i", "<tab>", autolist.indent)
-    autolist.create_mapping_hook("i", "<s-tab>", autolist.indent, "<c-d>")
+    autolist.create_mapping_hook("i", "<CR>", autolist.new)
+    autolist.create_mapping_hook("i", "<Tab>", autolist.indent)
+    autolist.create_mapping_hook("i", "<S-Tab>", autolist.indent, "<C-D>")
     autolist.create_mapping_hook("n", "dd", autolist.force_recalculate)
     autolist.create_mapping_hook("n", "o", autolist.new)
     autolist.create_mapping_hook("n", "O", autolist.new_before)
     autolist.create_mapping_hook("n", ">>", autolist.indent)
     autolist.create_mapping_hook("n", "<<", autolist.indent)
-    autolist.create_mapping_hook("n", "<c-r>", autolist.force_recalculate)
+    autolist.create_mapping_hook("n", "<C-r>", autolist.force_recalculate)
     autolist.create_mapping_hook("n", "<leader>x", autolist.invert_entry, "")
   end,
 },
@@ -221,7 +221,7 @@ Does it support checkbox lists? Yes.
 
 ## Troubleshooting
 
-Found that a plugin breaks when you use autolist? See [#43](https://github.com/gaoDean/autolist.nvim/issues/43). Basically you need to make sure that autolist loads **after** all the other plugins. If that doesn't work, feel free to create a new issue.
+Found that a plugin breaks when you use autolist? See [#43](https://github.com/gaoDean/autolist.nvim/issues/43). Basically you need to make sure that autolist loads **after** all the other plugins. If that doesn't work, feel free to create a new issue. Also, make sure that the capitalization of your mappings is correct, or autolist won't detect the other plugins (`<cr>` should be `<CR>`).
 
 ## Credit
 
