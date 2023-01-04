@@ -1,59 +1,23 @@
 local pat_num = "%d+"
-local pat_char = "%a"
+local pat_char = "%l"
 local prefix = "^%s*("
 local suffix = ").*$"
 local fn = vim.fn
 
+local number_utils = require("autolist.numbers")
+
 local M = {}
 
--- search up ascii table
--- value of char (value a)
-local function vo(char) return char:byte() end
-local va = vo("a")
-local vA = vo("A")
-local vz = vo("z")
-local vZ = vo("Z")
-local lenalph = 26 -- length of alphabet
--- the difference between capital A and lenalph minus 1
-local diffAalph = 38 -- 27 plus 38 equals capital A in byteform
-
-local function custom_round(a, b, val)
-	-- if val bigger than the middle of a and b
-	if val > (a + b) / 2 then
-		-- return the bigger
-		-- a > b ? a : b;
-		if a > b then
-			return a
-		else
-			return b
-		end
-	else
-		-- return the smaller
-		-- a < b ? a : b;
-		if a < b then
-			return a
-		else
-			return b
-		end
-	end
-end
-
 -- wrap the char
--- increment z goes to A
--- increment Z goes to a
+-- increment z goes to a
 -- decrement vice verca
-local function charwrap(byte)
-	if byte > vz then
-		return vA
-	-- smaller than 'z'
-	elseif byte < vA then
-		return vz
-	elseif byte > vZ and byte < va then
-		-- return the further value
-		-- round == 'a' ? 'Z' : 'a'
-		return custom_round(vZ, va, byte) == va and vZ or vA
+local function charwrap(charbyte)
+	if charbyte > string.byte("z") then
+		return string.byte("a")
+	elseif charbyte < string.byte("a") then
+			return string.byte("z")
 	end
-	return byte
+	return charbyte
 end
 
 -- just remember, to use a local function inside a function, you must
@@ -73,25 +37,22 @@ local function str_add(str, amount)
 	return nil
 end
 
--- convert list number to char (1 -> a, 27 -> A)
+-- convert list number to char (1 -> a)
 local function number_to_char(number)
-	if number <= lenalph then
-		-- 1 equates to byteform of lowercase a
-		return string.char(number + va - 1)
-	else
-		-- 27 equates to byteform of uppercase A
-		return string.char(number + diffAalph)
-	end
+	return string.char(number + string.byte("a") - 1)
 end
 
 -- reduce boilerplate
-local function exec_ordered(entry, func_digit, func_char, return_else)
-	local digit = entry:gsub("^%s*(%d+)[.)].*$", "%1", 1)
-	local char = entry:gsub("^%s*(%a)[.)].*$", "%1", 1)
+local function exec_ordered(entry, func_digit, func_char, func_roman, return_else)
+	local digit = 	entry:gsub("^%s*(%d+)[.)].*$", "%1", 1)
+	local char = 		entry:gsub("^%s*(%l)[.)].*$", "%1", 1)
+	local roman = 	entry:gsub("^%s*(%u*)[.)].*$", "%1", 1)
 	if digit and digit ~= entry then
 		return func_digit(digit)
 	elseif char and char ~= entry then
 		return func_char(char)
+	elseif roman and roman ~= entry then
+		return func_roman(roman)
 	else
 		return return_else
 	end
@@ -99,13 +60,7 @@ end
 
 local function char_to_number(char)
 	local byteform = char:byte()
-	if byteform >= va then
-		byteform = byteform - (va - 1) -- lowercase a is 1
-	elseif byteform >= vA then
-		-- capital A comes after lowercase z in numbered form
-		byteform = byteform - diffAalph -- (-64) + 26
-	end
-	return byteform
+	return char:byte() - string.byte("a") + 1
 end
 
 -- ================================ setters ==( set, reset )================ --
@@ -116,7 +71,7 @@ function M.set_line_marker(linenum, marker, list_types, checkbox)
 	line = line:gsub("%s*$", "", 1)
 	line = line:gsub(
 		"^(%s*)" .. M.get_marker_pat(line, list_types) .. "%s*",
-		"%1" .. marker .. " ",
+		"%1" .. (marker or "") .. " ",
 		1
 	)
 	if checkbox then line = line .. " " end
@@ -127,9 +82,12 @@ end
 function M.set_ordered_value(line, val)
 	local function digitfunc() return (line:gsub("^(%s*)%d+", "%1" .. val, 1)) end
 	local function charfunc()
-		return (line:gsub("^(%s*)%a", "%1" .. number_to_char(val), 1))
+		return (line:gsub("^(%s*)%l", "%1" .. number_to_char(val), 1))
 	end
-	return exec_ordered(line, digitfunc, charfunc, line)
+	local function romanfunc()
+		return (line:gsub("^(%s*)%u*", "%1" .. number_utils.arabic2roman(val), 1))
+	end
+	return exec_ordered(line, digitfunc, charfunc, romanfunc, line)
 end
 
 function M.reset_cursor_column(col)
@@ -177,7 +135,7 @@ function M.get_percent_filtered(pat) return pat:gsub("%%", "") end
 
 -- get the value of the ordered list
 function M.get_value_ordered(entry)
-	return exec_ordered(entry, tonumber, char_to_number, 0)
+	return exec_ordered(entry, tonumber, char_to_number, number_utils.roman2arabic, 0)
 end
 
 -- return add {amount} to the current ordered list
@@ -189,7 +147,10 @@ function M.get_ordered_add(entry, amount)
 	local function charfunc(char)
 		return entry:gsub(char, char_add(char, amount), 1)
 	end
-	return exec_ordered(entry, digitfunc, charfunc, entry)
+	local function romanfunc(roman)
+		return entry:gsub(roman, number_utils.roman_add(roman, amount), 1)
+	end
+	return exec_ordered(entry, digitfunc, charfunc, romanfunc, entry)
 end
 
 -- get the start of the current list scope (indent)
