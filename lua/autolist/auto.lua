@@ -66,9 +66,9 @@ local function modify(prev, pattern)
 		-- if replaced smth
 		if nsubs == 1 then
 			-- filler return value
-			return "$"
+			return { replaced = true }
 		else
-			return ""
+			return { replaced = false }
 		end
 	end
 	return utils.get_ordered_add(matched, 1)
@@ -114,10 +114,10 @@ function M.new(motion, mapping)
 	for i, v in ipairs(filetype_lists) do
 		local modded = modify(prev_line, v)
 		-- if its not true and nil
-		if modded == "$" then
+		if modded.replaced then
 			-- it was a list, only it was empty
 			matched = true
-		elseif modded ~= "" then
+		elseif modded.replaced ~= false then
 			-- sets current line and puts cursor to end
 			if prev_line:match(pat_checkbox) then
 				modded = modded .. checkbox_empty .. " "

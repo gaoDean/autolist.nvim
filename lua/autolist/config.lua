@@ -18,11 +18,13 @@ local default_config = {
 			"unordered",
 			"digit",
 			"ascii",
+			"roman",
 		},
 		text = {
 			"unordered",
 			"digit",
 			"ascii",
+			"roman",
 		},
 		tex = { "latex_item" },
 		plaintex = { "latex_item" },
@@ -30,7 +32,8 @@ local default_config = {
 	list_patterns = {
 		unordered = "[-+*]", -- - + *
 		digit = "%d+[.)]", -- 1. 2. 3.
-		ascii = "%a[.)]", -- a) b) c)
+		ascii = "%l[.)]", -- a) b) c)
+		roman = "%u*[.)]", -- I) II) III)
 		latex_item = "\\item",
 	},
 	checkbox = {

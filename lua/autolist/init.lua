@@ -32,7 +32,7 @@ M.create_mapping_hook = function(mode, mapping, func, alias)
 				additional_map = additional_function() or ""
 			end
 		end
-		return func(motion, additional_map or mapping) or ""
+		return func(motion, additional_map or alias or mapping) or ""
 	end, { expr = true, buffer = true })
 end
 
