@@ -206,6 +206,7 @@ function M.is_list(entry, list_types, more)
 	else
 		more = ""
 	end
+	if entry:find('^%s*$') then return false end
 	for _, pat in ipairs(list_types) do
 		local sub, nsubs = entry:gsub(prefix .. pat .. more .. suffix, "%1", 1)
 		-- if replaced something

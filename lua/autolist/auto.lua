@@ -80,16 +80,20 @@ function M.new_before(motion, mapping)
 end
 
 function M.new(motion, mapping)
+	local filetype_lists = get_lists()
+
 	if motion == nil then
 		next_keypress = mapping
 		vim.o.operatorfunc = "v:lua.require'autolist'.new"
 		edit_mode = vim.api.nvim_get_mode().mode
-		return "<esc>g@la"
+		if utils.is_list(fn.getline("."), filetype_lists) then
+			return "<esc>g@la"
+		end
+		return mapping
 	end
 
 	press(next_keypress, edit_mode)
 
-	local filetype_lists = get_lists()
 	if not filetype_lists then -- this filetype is disabled
 		return
 	end
@@ -162,31 +166,30 @@ function M.new(motion, mapping)
 end
 
 function M.indent(motion, mapping)
+	local filetype_lists = get_lists()
+
+	local current_line_is_list = utils.is_list(cur_line, filetype_lists)
+
 	if motion == nil then
-		next_keypress = mapping
 		if string.lower(mapping) == "<tab>" then
 			local cur_line = fn.getline(".")
 			if
-				utils.is_list(cur_line, get_lists())
+				current_line_is_list
 				and fn.getpos(".")[3] - 1 == string.len(cur_line) -- cursor on last char of line
 			then
-				next_keypress = "<c-t>"
+				mapping = "<c-t>"
 			end
 		end
 		vim.o.operatorfunc = "v:lua.require'autolist'.indent"
 		edit_mode = vim.api.nvim_get_mode().mode
+		if not current_line_is_list then return mapping end
 		if edit_mode == "i" then return "<esc>g@la" end
 		return "g@l"
 	end
 
 	press(next_keypress, edit_mode)
 
-	local filetype_lists = get_lists()
-	if not filetype_lists then -- this filetype is disabled
-		return
-	end
-
-	if utils.is_list(fn.getline("."), get_lists()) then recal() end
+	if current_line_is_list then recal() end
 end
 
 -- recalculates the current list scope
