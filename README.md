@@ -96,13 +96,15 @@ MXIII. -I think
 
 Most of the mappings you'll create will look like this:
 ```lua
-create_mapping_hook("i", "<cr>", require("autolist").new)
+autolist = require("autolist")
+autolist.setup()
+autolist.create_mapping_hook("i", "<cr>", autolist.new)
 ```
 It starts with the helper function, then the mode, mapping and the hook function. With the above mapping, it runs `autolist.new` **after** `<cr>` is pressed.
 
 The `alias` argument converts the `mapping` to `alias` when passing to the function, for example in the below mapping, `<s-tab>` is captured and converted to `<c-d>` to pass to the function.
 ```lua
-create_mapping_hook("i", "<s-tab>", require("autolist").indent, "<c-d>")
+autolist.create_mapping_hook("i", "<s-tab>", autolist.indent, "<c-d>")
 ```
 
 Here are all the public functions:
