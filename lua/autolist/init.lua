@@ -22,25 +22,18 @@ M.create_mapping_hook = function(mode, mapping, func, alias)
 			pcall(vim.keymap.del, mode, mapping)
 		end
 	end
-	vim.keymap.set(
-		mode,
-		mapping,
-		function(motion)
-			local additional_map = nil
-			if additional_function then
-				if type(additional_function) == "string" then
-					local ok, res = pcall(load("return " .. additional_function))
-				if ok then
-						additional_map = res or ""
-					end
-				else
-					additional_map = additional_function() or ""
-				end
+	vim.keymap.set(mode, mapping, function(motion)
+		local additional_map = nil
+		if additional_function then
+			if type(additional_function) == "string" then
+				local ok, res = pcall(load("return " .. additional_function))
+				if ok then additional_map = res or "" end
+			else
+				additional_map = additional_function() or ""
 			end
-			return func(motion, additional_map or mapping) or ""
-		end,
-		{ expr = true, buffer = true }
-	)
+		end
+		return func(motion, additional_map or mapping) or ""
+	end, { expr = true, buffer = true })
 end
 
 return M
