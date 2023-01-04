@@ -207,7 +207,7 @@ Does it support checkbox lists? Yes.
 
 ## Troubleshooting
 
-Found that a plugin breaks when you use autolist? See #43. Basically you need to make sure that autolist loads **after** all the other plugins. If that doesn't work, feel free to create a new issue.
+Found that a plugin breaks when you use autolist? See [#43](https://github.com/gaoDean/autolist.nvim/issues/43). Basically you need to make sure that autolist loads **after** all the other plugins. If that doesn't work, feel free to create a new issue.
 
 ## Credit
 
