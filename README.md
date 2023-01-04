@@ -46,30 +46,16 @@ This is using lazy.nvim, but you can adapt it to other package managers as well:
   config = function()
     local autolist = require("autolist")
     autolist.setup()
-
-    local function mapping_hook(mode, mapping, hook, alias)
-      vim.keymap.set(
-        mode,
-        mapping,
-        function(motion)
-          local keys = hook(motion, alias or mapping)
-          if not keys then keys = '' end
-          return keys
-        end,
-        { expr = true, buffer = true }
-      )
-    end
-
-    mapping_hook("i", "<cr>", autolist.new)
-    mapping_hook("i", "<tab>", autolist.indent)
-    mapping_hook("i", "<s-tab>", autolist.indent, "<c-d>")
-    mapping_hook("n", "dd", autolist.force_recalculate)
-    mapping_hook("n", "o", autolist.new)
-    mapping_hook("n", "O", autolist.new_before)
-    mapping_hook("n", ">>", autolist.indent)
-    mapping_hook("n", "<<", autolist.indent)
-    mapping_hook("n", "<c-r>", autolist.force_recalculate)
-    mapping_hook("n", "<leader>x", autolist.invert_entry, "")
+    autolist.create_mapping_hook("i", "<cr>", autolist.new)
+    autolist.create_mapping_hook("i", "<tab>", autolist.indent)
+    autolist.create_mapping_hook("i", "<s-tab>", autolist.indent, "<c-d>")
+    autolist.create_mapping_hook("n", "dd", autolist.force_recalculate)
+    autolist.create_mapping_hook("n", "o", autolist.new)
+    autolist.create_mapping_hook("n", "O", autolist.new_before)
+    autolist.create_mapping_hook("n", ">>", autolist.indent)
+    autolist.create_mapping_hook("n", "<<", autolist.indent)
+    autolist.create_mapping_hook("n", "<c-r>", autolist.force_recalculate)
+    autolist.create_mapping_hook("n", "<leader>x", autolist.invert_entry, "")
   end,
 },
 ```
@@ -213,11 +199,15 @@ require('autolist').setup({
 
 Now your lua pattern (in this case `%a[.)]` which matches ascii lists) will be applied to markdown files.
 
-#### Frequently asked questions
+## Frequently asked questions
 
 Does it have a mapping for toggling a checkbox like bullets.vim has? Yes.
 
 Does it support checkbox lists? Yes.
+
+## Troubleshooting
+
+Found that a plugin breaks when you use autolist? See #43. Basically you need to make sure that autolist loads **after** all the other plugins. If that doesn't work, feel free to create a new issue.
 
 ## Credit
 
