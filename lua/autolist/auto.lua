@@ -89,7 +89,7 @@ function M.new(motion, mapping)
 		if utils.is_list(fn.getline("."), filetype_lists) then
 			return "<esc>g@la"
 		end
-		return "<CR>"
+		return mapping
 	end
 
 	press(next_keypress, edit_mode)
