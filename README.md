@@ -168,7 +168,7 @@ Misc:
 - Each key in `lists` represents a filetype. The value is a table of all the list patterns that the filetype implements.
 - See how to define your custom list below
 - You can see a few preloaded options in the default configuration such as "unordered" and "digit", of which the full set you can find in the `config.list_patterns`
-- You must put the -file name- for the filetype, not the -file extension-. To get the "file name", it is just `:set filetype?` or `:se ft?`.
+- You must put the *file name* for the filetype, not the *file extension*. To get the "file name", it is just `:set filetype?` or `:se ft?`.
 
 `checkbox`: Configures the options for checkboxes
 - `left`: The pattern for the left checkbox delimiter.
