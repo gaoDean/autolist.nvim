@@ -30,7 +30,8 @@ This question can be interpreted in two ways. Why did I create autolist, and why
 - Automatic list formatting
 - List recalculation/renumbering
 - Supports checkboxes
-- Set custom list markers
+- Supports Roman Numerals
+- Supports custom list markers
 
 ## Installation
 This is using lazy.nvim, but you can adapt it to other package managers as well:
@@ -75,6 +76,14 @@ This is using lazy.nvim, but you can adapt it to other package managers as well:
 
 a) [ ] or these can work too
 b) [x] see?
+
+I. Roman numerals are also supported
+II. Just press enter, and autolist will do the calculations for you
+
+MX. All the way up
+MXI. to infinity
+MXII. It really will continue forever
+MXIII. -I think
 ```
 
 - if the list type is not a checkbox, invert entry converts it from an ordered list to an unordered list (and vice versa)
@@ -127,11 +136,13 @@ local default_config = {
 			"unordered",
 			"digit",
 			"ascii",
+			"roman",
 		},
 		text = {
 			"unordered",
 			"digit",
 			"ascii",
+			"roman",
 		},
 		tex = { "latex_item" },
 		plaintex = { "latex_item" },
@@ -140,6 +151,7 @@ local default_config = {
 		unordered = "[-+*]", -- - + *
 		digit = "%d+[.)]", -- 1. 2. 3.
 		ascii = "%a[.)]", -- a) b) c)
+		roman = "%u*[.)]", -- I. II. III.
 		latex_item = "\\item",
 	},
 	checkbox = {
