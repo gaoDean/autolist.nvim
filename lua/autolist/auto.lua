@@ -80,16 +80,20 @@ function M.new_before(motion, mapping)
 end
 
 function M.new(motion, mapping)
+	local filetype_lists = get_lists()
+
 	if motion == nil then
 		next_keypress = mapping
 		vim.o.operatorfunc = "v:lua.require'autolist'.new"
 		edit_mode = vim.api.nvim_get_mode().mode
-		return "<esc>g@la"
+		if utils.is_list(fn.getline("."), filetype_lists) then
+			return "<esc>g@la"
+		end
+		return "<CR>"
 	end
 
 	press(next_keypress, edit_mode)
 
-	local filetype_lists = get_lists()
 	if not filetype_lists then -- this filetype is disabled
 		return
 	end
