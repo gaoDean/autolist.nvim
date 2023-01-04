@@ -15,7 +15,7 @@ local function charwrap(charbyte)
 	if charbyte > string.byte("z") then
 		return string.byte("a")
 	elseif charbyte < string.byte("a") then
-			return string.byte("z")
+		return string.byte("z")
 	end
 	return charbyte
 end
@@ -43,10 +43,16 @@ local function number_to_char(number)
 end
 
 -- reduce boilerplate
-local function exec_ordered(entry, func_digit, func_char, func_roman, return_else)
-	local digit = 	entry:gsub("^%s*(%d+)[.)].*$", "%1", 1)
-	local char = 		entry:gsub("^%s*(%l)[.)].*$", "%1", 1)
-	local roman = 	entry:gsub("^%s*(%u*)[.)].*$", "%1", 1)
+local function exec_ordered(
+	entry,
+	func_digit,
+	func_char,
+	func_roman,
+	return_else
+)
+	local digit = entry:gsub("^%s*(%d+)[.)].*$", "%1", 1)
+	local char = entry:gsub("^%s*(%l)[.)].*$", "%1", 1)
+	local roman = entry:gsub("^%s*(%u*)[.)].*$", "%1", 1)
 	if digit and digit ~= entry then
 		return func_digit(digit)
 	elseif char and char ~= entry then
@@ -85,7 +91,9 @@ function M.set_ordered_value(line, val)
 		return (line:gsub("^(%s*)%l", "%1" .. number_to_char(val), 1))
 	end
 	local function romanfunc()
-		return (line:gsub("^(%s*)%u*", "%1" .. number_utils.arabic2roman(val), 1))
+		return (
+			line:gsub("^(%s*)%u*", "%1" .. number_utils.arabic2roman(val), 1)
+		)
 	end
 	return exec_ordered(line, digitfunc, charfunc, romanfunc, line)
 end
@@ -135,7 +143,13 @@ function M.get_percent_filtered(pat) return pat:gsub("%%", "") end
 
 -- get the value of the ordered list
 function M.get_value_ordered(entry)
-	return exec_ordered(entry, tonumber, char_to_number, number_utils.roman2arabic, 0)
+	return exec_ordered(
+		entry,
+		tonumber,
+		char_to_number,
+		number_utils.roman2arabic,
+		0
+	)
 end
 
 -- return add {amount} to the current ordered list

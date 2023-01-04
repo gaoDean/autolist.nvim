@@ -18,13 +18,13 @@ local default_config = {
 			"unordered",
 			"digit",
 			"ascii",
-			"roman"
+			"roman",
 		},
 		text = {
 			"unordered",
 			"digit",
 			"ascii",
-			"roman"
+			"roman",
 		},
 		tex = { "latex_item" },
 		plaintex = { "latex_item" },
