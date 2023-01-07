@@ -1,5 +1,5 @@
 <p align="center">
-  <h2 align="center">autolist.nvim</h2>
+  <h1 align="center">autolist.nvim</h2>
 </p>
 <p align="center">
 	Automatic list continuation and formatting for neovim, powered by lua
