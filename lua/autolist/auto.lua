@@ -167,11 +167,11 @@ end
 
 function M.indent(motion, mapping)
 	local filetype_lists = get_lists()
-	local cur_line = fn.getline(".")
-	local current_line_is_list = utils.is_list(cur_line, filetype_lists)
 
 	if motion == nil then
 		if string.lower(mapping) == "<tab>" then
+			local cur_line = fn.getline(".")
+			local current_line_is_list = utils.is_list(cur_line, filetype_lists)
 			if
 				current_line_is_list
 				and fn.getpos(".")[3] - 1 == string.len(cur_line) -- cursor on last char of line
