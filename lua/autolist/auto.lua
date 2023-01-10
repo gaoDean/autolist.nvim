@@ -46,9 +46,9 @@ end
 
 local function check_recal(force)
 	if config.recal_full then
-		recal()
+		M.recal()
 	else
-		recal(utils.get_list_start(fn.line("."), get_lists()))
+		M.recal(utils.get_list_start(fn.line("."), get_lists()))
 	end
 end
 
@@ -188,11 +188,11 @@ function M.indent(motion, mapping)
 
 	press(next_keypress, edit_mode)
 
-	if current_line_is_list then recal() end
+	if current_line_is_list then M.recal() end
 end
 
 -- recalculates the current list scope
-function recal(override_start_num, reset_list)
+function M.recal(override_start_num, reset_list)
 	-- the var base names: list and line
 	-- x is the actual line (fn.getline)
 	-- x_num is the line number (fn.line)
@@ -245,7 +245,7 @@ function recal(override_start_num, reset_list)
 				-- this part recalculates a child list with recursion
 				-- the prev_indent prevents it from recalculating multiple times.
 				-- the first time this runs, linenum is the first entry in the list
-				recal(linenum)
+				M.recal(linenum)
 				prev_indent = line_indent -- so you don't repeat recalculate()
 			end
 		else
@@ -274,7 +274,7 @@ function M.force_recalculate(motion, mapping)
 		return
 	end
 
-	recal()
+	M.recal()
 end
 
 local function invert()
