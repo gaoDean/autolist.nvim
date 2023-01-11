@@ -50,13 +50,18 @@ This is using lazy.nvim, but you can adapt it to other package managers as well:
     autolist.create_mapping_hook("i", "<CR>", autolist.new)
     autolist.create_mapping_hook("i", "<Tab>", autolist.indent)
     autolist.create_mapping_hook("i", "<S-Tab>", autolist.indent, "<C-D>")
-    autolist.create_mapping_hook("n", "dd", autolist.force_recalculate)
     autolist.create_mapping_hook("n", "o", autolist.new)
     autolist.create_mapping_hook("n", "O", autolist.new_before)
     autolist.create_mapping_hook("n", ">>", autolist.indent)
     autolist.create_mapping_hook("n", "<<", autolist.indent)
     autolist.create_mapping_hook("n", "<C-r>", autolist.force_recalculate)
     autolist.create_mapping_hook("n", "<leader>x", autolist.invert_entry, "")
+	vim.api.nvim_create_autocmd("TextChanged", {
+		pattern = "*",
+		callback = function()
+			vim.cmd.normal({autolist.force_recalculate(nil, nil), bang = false})
+		end
+	})
   end,
 },
 ```
@@ -68,6 +73,7 @@ This is using lazy.nvim, but you can adapt it to other package managers as well:
 4. If you're cursor is at the end of the line, you can indent your list with tab. When indenting, ordered lists will automatically be reset to one.
 5. Similarly, dedent your list with shift-tab and your *whole line* gets dedented. When dedenting, markers will automatically be changed through context awareness, to the correct marker such that the list continues logically
 6. Lastly, when you're done, pressing `enter`/`return` on an empty list entry will delete it, leaving you with a fresh new sentence.
+7. You can even go back and delete a line. The list will be automatically renumbered.
 
 ```
 - [x] checkboxes can be toggled with autolist.invert_entry, which is "<leader>x" if you used the default mappings
