@@ -235,7 +235,7 @@ end
 function M.indent(motion, mapping)
 	local filetype_lists = get_lists()
 
-	local current_line_is_list = utils.is_list(cur_line, filetype_lists)
+	local current_line_is_list = utils.is_list(fn.getline("."), filetype_lists)
 
 	if motion == nil then
 		if string.lower(mapping) == "<tab>" then
@@ -247,6 +247,7 @@ function M.indent(motion, mapping)
 				mapping = "<c-t>"
 			end
 		end
+		next_keypress = mapping
 		vim.o.operatorfunc = "v:lua.require'autolist'.indent"
 		edit_mode = vim.api.nvim_get_mode().mode
 		if not current_line_is_list then return mapping end
@@ -260,6 +261,7 @@ function M.indent(motion, mapping)
 end
 
 function M.force_recalculate(motion, mapping)
+	local filetype_lists = get_lists()
 	if motion == nil then
 		next_keypress = mapping
 		vim.o.operatorfunc = "v:lua.require'autolist'.force_recalculate"
@@ -270,7 +272,6 @@ function M.force_recalculate(motion, mapping)
 
 	press(next_keypress, edit_mode)
 
-	local filetype_lists = get_lists()
 	if not filetype_lists then -- this filetype is disabled
 		return
 	end
