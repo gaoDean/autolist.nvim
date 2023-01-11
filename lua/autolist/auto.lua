@@ -44,6 +44,73 @@ local function checkbox_is_filled(line)
 	return nil
 end
 
+-- recalculates the current list scope
+local function recal(override_start_num, reset_list)
+	-- the var base names: list and line
+	-- x is the actual line (fn.getline)
+	-- x_num is the line number (fn.line)
+	-- x_indent is the indent of the line (utils.get_indent_lvl)
+
+	local types = get_lists()
+	local list_start_num
+	if override_start_num then
+		list_start_num = override_start_num
+	else
+		list_start_num = utils.get_list_start(fn.line("."), types)
+		reset_list = 0
+	end
+	if not list_start_num then return end -- returns nil if not ordered list
+	if reset_list then
+		local next_num = list_start_num + reset_list
+		local nxt = fn.getline(next_num)
+		if utils.is_ordered(nxt) then
+			fn.setline(next_num, utils.set_ordered_value(nxt, 1))
+		end
+	end
+	local list_start = fn.getline(list_start_num)
+	local list_indent = utils.get_indent_lvl(list_start)
+
+	local target = utils.get_value_ordered(list_start) + 1 -- start plus one
+	local linenum = list_start_num + 1
+	local line = fn.getline(linenum)
+	local line_indent = utils.get_indent_lvl(line)
+	local prev_indent = -1
+
+	while
+		line_indent >= list_indent
+		and linenum < list_start_num + config.list_cap
+	do
+		if utils.is_list(line, types) then
+			if line_indent == list_indent then
+				local val = utils.set_ordered_value(list_start, target)
+				utils.set_line_marker(
+					linenum,
+					utils.get_marker(val, types),
+					types,
+					line:match(pat_checkbox)
+				)
+				target = target + 1 -- only increase target if increased list
+				prev_indent = -1 -- escaped the child list
+			elseif
+				line_indent ~= prev_indent -- small difference between var names
+				and line_indent == list_indent + config.tabstop
+			then
+				-- this part recalculates a child list with recursion
+				-- the prev_indent prevents it from recalculating multiple times.
+				-- the first time this runs, linenum is the first entry in the list
+				recal(linenum)
+				prev_indent = line_indent -- so you don't repeat recalculate()
+			end
+		else
+			return
+		end
+		-- do these at the end so it can check it at the start of the loop
+		linenum = linenum + 1
+		line = fn.getline(linenum)
+		line_indent = utils.get_indent_lvl(line)
+	end
+end
+
 local function check_recal(force)
 	if config.recal_full then
 		recal()
@@ -190,73 +257,6 @@ function M.indent(motion, mapping)
 	press(next_keypress, edit_mode)
 
 	if current_line_is_list then recal() end
-end
-
--- recalculates the current list scope
-function recal(override_start_num, reset_list)
-	-- the var base names: list and line
-	-- x is the actual line (fn.getline)
-	-- x_num is the line number (fn.line)
-	-- x_indent is the indent of the line (utils.get_indent_lvl)
-
-	local types = get_lists()
-	local list_start_num
-	if override_start_num then
-		list_start_num = override_start_num
-	else
-		list_start_num = utils.get_list_start(fn.line("."), types)
-		reset_list = 0
-	end
-	if not list_start_num then return end -- returns nil if not ordered list
-	if reset_list then
-		local next_num = list_start_num + reset_list
-		local nxt = fn.getline(next_num)
-		if utils.is_ordered(nxt) then
-			fn.setline(next_num, utils.set_ordered_value(nxt, 1))
-		end
-	end
-	local list_start = fn.getline(list_start_num)
-	local list_indent = utils.get_indent_lvl(list_start)
-
-	local target = utils.get_value_ordered(list_start) + 1 -- start plus one
-	local linenum = list_start_num + 1
-	local line = fn.getline(linenum)
-	local line_indent = utils.get_indent_lvl(line)
-	local prev_indent = -1
-
-	while
-		line_indent >= list_indent
-		and linenum < list_start_num + config.list_cap
-	do
-		if utils.is_list(line, types) then
-			if line_indent == list_indent then
-				local val = utils.set_ordered_value(list_start, target)
-				utils.set_line_marker(
-					linenum,
-					utils.get_marker(val, types),
-					types,
-					line:match(pat_checkbox)
-				)
-				target = target + 1 -- only increase target if increased list
-				prev_indent = -1 -- escaped the child list
-			elseif
-				line_indent ~= prev_indent -- small difference between var names
-				and line_indent == list_indent + config.tabstop
-			then
-				-- this part recalculates a child list with recursion
-				-- the prev_indent prevents it from recalculating multiple times.
-				-- the first time this runs, linenum is the first entry in the list
-				recal(linenum)
-				prev_indent = line_indent -- so you don't repeat recalculate()
-			end
-		else
-			return
-		end
-		-- do these at the end so it can check it at the start of the loop
-		linenum = linenum + 1
-		line = fn.getline(linenum)
-		line_indent = utils.get_indent_lvl(line)
-	end
 end
 
 function M.force_recalculate(motion, mapping)
