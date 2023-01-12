@@ -33,7 +33,7 @@ M.create_mapping_hook = function(mode, mapping, func, alias)
 			end
 		end
 		return func(motion, additional_map or alias or mapping) or ""
-	end, { expr = true, buffer = true })
+	end, { expr = true })
 end
 
 return M
