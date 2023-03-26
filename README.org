@@ -250,6 +250,7 @@ require('autolist').setup({
 Now your lua pattern (in this case =%a[.)]= which matches ascii lists)
 will be applied to markdown files.
 
+* Other
 ** Frequently asked questions
 Does it have a mapping for toggling a checkbox like bullets.vim has?
 Yes.
@@ -268,14 +269,13 @@ detect the other plugins (=<cr>= should be =<CR>=).
 inspired by
 [[https://gist.github.com/sedm0784/dffda43bcfb4728f8e90][this gist]]
 
-** Other
-
 #+begin_quote
 "All software adds features until it is annoyingly complicated. It is
 then replaced by a"simpler” solution which adds features until it is
 exactly as complicated.”
-
 #+end_quote
 
 looking for contributors because i have schoolwork which means i
 sometimes cant keep up with issues
+
+ironic that this readme is in org
