@@ -1,4 +1,3 @@
-#+title: autolist.nvim
 #+author: Dean Gao
 #+email: gao.dean@hotmail.com
 
