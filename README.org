@@ -1,5 +1,6 @@
 #+author: Dean Gao
 #+email: gao.dean@hotmail.com
+#+startup: overview
 
 #+begin_html
 <p align="center">
@@ -144,90 +145,63 @@ autolist.force_recalculate() -- recalculates the list
 * Configuration
 #+begin_src lua
 local default_config = {
-    enabled = true,
-    list_cap = 50,
-    colon = {
-        indent_raw = true,
-        indent = true,
-        preferred = "-",
+  enabled = true,
+  list_cap = 50,
+  colon = { -- if a line ends in a colon
+    indent = true, -- if in list and line ends in `:` then create list
+    indent_raw = true, -- above, but doesn't need to be in a list to work
+    preferred = "-", -- what the new list starts with (can be `1.` etc)
+  },
+  invert = { -- Inverts the list type (ol -> ul, ul -> ol, [ ] -> [x])
+    indent = false, -- when on top level list, pressing invert inverts the list and indents it
+    toggles_checkbox = true, -- if pressing invert toggles checkbox
+    ul_marker = "-", -- when from ordered list to unordered, set marker to whatever this is
+    ol_incrementable = "1", -- same thing above but for ordered
+  },
+  lists = { -- configures list behavio
+    -- Each key in lists represents a filetype.
+    -- The value is a table of all the list patterns that the filetype implements.
+    -- See how to define your custom list below
+    -- You can see a few preloaded options in the default configuration such as "unordered" and "digit"
+    -- of which the full set you can find in the config.list_patterns
+    -- You must put the file name for the filetype, not the file extension
+    -- To get the "file name", it is just =:set filetype?= or =:se ft?=.
+    markdown = {
+      "unordered",
+      "digit",
+      "ascii", -- specifies activate the ascii list type for markdown files
+      "roman", -- see below on the list types
     },
-    invert = {
-        indent = false,
-        toggles_checkbox = true,
-        ul_marker = "-",
-        ol_incrementable = "1",
-        ol_delim = ".",
+    text = {
+      "unordered",
+      "digit",
+      "ascii",
+      "roman",
     },
-    lists = {
-        markdown = {
-            "unordered",
-            "digit",
-            "ascii",
-            "roman",
-        },
-        text = {
-            "unordered",
-            "digit",
-            "ascii",
-            "roman",
-        },
-        tex = { "latex_item" },
-        plaintex = { "latex_item" },
-    },
-    list_patterns = {
-        unordered = "[-+*]", -- - + *
-        digit = "%d+[.)]", -- 1. 2. 3.
-        ascii = "%a[.)]", -- a) b) c)
-        roman = "%u*[.)]", -- I. II. III.
-        latex_item = "\\item",
-    },
-    checkbox = {
-        left = "%[",
-        right = "%]",
-        fill = "x",
-    },
+    tex = { "latex_item" },
+    plaintex = { "latex_item" },
+  },
+  list_patterns = { -- custom list types: see README -> Configuration -> defining custom lists
+    unordered = "[-+*]", -- - + *
+    digit = "%d+[.)]", -- 1. 2. 3.
+    ascii = "%a[.)]", -- a) b) c)
+    roman = "%u*[.)]", -- I. II. III.
+    latex_item = "\\item",
+  },
+  checkbox = {
+    left = "%[", -- the left checkbox delimiter (you could change to "%(" for brackets)
+    right = "%]", -- the right checkbox delim (same customisation as above)
+    fill = "x", -- if you do the above two customisations, your checkbox could be (x) instead of [x]
+  },
+
+  -- this is all based on lua patterns, see "Defining custom lists" for a nice article to learn them
 }
 #+end_src
-
-** Options explanation
-Misc: - =enabled=: enables/disables the plugin - =list_cap=: when
-recalculating an ordered list, this is the max number of entries it will
-calculate.
-
-=colon=: If a line ends in a colon - =indent=: if autolist creates a new
-indented list after the current line when the current line /is a list/
-and ends in a colon. Emphasis on the current line /is a list/. -
-=indent_raw=: if autolist creates a new list after the current line when
-the current line ends in a colon. Works on non-list lines as well. -
-=preferred=: the preferred list marker when creating a new list. Put
-=1.= or =a)= for an ordered list.
-
-=invert=: Inverts the list type (=ol -> ul=, =ul -> ol=, =[ ] -> [x]=) -
-=indent=: when on the top level list, pressing invert inverts the list
-and indents it. Think about it. - Dot repeat is also available for
-inverting in normal mode
-
-=lists=: Configures the list behaviors - Each key in =lists= represents
-a filetype. The value is a table of all the list patterns that the
-filetype implements. - See how to define your custom list below - You
-can see a few preloaded options in the default configuration such as
-"unordered" and "digit", of which the full set you can find in the
-=config.list_patterns= - You must put the /file name/ for the filetype,
-not the /file extension/. To get the "file name", it is just
-=:set filetype?= or =:se ft?=.
-
-=checkbox=: Configures the options for checkboxes - =left=: The pattern
-for the left checkbox delimiter. - =right=: The pattern for the right
-checkbox delimiter. - =fill=: The pattern for the checkbox fill. - To
-make checkboxes look like =(-)=, make =left = "%("=, =right = "%)=,
-=fill = "%-"=. Search for lua patterns on how to configure the patterns.
-
 ** Defining custom lists
 In a nutshell, all you need to do is make a lua pattern match that
 allows autolist to find your new list marker.
 
-[[https://riptutorial.com/lua/example/20315/lua-pattern-matching][Here's]]
-a not-bad article on lua patterns, but you can find examples for these
+[[https://riptutorial.com/lua/example/20315/lua-pattern-matching][Here's]] a not-bad article on lua patterns, but you can find examples for these
 patterns in the preloaded patterns section.
 
 Here's how to define your custom list:

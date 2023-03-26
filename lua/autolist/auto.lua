@@ -325,7 +325,6 @@ local function invert()
 		else
 			-- if ol change to {config.invert.ol_incrementable}
 			local new_marker = config.invert.ol_incrementable
-				.. config.invert.ol_delim
 			-- utils.set_line_marker(cur_linenum, new_marker, types)
 			utils.set_line_marker(
 				utils.get_list_start(cur_linenum, types),

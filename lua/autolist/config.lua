@@ -11,7 +11,6 @@ local default_config = {
 		toggles_checkbox = true,
 		ul_marker = "-",
 		ol_incrementable = "1",
-		ol_delim = ".",
 	},
 	lists = {
 		markdown = {
