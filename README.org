@@ -146,7 +146,6 @@ autolist.force_recalculate() -- recalculates the list
 #+begin_src lua
 local default_config = {
   enabled = true,
-  list_cap = 50,
   colon = { -- if a line ends in a colon
     indent = true, -- if in list and line ends in `:` then create list
     indent_raw = true, -- above, but doesn't need to be in a list to work
