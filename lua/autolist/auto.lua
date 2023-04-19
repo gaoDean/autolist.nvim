@@ -1,5 +1,6 @@
 local utils = require("autolist.utils")
 local config = require("autolist.config")
+local ts = require("autolist.treesitter")
 
 local fn = vim.fn
 local pat_checkbox = "^%s*%S+%s%[.%]"
@@ -15,6 +16,15 @@ local checkbox_empty = utils.get_percent_filtered(checkbox_empty_pat)
 local new_before_pressed = false
 local next_keypress = ""
 local edit_mode = "n"
+
+-- TODO use the parser to prevent autolist from doing anything when parser:is_in_markdown_code_fence() returns true
+local parser = ts:new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
+vim.api.nvim_create_autocmd('BufEnter', {
+	callback = function()
+		parser = ts:new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
+	end,
+	group = vim.api.nvim_create_augroup("AutolistTreesitterParserUpdate", { clear = true })
+})
 
 local M = {}
 
