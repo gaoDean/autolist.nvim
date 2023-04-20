@@ -142,101 +142,84 @@ local function modify(prev, pattern)
 end
 
 function M.new_before(motion, mapping)
-	new_before_pressed = true
-	return M.new(motion, mapping)
+	return M.new(motion, mapping, true)
 end
 
-function M.new(motion, mapping)
+local function get_bullet_from(line, pattern)
+    local matched_bare = line:match("^%s*"
+                                    .. pattern
+                                    .. "%s*") -- only bullet, no checkbox
+    local matched_with_checkbox = line:match("^(%s*"
+                                             .. pattern
+                                             .. "%s*"
+                                             .. "%[.%]"
+                                             .. "%s*") -- bullet and checkbox
+
+    return matched_with_checkbox or matched_bare
+end
+
+local function is_in_code_fence()
+    -- check if Treesitter parser is installed, and if so, check if we're in a markdown code fence
+    local parser = require('autolist.treesitter')
+        :new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
+    return parser and parser:is_in_markdown_code_fence()
+end
+
+local function find_suitable_bullet(line, filetype_lists, del_above)
+	-- ipairs is used to optimise list_types (most used checked first)
+	for i, filetype_specific_pattern in ipairs(filetype_lists) do
+        local bullet = get_bullet_from(line, filetype_specific_pattern)
+
+        if bullet then
+            if string.len(line) == string.len(bullet) then
+                -- empty bullet, delete it
+                fn.setline(fn.line(".") - (del_above and 1 or -1), "")
+                utils.reset_cursor_column()
+                return
+            end
+            return utils.get_ordered_add(bullet, 1) -- add 1 to ordered
+        end
+	end
+end
+
+
+function M.new(motion, mapping, prev_line_override)
 	local filetype_lists = get_lists()
 
-	if motion == nil then
-		next_keypress = mapping
-		vim.o.operatorfunc = "v:lua.require'autolist'.new"
-		edit_mode = vim.api.nvim_get_mode().mode
-		if utils.is_list(fn.getline("."), filetype_lists) then
-			return "<esc>g@la"
-		end
-		return mapping
-	end
+    if motion == nil then
+        next_keypress = mapping
+        vim.o.operatorfunc = "v:lua.require'autolist'.new"
+        edit_mode = vim.api.nvim_get_mode().mode
+        if utils.is_list(fn.getline("."), filetype_lists) then
+            return "<esc>g@la"
+        end
+        return mapping
+    end
 
-	press(next_keypress, edit_mode)
+    press(next_keypress, edit_mode)
 
-	if not filetype_lists then -- this filetype is disabled
-		return
-	end
+    if not filetype_lists then return nil end
+    if is_in_code_fence() then return nil end
 
-	-- check if Treesitter parser is installed, and if so, check if we're in a markdown code fence
-	local parser = require('autolist.treesitter')
-		:new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
-	if parser and parser:is_in_markdown_code_fence() then
-		return
-	end
+    print(prev_line_override)
+    -- if new_bullet_before, prev_line should be the line below
+    local prev_line = fn.getline(fn.line(".") + (prev_line_override and 1 or -1))
 
-	if fn.line(".") <= 0 then return end
-	local prev_line = fn.getline(fn.line(".") - 1)
-	if
-		new_before_pressed
-		and fn.line(".") + 1
-			== utils.get_list_start(fn.line("."), filetype_lists)
-	then
-		-- makes it think theres a list entry before current that was 0
-		-- if it happens in the middle of the list, recal fixes it
-		prev_line = utils.set_ordered_value(fn.getline(fn.line(".") + 1), 0)
-	end
+    local cur_line = fn.getline(".")
+    local bullet = find_suitable_bullet(prev_line,
+                                        filetype_lists,
+                                        not prev_line_override)
 
-	if not utils.is_list(prev_line, filetype_lists) then return end
 
-	local matched = false
+    if prev_line:match(pat_colon)
+        and (config.colon.indent_raw
+             or (bullet and config.colon.indent)) then
+        bullet = config.tab .. config.colon.preferred .. " "
+    end
 
-	-- ipairs is used to optimise list_types (most used checked first)
-	for i, v in ipairs(filetype_lists) do
-		local modded = modify(prev_line, v)
-		-- if its not true and nil
-		if modded.replaced then
-			-- it was a list, only it was empty
-			matched = true
-		elseif modded.replaced ~= false then
-			-- sets current line and puts cursor to end
-			if prev_line:match(pat_checkbox) then
-				modded = modded .. checkbox_empty .. " "
-				-- if the prev was checkbox and had no content
-				if prev_line:match(pat_checkbox .. "%s?$") then
-					matched = true
-					break
-				end
-			elseif
-				not new_before_pressed
-				and config.colon.indent
-				and prev_line:match(pat_colon)
-			then
-				-- handle colons
-				if config.colon.preferred ~= "" then
-					modded = modded:gsub("^(%s*).*", "%1", 1)
-						.. config.colon.preferred
-						.. " "
-				end
-				modded = config.tab .. modded
-				new_before_pressed = true -- just to recal
-			end
-			local cur_line = fn.getline(".")
-			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
-			check_recal(new_before_pressed)
-			new_before_pressed = false
-			return
-		end
-	end
-	if matched then
-		fn.setline(fn.line(".") - 1, "")
-		utils.reset_cursor_column()
-		new_before_pressed = false
-		return
-	end
-	if config.colon.indent_raw and prev_line:match(pat_colon) then
-		utils.set_current_line(
-			config.colon.preferred .. " " .. fn.getline("."):gsub("^%s*", "", 1)
-		)
-	end
-	new_before_pressed = false
+    if bullet then
+        utils.set_current_line(bullet .. cur_line:gsub("^%s*", "", 1))
+    end
 end
 
 function M.indent(motion, mapping)
