@@ -163,7 +163,6 @@ end
 
 function M.new(motion, mapping, prev_line_override)
 	local filetype_lists = get_lists()
-    print(filetype_lists)
 
     if motion == nil then
         next_keypress = mapping
@@ -180,7 +179,6 @@ function M.new(motion, mapping, prev_line_override)
     if not filetype_lists then return nil end
     if is_in_code_fence() then return nil end
 
-    print(prev_line_override)
     -- if new_bullet_before, prev_line should be the line below
     local prev_line = fn.getline(fn.line(".") + (prev_line_override and 1 or -1))
 
