@@ -119,28 +119,6 @@ local function check_recal(force)
 	end
 end
 
-local function modify(prev, pattern)
-	-- the brackets capture {pattern} and they release on %1
-	local matched, nsubs = prev:gsub("^(%s*" .. pattern .. "%s).*$", "%1", 1)
-	if nsubs == 0 then
-		matched, nsubs = prev:gsub("^(%s*" .. pattern .. ")$", "%1", 1)
-	end
-	-- trim off spaces
-	if
-		utils.get_whitespace_trimmed(matched)
-		== utils.get_whitespace_trimmed(prev)
-	then
-		-- if replaced smth
-		if nsubs == 1 then
-			-- filler return value
-			return { replaced = true }
-		else
-			return { replaced = false }
-		end
-	end
-	return utils.get_ordered_add(matched, 1)
-end
-
 function M.new_before(motion, mapping)
 	return M.new(motion, mapping, true)
 end
@@ -166,7 +144,7 @@ local function is_in_code_fence()
 end
 
 local function find_suitable_bullet(line, filetype_lists, del_above)
-	-- ipairs is used to optimise list_types (most used checked first)
+	-- ipairs is used to optimise list_types (and say who has priority)
 	for i, filetype_specific_pattern in ipairs(filetype_lists) do
         local bullet = get_bullet_from(line, filetype_specific_pattern)
 
@@ -185,6 +163,7 @@ end
 
 function M.new(motion, mapping, prev_line_override)
 	local filetype_lists = get_lists()
+    print(filetype_lists)
 
     if motion == nil then
         next_keypress = mapping
