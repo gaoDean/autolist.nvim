@@ -1,5 +1,6 @@
 local utils = require("autolist.utils")
 local config = require("autolist.config")
+local parser = require('autolist.treesitter'):new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
 
 local fn = vim.fn
 local pat_checkbox = "^%s*%S+%s%[.%]"
@@ -166,7 +167,6 @@ function M.new(motion, mapping)
 	end
 
 	-- check if Treesitter parser is installed, and if so, check if we're in a markdown code fence
-	local parser = require('autolist.treesitter'):new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
 	if parser and parser:is_in_markdown_code_fence() then
 		return
 	end
