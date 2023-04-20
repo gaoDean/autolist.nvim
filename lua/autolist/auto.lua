@@ -165,6 +165,13 @@ function M.new(motion, mapping)
 		return
 	end
 
+	-- check if Treesitter parser is installed, and if so, check if we're in a markdown code fence
+	local parser = require('autolist.treesitter')
+		:new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
+	if parser and parser:is_in_markdown_code_fence() then
+		return
+	end
+
 	if fn.line(".") <= 0 then return end
 	local prev_line = fn.getline(fn.line(".") - 1)
 	if
