@@ -31,7 +31,7 @@ local default_config = {
       "ascii",
       "roman",
     },
-    neorg = {
+    norg = {
         "neorg_1",
         "neorg_2",
         "neorg_3",
