@@ -11,7 +11,7 @@ local default_config = {
     ul_marker = "-", -- when from ordered list to unordered, set marker to whatever this is
     ol_incrementable = "1", -- same thing above but for ordered
   },
-  lists = { -- configures list behavio
+  lists = { -- configures list behaviours
     -- Each key in lists represents a filetype.
     -- The value is a table of all the list patterns that the filetype implements.
     -- See how to define your custom list below
@@ -31,10 +31,22 @@ local default_config = {
       "ascii",
       "roman",
     },
+    neorg = {
+        "neorg_1",
+        "neorg_2",
+        "neorg_3",
+        "neorg_4",
+        "neorg_5",
+    },
     tex = { "latex_item" },
     plaintex = { "latex_item" },
   },
   list_patterns = { -- custom list types: see README -> Configuration -> defining custom lists
+    neorg_1 = "%-",
+    neorg_2 = "%-%-",
+    neorg_3 = "%-%-%-",
+    neorg_4 = "%-%-%-%-",
+    neorg_5 = "%-%-%-%-%-",
     unordered = "[-+*]", -- - + *
     digit = "%d+[.)]", -- 1. 2. 3.
     ascii = "%a[.)]", -- a) b) c)
