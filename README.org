@@ -120,13 +120,12 @@ autolist.setup()
 autolist.create_mapping_hook("i", "<cr>", autolist.new)
 #+end_src
 
-It starts with the helper function, then the mode, mapping and the hook
-function. With the above mapping, it runs =autolist.new= *after* =<cr>=
+The =create_mapping_hook= function is just for easier UX, but it is just a wrapper around =vim.keymap.set= to prevent clashes between plugins. If you find that it doesn't clash with anything, you can just use =vim.keymap.set=.
+
+It starts with the helper function, then the mode, mapping and the hook function. With the above mapping, it runs =autolist.new= *after* =<cr>=
 is pressed.
 
-The =alias= argument converts the =mapping= to =alias= when passing to
-the function, for example in the below mapping, =<s-tab>= is captured
-and converted to =<c-d>= to pass to the function.
+The =alias= argument converts the =mapping= to =alias= when passing to the function, for example in the below mapping, =<s-tab>= is captured and converted to =<c-d>= to pass to the function.
 
 #+begin_src lua
 autolist.create_mapping_hook("i", "<s-tab>", autolist.indent, "<c-d>")
