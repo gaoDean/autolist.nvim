@@ -235,6 +235,14 @@ local function index_of(str, list)
     end
 end
 
+function M.next_list_type()
+    M.cycle_list_types()
+end
+
+function M.prev_list_type()
+    M.cycle_list_types(true)
+end
+
 function M.cycle_list_types(cycle_backward)
 	local filetype_lists = get_lists()
     local list_start = utils.get_list_start(fn.line("."), filetype_lists)
@@ -246,106 +254,17 @@ function M.cycle_list_types(cycle_backward)
     local index_in_cycle = index_of(stripped_bullet, config.cycle)
 
     if not index_in_cycle then return nil end
-    if index_in_cycle + 1 > #config.cycle then index_in_cycle = 1 end
-    if index_in_cycle - 1 <= 0 then index_in_cycle = #config.cycle end
 
-    local target_bullet = config.cycle[index_in_cycle + (cycle_backward and -1 or 1)]
+    local target_index = index_in_cycle + (cycle_backward and -1 or 1)
+
+    print(target_index)
+    if target_index > #config.cycle then target_index = 1 end
+    if target_index <= 0 then target_index = #config.cycle end
+
+    local target_bullet = config.cycle[target_index]
 
     utils.set_line_marker(list_start, target_bullet, filetype_lists)
     M.recalculate()
-end
-
-local function invert()
-	local cur_line = fn.getline(".")
-	local cur_linenum = fn.line(".")
-	local types = get_lists()
-
-	-- if toggle checkbox true and is checkbox, toggle checkbox
-	if config.invert.toggles_checkbox then
-		-- returns nil if not a checkbox
-		local filled = checkbox_is_filled(cur_line)
-		if filled == true then
-			-- replace current line's empty checkbox with filled checkbox
-			fn.setline(
-				".",
-				(cur_line:gsub(checkbox_filled_pat, checkbox_empty, 1))
-			)
-			return
-		-- it is a checkbox, but not empty
-		elseif filled == false then
-			-- replace current line's filled checkbox with empty checkbox
-			fn.setline(
-				".",
-				(cur_line:gsub(checkbox_empty_pat, checkbox_filled, 1))
-			)
-			return
-		end
-	end
-
-	if utils.is_list(cur_line, types) then
-		-- indent the line if current indent is zero
-		if
-			utils.get_indent_lvl(cur_line) == 0
-			and config.invert.indent == true
-		then
-			fn.setline(".", config.tab .. cur_line)
-		end
-		-- if ul change to 1.
-		if utils.is_ordered(cur_line) then
-			-- utils.set_line_marker(cur_linenum, config.invert.ul_marker, types)
-			utils.set_line_marker(
-				utils.get_list_start(cur_linenum, types),
-				config.invert.ul_marker,
-				types
-			)
-		else
-			-- if ol change to {config.invert.ol_incrementable}
-			local new_marker = config.invert.ol_incrementable
-			-- utils.set_line_marker(cur_linenum, new_marker, types)
-			utils.set_line_marker(
-				utils.get_list_start(cur_linenum, types),
-				new_marker,
-				types
-			)
-		end
-		utils.reset_cursor_column(fn.col("$"))
-	end
-	check_recalculate()
-end
-
-function M.invert_entry(motion, mapping)
-	if motion == nil then
-		next_keypress = mapping
-		vim.o.operatorfunc = "v:lua.require'autolist'.invert_entry"
-		edit_mode = vim.api.nvim_get_mode().mode
-		if edit_mode == "i" then return "<esc>g@la" end
-		return "g@l"
-	end
-
-	press(next_keypress, edit_mode)
-
-	local filetype_lists = get_lists()
-	if not filetype_lists then -- this filetype is disabled
-		return
-	end
-
-	invert()
-
-	-- -- it doubles up, doesn't work just yet
-	-- local range = {
-	--	 starting = unpack(vim.api.nvim_buf_get_mark(0, "[")),
-	--	 ending = unpack(vim.api.nvim_buf_get_mark(0, "]")),
-	-- }
-
-	-- if motion == "char" then
-	--	 invert()
-	--	 return
-	-- end
-
-	-- for linenum = range.starting, range.ending, 1 do
-	--	 utils.set_line_number(linenum)
-	--	 invert()
-	-- end
 end
 
 return M
