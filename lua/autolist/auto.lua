@@ -35,15 +35,6 @@ local function get_lists()
 	return config.lists[vim.bo.filetype]
 end
 
-local function checkbox_is_filled(line)
-	if line:match(checkbox_filled_pat) then
-		return true
-	elseif line:match(checkbox_empty_pat) then
-		return false
-	end
-	return nil
-end
-
 -- recalculates the current list scope
 function M.recalculate(override_start_num, reset_list)
 	-- the var base names: list and line
@@ -127,7 +118,7 @@ local function get_bullet_from(line, pattern)
     local matched_bare = line:match("^%s*"
                                     .. pattern
                                     .. "%s*") -- only bullet, no checkbox
-    local matched_with_checkbox = line:match("^(%s*"
+    local matched_with_checkbox = line:match("^%s*"
                                              .. pattern
                                              .. "%s*"
                                              .. "%[.%]"
@@ -203,6 +194,7 @@ local function handle_indent(before, after)
     else
         press(before, "i")
     end
+end
 
 function M.shift_tab()
     handle_indent("<s-tab>", "<c-d>")
@@ -211,6 +203,31 @@ end
 function M.tab()
     handle_indent("<tab>", "<c-t>")
 end
+
+local function checkbox_is_filled(line)
+	if line:match(checkbox_filled_pat) then
+		return true
+	elseif line:match(checkbox_empty_pat) then
+		return false
+	end
+end
+
+function M.toggle_checkbox()
+    local cur_line = fn.getline(".")
+    local filled = checkbox_is_filled(cur_line)
+    if filled == true then
+        -- replace current line's empty checkbox with filled checkbox
+        fn.setline(".", (cur_line:gsub(checkbox_filled_pat, checkbox_empty, 1)))
+        -- it is a checkbox, but not empty
+    elseif filled == false then
+        -- replace current line's filled checkbox with empty checkbox
+        fn.setline(".", (cur_line:gsub(checkbox_empty_pat, checkbox_filled, 1)))
+    end
+end
+
+-- function M.cycle()
+
+-- end
 
 local function invert()
 	local cur_line = fn.getline(".")
