@@ -76,8 +76,8 @@ function M.set_line_marker(linenum, marker, list_types, checkbox)
 	local line = fn.getline(linenum)
 	line = line:gsub("%s*$", "", 1)
 	line = line:gsub(
-		"^(%s*)" .. M.get_marker_pat(line, list_types) .. "%s*",
-		"%1" .. (marker or "") .. " ",
+		"^(%s*)" .. M.get_marker_pat(line, list_types) .. "(%s*)",
+		"%1" .. (marker or "") .. "%2",
 		1
 	)
 	if checkbox then line = line .. " " end

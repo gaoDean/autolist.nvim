@@ -5,11 +5,13 @@ local default_config = {
     indent_raw = true, -- above, but doesn't need to be in a list to work
     preferred = "-", -- what the new list starts with (can be `1.` etc)
   },
-  invert = { -- Inverts the list type (ol -> ul, ul -> ol, [ ] -> [x])
-    indent = false, -- when on top level list, pressing invert inverts the list and indents it
-    toggles_checkbox = true, -- if pressing invert toggles checkbox
-    ul_marker = "-", -- when from ordered list to unordered, set marker to whatever this is
-    ol_incrementable = "1", -- same thing above but for ordered
+  cycle = { -- Cycles the list type in order
+      "-",   -- whatever you put here will match the first item in your list
+      "*",   -- for example if your list started with a `-` it would go to `*`
+      "1.",  -- this says that if your list starts with a `*` it would go to `1.`
+      "1)",  -- this all leverages the power of recalculate.
+      "a)",  -- i spent many hours on that function
+      "I.",  -- try it, change the first bullet in a list to `a)`, and press recalculate
   },
   lists = { -- configures list behaviours
     -- Each key in lists represents a filetype.

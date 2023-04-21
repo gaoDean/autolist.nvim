@@ -144,9 +144,9 @@ local function find_suitable_bullet(line, filetype_lists, del_above)
                 -- empty bullet, delete it
                 fn.setline(fn.line(".") - (del_above and 1 or -1), "")
                 utils.reset_cursor_column()
-                return
+                return nil
             end
-            return utils.get_ordered_add(bullet, 1) -- add 1 to ordered
+            return bullet
         end
 	end
 end
@@ -163,6 +163,8 @@ function M.new_bullet(prev_line_override)
     local bullet = find_suitable_bullet(prev_line,
                                         filetype_lists,
                                         not prev_line_override)
+    bullet = bullet and utils.get_ordered_add(bullet, 1) -- add 1 if ordered list
+
     if prev_line:match(pat_colon)
         and (config.colon.indent_raw
              or (bullet and config.colon.indent)) then
@@ -225,9 +227,33 @@ function M.toggle_checkbox()
     end
 end
 
--- function M.cycle()
+local function index_of(str, list)
+    for i, v in ipairs(list) do
+        if v == str then
+            return i
+        end
+    end
+end
 
--- end
+function M.cycle_list_types(cycle_backward)
+	local filetype_lists = get_lists()
+    local list_start = utils.get_list_start(fn.line("."), filetype_lists)
+
+    if not list_start then return nil end
+
+    local current_bullet_type = utils.get_marker(fn.getline(list_start), filetype_lists)
+    local stripped_bullet = utils.get_whitespace_trimmed(current_bullet_type)
+    local index_in_cycle = index_of(stripped_bullet, config.cycle)
+
+    if not index_in_cycle then return nil end
+    if index_in_cycle + 1 > #config.cycle then index_in_cycle = 1 end
+    if index_in_cycle - 1 <= 0 then index_in_cycle = #config.cycle end
+
+    local target_bullet = config.cycle[index_in_cycle + (cycle_backward and 1 or -1)]
+
+    utils.set_line_marker(list_start, target_bullet, filetype_lists)
+    M.recalculate()
+end
 
 local function invert()
 	local cur_line = fn.getline(".")
