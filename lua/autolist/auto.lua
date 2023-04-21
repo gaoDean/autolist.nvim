@@ -249,7 +249,7 @@ function M.cycle_list_types(cycle_backward)
     if index_in_cycle + 1 > #config.cycle then index_in_cycle = 1 end
     if index_in_cycle - 1 <= 0 then index_in_cycle = #config.cycle end
 
-    local target_bullet = config.cycle[index_in_cycle + (cycle_backward and 1 or -1)]
+    local target_bullet = config.cycle[index_in_cycle + (cycle_backward and -1 or 1)]
 
     utils.set_line_marker(list_start, target_bullet, filetype_lists)
     M.recalculate()
