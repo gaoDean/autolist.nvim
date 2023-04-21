@@ -234,8 +234,30 @@ local function index_of(str, list)
     end
 end
 
+-- with dotrepeat
+function M.next_list_type_dr(motion)
+    if motion == nil then
+        vim.o.operatorfunc = "v:lua.require'autolist'.next_list_type_dr"
+        return "g@l"
+    end
+    for i = 1, vim.v.count1 do
+        M.next_list_type()
+    end
+end
+
 function M.next_list_type()
     M.cycle_list_types()
+end
+
+-- with dotrepeat
+function M.prev_list_type_dr(motion)
+    if motion == nil then
+        vim.o.operatorfunc = "v:lua.require'autolist'.prev_list_type_dr"
+        return "g@l"
+    end
+    for i = 1, vim.v.count1 do
+        M.prev_list_type()
+    end
 end
 
 function M.prev_list_type()
