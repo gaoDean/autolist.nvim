@@ -77,8 +77,7 @@ function M.recalculate(override_start_num, reset_list)
 				utils.set_line_marker(
 					linenum,
 					utils.get_marker(val, types),
-					types,
-					line:match(pat_checkbox)
+					types
 				)
 				target = target + 1 -- only increase target if increased list
 				prev_indent = -1 -- escaped the child list
