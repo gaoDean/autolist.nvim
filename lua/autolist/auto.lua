@@ -45,7 +45,7 @@ local function checkbox_is_filled(line)
 end
 
 -- recalculates the current list scope
-local function recal(override_start_num, reset_list)
+function M.recalculate(override_start_num, reset_list)
 	-- the var base names: list and line
 	-- x is the actual line (fn.getline)
 	-- x_num is the line number (fn.line)
@@ -98,7 +98,7 @@ local function recal(override_start_num, reset_list)
 				-- this part recalculates a child list with recursion
 				-- the prev_indent prevents it from recalculating multiple times.
 				-- the first time this runs, linenum is the first entry in the list
-				recal(linenum)
+				M.recalculate(linenum)
 				prev_indent = line_indent -- so you don't repeat recalculate()
 			end
 		else
@@ -111,16 +111,16 @@ local function recal(override_start_num, reset_list)
 	end
 end
 
-local function check_recal(force)
-	if config.recal_full then
-		recal()
+local function check_recalculate(force)
+	if config.recalculate_full then
+		recalculate()
 	else
-		recal(utils.get_list_start(fn.line("."), get_lists()))
+		recalculate(utils.get_list_start(fn.line("."), get_lists()))
 	end
 end
 
-function M.new_before(motion, mapping)
-	return M.new(motion, mapping, true)
+function M.new_bullet_before()
+	return M.new_bullet(true)
 end
 
 local function get_bullet_from(line, pattern)
@@ -161,89 +161,55 @@ local function find_suitable_bullet(line, filetype_lists, del_above)
 end
 
 
-function M.new(motion, mapping, prev_line_override)
+function M.new_bullet(prev_line_override)
 	local filetype_lists = get_lists()
-
-    if motion == nil then
-        next_keypress = mapping
-        vim.o.operatorfunc = "v:lua.require'autolist'.new"
-        edit_mode = vim.api.nvim_get_mode().mode
-        if utils.is_list(fn.getline("."), filetype_lists) then
-            return "<esc>g@la"
-        end
-        return mapping
-    end
-
-    press(next_keypress, edit_mode)
-
     if not filetype_lists then return nil end
     if is_in_code_fence() then return nil end
 
     -- if new_bullet_before, prev_line should be the line below
     local prev_line = fn.getline(fn.line(".") + (prev_line_override and 1 or -1))
-
     local cur_line = fn.getline(".")
     local bullet = find_suitable_bullet(prev_line,
                                         filetype_lists,
                                         not prev_line_override)
-
-
     if prev_line:match(pat_colon)
         and (config.colon.indent_raw
              or (bullet and config.colon.indent)) then
         bullet = config.tab .. config.colon.preferred .. " "
     end
 
-    if bullet then
+    if bullet then -- insert bullet
         utils.set_current_line(bullet .. cur_line:gsub("^%s*", "", 1))
     end
 end
 
-function M.indent(motion, mapping)
-	local filetype_lists = get_lists()
-
-	local current_line_is_list = utils.is_list(fn.getline("."), filetype_lists)
-
-	if motion == nil then
-		if string.lower(mapping) == "<tab>" then
-			local cur_line = fn.getline(".")
-			if
-				current_line_is_list
-				and fn.getpos(".")[3] - 1 == string.len(cur_line) -- cursor on last char of line
-			then
-				mapping = "<c-t>"
-			end
-		end
-		next_keypress = mapping
-		vim.o.operatorfunc = "v:lua.require'autolist'.indent"
-		edit_mode = vim.api.nvim_get_mode().mode
-		if not current_line_is_list then return mapping end
-		if edit_mode == "i" then return "<esc>g@la" end
-		return "g@l"
-	end
-
-	press(next_keypress, edit_mode)
-
-	if current_line_is_list then recal() end
+-- othewise it runs too fast and feedkeys doesn't register commands
+local function run_recalculate_after_delay()
+  vim.loop.new_timer():start(0, 0, vim.schedule_wrap(function()
+                                     M.recalculate()
+  end))
 end
 
-function M.force_recalculate(motion, mapping)
+local function handle_indent(before, after)
 	local filetype_lists = get_lists()
-	if motion == nil then
-		next_keypress = mapping
-		vim.o.operatorfunc = "v:lua.require'autolist'.force_recalculate"
-		edit_mode = vim.api.nvim_get_mode().mode
-		if edit_mode == "i" then return "<esc>g@la" end
-		return "g@l"
-	end
+	local current_line_is_list = utils.is_list(fn.getline("."), filetype_lists)
+    local cur_line = fn.getline(".")
+    local to_press = before
+    if current_line_is_list
+        and fn.getpos(".")[3] - 1 == string.len(cur_line) -- cursor on last char of line
+    then
+        fn.feedkeys(vim.api.nvim_replace_termcodes(after, true, true, true))
+        run_recalculate_after_delay()
+    else
+        press(before, "i")
+    end
 
-	press(next_keypress, edit_mode)
+function M.shift_tab()
+    handle_indent("<s-tab>", "<c-d>")
+end
 
-	if not filetype_lists then -- this filetype is disabled
-		return
-	end
-
-	recal()
+function M.tab()
+    handle_indent("<tab>", "<c-t>")
 end
 
 local function invert()
@@ -301,7 +267,7 @@ local function invert()
 		end
 		utils.reset_cursor_column(fn.col("$"))
 	end
-	check_recal()
+	check_recalculate()
 end
 
 function M.invert_entry(motion, mapping)
