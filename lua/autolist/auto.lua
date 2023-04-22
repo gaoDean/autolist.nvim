@@ -36,7 +36,7 @@ local function get_lists()
 end
 
 -- recalculates the current list scope
-function M.recalculate(override_start_num, reset_list)
+function M.recalculate(override_start_num)
 	-- the var base names: list and line
 	-- x is the actual line (fn.getline)
 	-- x_num is the line number (fn.line)
@@ -44,6 +44,7 @@ function M.recalculate(override_start_num, reset_list)
 
 	local types = get_lists()
 	local list_start_num
+    local reset_list
 	if override_start_num then
 		list_start_num = override_start_num
 	else
@@ -98,14 +99,6 @@ function M.recalculate(override_start_num, reset_list)
 		linenum = linenum + 1
 		line = fn.getline(linenum)
 		line_indent = utils.get_indent_lvl(line)
-	end
-end
-
-local function check_recalculate(force)
-	if config.recalculate_full then
-		recalculate()
-	else
-		recalculate(utils.get_list_start(fn.line("."), get_lists()))
 	end
 end
 
