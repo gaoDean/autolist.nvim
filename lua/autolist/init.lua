@@ -20,4 +20,8 @@ M.setup = function(opts)
 	end
 end
 
+M.create_mapping_hook = function(mode, mapping, func, alias)
+    print("autolist.nvim: Function has been depreceated. See v3.0.0 changelog on github.")
+end
+
 return M
