@@ -31,7 +31,7 @@ local default_config = {
     -- The value is a table of all the list patterns that the filetype implements.
     -- See how to define your custom list below in the readme.
     -- You must put the file name for the filetype, not the file extension
-    -- To get the "file name", it is just =:set filetype?= or =:se ft?=.
+    -- To get the "file name", it is just `:set filetype?` or `:se ft?`.
     markdown = {
       list_patterns.unordered,
       list_patterns.digit,
@@ -44,12 +44,12 @@ local default_config = {
       list_patterns.ascii,
       list_patterns.roman,
     },
-    norg = {
-        list_patterns.neorg_1,
-        list_patterns.neorg_2,
-        list_patterns.neorg_3,
-        list_patterns.neorg_4,
+    norg = { -- must be reversed
         list_patterns.neorg_5,
+        list_patterns.neorg_4,
+        list_patterns.neorg_3,
+        list_patterns.neorg_2,
+        list_patterns.neorg_1,
     },
     tex = { list_patterns.latex_item },
     plaintex = { list_patterns.latex_item },
