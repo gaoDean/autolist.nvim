@@ -227,37 +227,7 @@ local function index_of(str, list)
     end
 end
 
--- with dotrepeat
-function M.next_list_type_dr(motion)
-    if motion == nil then
-        vim.o.operatorfunc = "v:lua.require'autolist'.next_list_type_dr"
-        return "g@l"
-    end
-    for i = 1, vim.v.count1 do
-        M.next_list_type()
-    end
-end
-
-function M.next_list_type()
-    M.cycle_list_types()
-end
-
--- with dotrepeat
-function M.prev_list_type_dr(motion)
-    if motion == nil then
-        vim.o.operatorfunc = "v:lua.require'autolist'.prev_list_type_dr"
-        return "g@l"
-    end
-    for i = 1, vim.v.count1 do
-        M.prev_list_type()
-    end
-end
-
-function M.prev_list_type()
-    M.cycle_list_types(true)
-end
-
-function M.cycle_list_types(cycle_backward)
+local function cycle(cycle_backward)
 	local filetype_lists = get_lists()
     local list_start = utils.get_list_start(fn.line("."), filetype_lists)
 
@@ -279,6 +249,37 @@ function M.cycle_list_types(cycle_backward)
 
     utils.set_line_marker(list_start, target_bullet, filetype_lists)
     M.recalculate()
+end
+
+
+-- with dotrepeat
+function M.cycle_next_dr(motion)
+    if motion == nil then
+        vim.o.operatorfunc = "v:lua.require'autolist'.cycle_next_dr"
+        return "g@l"
+    end
+    for i = 1, vim.v.count1 do
+        M.cycle_next()
+    end
+end
+
+-- with dotrepeat
+function M.cycle_prev_dr(motion)
+    if motion == nil then
+        vim.o.operatorfunc = "v:lua.require'autolist'.cycle_prev_dr"
+        return "g@l"
+    end
+    for i = 1, vim.v.count1 do
+        M.cycle_prev()
+    end
+end
+
+function M.cycle_prev()
+    cycle(true)
+end
+
+function M.cycle_next()
+    cycle()
 end
 
 return M
