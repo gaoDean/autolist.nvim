@@ -35,17 +35,8 @@ local function get_lists()
 	return config.lists[vim.bo.filetype]
 end
 
-local function checkbox_is_filled(line)
-	if line:match(checkbox_filled_pat) then
-		return true
-	elseif line:match(checkbox_empty_pat) then
-		return false
-	end
-	return nil
-end
-
 -- recalculates the current list scope
-local function recal(override_start_num, reset_list)
+function M.recalculate(override_start_num)
 	-- the var base names: list and line
 	-- x is the actual line (fn.getline)
 	-- x_num is the line number (fn.line)
@@ -53,6 +44,7 @@ local function recal(override_start_num, reset_list)
 
 	local types = get_lists()
 	local list_start_num
+    local reset_list
 	if override_start_num then
 		list_start_num = override_start_num
 	else
@@ -86,8 +78,7 @@ local function recal(override_start_num, reset_list)
 				utils.set_line_marker(
 					linenum,
 					utils.get_marker(val, types),
-					types,
-					line:match(pat_checkbox)
+					types
 				)
 				target = target + 1 -- only increase target if increased list
 				prev_indent = -1 -- escaped the child list
@@ -98,7 +89,7 @@ local function recal(override_start_num, reset_list)
 				-- this part recalculates a child list with recursion
 				-- the prev_indent prevents it from recalculating multiple times.
 				-- the first time this runs, linenum is the first entry in the list
-				recal(linenum)
+				M.recalculate(linenum)
 				prev_indent = line_indent -- so you don't repeat recalculate()
 			end
 		else
@@ -111,272 +102,184 @@ local function recal(override_start_num, reset_list)
 	end
 end
 
-local function check_recal(force)
-	if config.recal_full then
-		recal()
-	else
-		recal(utils.get_list_start(fn.line("."), get_lists()))
+function M.new_bullet_before()
+	return M.new_bullet(true)
+end
+
+local function get_bullet_from(line, pattern)
+    local matched_bare = line:match("^%s*"
+                                    .. pattern
+                                    .. "%s*") -- only bullet, no checkbox
+    local matched_with_checkbox = line:match("^%s*"
+                                             .. pattern
+                                             .. "%s*"
+                                             .. "%[.%]"
+                                             .. "%s*") -- bullet and checkbox
+
+    return matched_with_checkbox or matched_bare
+end
+
+local function is_in_code_fence()
+    -- check if Treesitter parser is installed, and if so, check if we're in a markdown code fence
+    local parser = require('autolist.treesitter')
+        :new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
+    return parser and parser:is_in_markdown_code_fence()
+end
+
+local function find_suitable_bullet(line, filetype_lists, del_above)
+	-- ipairs is used to optimise list_types (and say who has priority)
+	for i, filetype_specific_pattern in ipairs(filetype_lists) do
+        local bullet = get_bullet_from(line, filetype_specific_pattern)
+
+        if bullet then
+            if string.len(line) == string.len(bullet) then
+                -- empty bullet, delete it
+                fn.setline(fn.line(".") - (del_above and 1 or -1), "")
+                utils.reset_cursor_column()
+                return nil
+            end
+            return bullet
+        end
 	end
 end
 
-local function modify(prev, pattern)
-	-- the brackets capture {pattern} and they release on %1
-	local matched, nsubs = prev:gsub("^(%s*" .. pattern .. "%s).*$", "%1", 1)
-	if nsubs == 0 then
-		matched, nsubs = prev:gsub("^(%s*" .. pattern .. ")$", "%1", 1)
-	end
-	-- trim off spaces
-	if
-		utils.get_whitespace_trimmed(matched)
-		== utils.get_whitespace_trimmed(prev)
-	then
-		-- if replaced smth
-		if nsubs == 1 then
-			-- filler return value
-			return { replaced = true }
-		else
-			return { replaced = false }
-		end
-	end
-	return utils.get_ordered_add(matched, 1)
-end
 
-function M.new_before(motion, mapping)
-	new_before_pressed = true
-	return M.new(motion, mapping)
-end
-
-function M.new(motion, mapping)
+function M.new_bullet(prev_line_override)
 	local filetype_lists = get_lists()
+    if not filetype_lists then return nil end
+    if is_in_code_fence() then return nil end
 
-	if motion == nil then
-		next_keypress = mapping
-		vim.o.operatorfunc = "v:lua.require'autolist'.new"
-		edit_mode = vim.api.nvim_get_mode().mode
-		if utils.is_list(fn.getline("."), filetype_lists) then
-			return "<esc>g@la"
-		end
-		return mapping
-	end
+    -- if new_bullet_before, prev_line should be the line below
+    local prev_line = fn.getline(fn.line(".") + (prev_line_override and 1 or -1))
+    local cur_line = fn.getline(".")
+    local bullet = find_suitable_bullet(prev_line,
+                                        filetype_lists,
+                                        not prev_line_override)
+    bullet = bullet and utils.get_ordered_add(bullet, 1) -- add 1 if ordered list
 
-	press(next_keypress, edit_mode)
+    if prev_line:match(pat_colon)
+        and (config.colon.indent_raw
+             or (bullet and config.colon.indent)) then
+        bullet = config.tab .. config.colon.preferred .. " "
+    end
 
-	if not filetype_lists then -- this filetype is disabled
-		return
-	end
-
-	-- check if Treesitter parser is installed, and if so, check if we're in a markdown code fence
-	local parser = require('autolist.treesitter')
-		:new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
-	if parser and parser:is_in_markdown_code_fence() then
-		return
-	end
-
-	if fn.line(".") <= 0 then return end
-	local prev_line = fn.getline(fn.line(".") - 1)
-	if
-		new_before_pressed
-		and fn.line(".") + 1
-			== utils.get_list_start(fn.line("."), filetype_lists)
-	then
-		-- makes it think theres a list entry before current that was 0
-		-- if it happens in the middle of the list, recal fixes it
-		prev_line = utils.set_ordered_value(fn.getline(fn.line(".") + 1), 0)
-	end
-
-	if not utils.is_list(prev_line, filetype_lists) then return end
-
-	local matched = false
-
-	-- ipairs is used to optimise list_types (most used checked first)
-	for i, v in ipairs(filetype_lists) do
-		local modded = modify(prev_line, v)
-		-- if its not true and nil
-		if modded.replaced then
-			-- it was a list, only it was empty
-			matched = true
-		elseif modded.replaced ~= false then
-			-- sets current line and puts cursor to end
-			if prev_line:match(pat_checkbox) then
-				modded = modded .. checkbox_empty .. " "
-				-- if the prev was checkbox and had no content
-				if prev_line:match(pat_checkbox .. "%s?$") then
-					matched = true
-					break
-				end
-			elseif
-				not new_before_pressed
-				and config.colon.indent
-				and prev_line:match(pat_colon)
-			then
-				-- handle colons
-				if config.colon.preferred ~= "" then
-					modded = modded:gsub("^(%s*).*", "%1", 1)
-						.. config.colon.preferred
-						.. " "
-				end
-				modded = config.tab .. modded
-				new_before_pressed = true -- just to recal
-			end
-			local cur_line = fn.getline(".")
-			utils.set_current_line(modded .. cur_line:gsub("^%s*", "", 1))
-			check_recal(new_before_pressed)
-			new_before_pressed = false
-			return
-		end
-	end
-	if matched then
-		fn.setline(fn.line(".") - 1, "")
-		utils.reset_cursor_column()
-		new_before_pressed = false
-		return
-	end
-	if config.colon.indent_raw and prev_line:match(pat_colon) then
-		utils.set_current_line(
-			config.colon.preferred .. " " .. fn.getline("."):gsub("^%s*", "", 1)
-		)
-	end
-	new_before_pressed = false
+    if bullet then -- insert bullet
+        utils.set_current_line(bullet .. cur_line:gsub("^%s*", "", 1))
+    end
 end
 
-function M.indent(motion, mapping)
-	local filetype_lists = get_lists()
+-- othewise it runs too fast and feedkeys doesn't register commands
+local function run_recalculate_after_delay()
+  vim.loop.new_timer():start(0, 0, vim.schedule_wrap(function()
+                                     M.recalculate()
+  end))
+end
 
+local function handle_indent(before, after)
+	local filetype_lists = get_lists()
 	local current_line_is_list = utils.is_list(fn.getline("."), filetype_lists)
-
-	if motion == nil then
-		if string.lower(mapping) == "<tab>" then
-			local cur_line = fn.getline(".")
-			if
-				current_line_is_list
-				and fn.getpos(".")[3] - 1 == string.len(cur_line) -- cursor on last char of line
-			then
-				mapping = "<c-t>"
-			end
-		end
-		next_keypress = mapping
-		vim.o.operatorfunc = "v:lua.require'autolist'.indent"
-		edit_mode = vim.api.nvim_get_mode().mode
-		if not current_line_is_list then return mapping end
-		if edit_mode == "i" then return "<esc>g@la" end
-		return "g@l"
-	end
-
-	press(next_keypress, edit_mode)
-
-	if current_line_is_list then recal() end
+    local cur_line = fn.getline(".")
+    local to_press = before
+    if current_line_is_list
+        and fn.getpos(".")[3] - 1 == string.len(cur_line) -- cursor on last char of line
+    then
+        fn.feedkeys(vim.api.nvim_replace_termcodes(after, true, true, true))
+        run_recalculate_after_delay()
+    else
+        press(before, "i")
+    end
 end
 
-function M.force_recalculate(motion, mapping)
+function M.shift_tab()
+    handle_indent("<s-tab>", "<c-d>")
+end
+
+function M.tab()
+    handle_indent("<tab>", "<c-t>")
+end
+
+local function checkbox_is_filled(line)
+	if line:match(checkbox_filled_pat) then
+		return true
+	elseif line:match(checkbox_empty_pat) then
+		return false
+	end
+end
+
+function M.toggle_checkbox()
+    local cur_line = fn.getline(".")
+    local filled = checkbox_is_filled(cur_line)
+    if filled == true then
+        -- replace current line's empty checkbox with filled checkbox
+        fn.setline(".", (cur_line:gsub(checkbox_filled_pat, checkbox_empty, 1)))
+        -- it is a checkbox, but not empty
+    elseif filled == false then
+        -- replace current line's filled checkbox with empty checkbox
+        fn.setline(".", (cur_line:gsub(checkbox_empty_pat, checkbox_filled, 1)))
+    end
+end
+
+local function index_of(str, list)
+    for i, v in ipairs(list) do
+        if v == str then
+            return i
+        end
+    end
+end
+
+local function cycle(cycle_backward)
 	local filetype_lists = get_lists()
-	if motion == nil then
-		next_keypress = mapping
-		vim.o.operatorfunc = "v:lua.require'autolist'.force_recalculate"
-		edit_mode = vim.api.nvim_get_mode().mode
-		if edit_mode == "i" then return "<esc>g@la" end
-		return "g@l"
-	end
+    local list_start = utils.get_list_start(fn.line("."), filetype_lists)
 
-	press(next_keypress, edit_mode)
+    if not list_start then return nil end
 
-	if not filetype_lists then -- this filetype is disabled
-		return
-	end
+    local current_bullet_type = utils.get_marker(fn.getline(list_start), filetype_lists)
+    local stripped_bullet = utils.get_whitespace_trimmed(current_bullet_type)
+    local index_in_cycle = index_of(stripped_bullet, config.cycle)
 
-	recal()
+    if not index_in_cycle then return nil end
+
+    local target_index = index_in_cycle + (cycle_backward and -1 or 1)
+
+    print(target_index)
+    if target_index > #config.cycle then target_index = 1 end
+    if target_index <= 0 then target_index = #config.cycle end
+
+    local target_bullet = config.cycle[target_index]
+
+    utils.set_line_marker(list_start, target_bullet, filetype_lists)
+    M.recalculate()
 end
 
-local function invert()
-	local cur_line = fn.getline(".")
-	local cur_linenum = fn.line(".")
-	local types = get_lists()
 
-	-- if toggle checkbox true and is checkbox, toggle checkbox
-	if config.invert.toggles_checkbox then
-		-- returns nil if not a checkbox
-		local filled = checkbox_is_filled(cur_line)
-		if filled == true then
-			-- replace current line's empty checkbox with filled checkbox
-			fn.setline(
-				".",
-				(cur_line:gsub(checkbox_filled_pat, checkbox_empty, 1))
-			)
-			return
-		-- it is a checkbox, but not empty
-		elseif filled == false then
-			-- replace current line's filled checkbox with empty checkbox
-			fn.setline(
-				".",
-				(cur_line:gsub(checkbox_empty_pat, checkbox_filled, 1))
-			)
-			return
-		end
-	end
-
-	if utils.is_list(cur_line, types) then
-		-- indent the line if current indent is zero
-		if
-			utils.get_indent_lvl(cur_line) == 0
-			and config.invert.indent == true
-		then
-			fn.setline(".", config.tab .. cur_line)
-		end
-		-- if ul change to 1.
-		if utils.is_ordered(cur_line) then
-			-- utils.set_line_marker(cur_linenum, config.invert.ul_marker, types)
-			utils.set_line_marker(
-				utils.get_list_start(cur_linenum, types),
-				config.invert.ul_marker,
-				types
-			)
-		else
-			-- if ol change to {config.invert.ol_incrementable}
-			local new_marker = config.invert.ol_incrementable
-			-- utils.set_line_marker(cur_linenum, new_marker, types)
-			utils.set_line_marker(
-				utils.get_list_start(cur_linenum, types),
-				new_marker,
-				types
-			)
-		end
-		utils.reset_cursor_column(fn.col("$"))
-	end
-	check_recal()
+-- with dotrepeat
+function M.cycle_next_dr(motion)
+    if motion == nil then
+        vim.o.operatorfunc = "v:lua.require'autolist'.cycle_next_dr"
+        return "g@l"
+    end
+    for i = 1, vim.v.count1 do
+        M.cycle_next()
+    end
 end
 
-function M.invert_entry(motion, mapping)
-	if motion == nil then
-		next_keypress = mapping
-		vim.o.operatorfunc = "v:lua.require'autolist'.invert_entry"
-		edit_mode = vim.api.nvim_get_mode().mode
-		if edit_mode == "i" then return "<esc>g@la" end
-		return "g@l"
-	end
+-- with dotrepeat
+function M.cycle_prev_dr(motion)
+    if motion == nil then
+        vim.o.operatorfunc = "v:lua.require'autolist'.cycle_prev_dr"
+        return "g@l"
+    end
+    for i = 1, vim.v.count1 do
+        M.cycle_prev()
+    end
+end
 
-	press(next_keypress, edit_mode)
+function M.cycle_prev()
+    cycle(true)
+end
 
-	local filetype_lists = get_lists()
-	if not filetype_lists then -- this filetype is disabled
-		return
-	end
-
-	invert()
-
-	-- -- it doubles up, doesn't work just yet
-	-- local range = {
-	--	 starting = unpack(vim.api.nvim_buf_get_mark(0, "[")),
-	--	 ending = unpack(vim.api.nvim_buf_get_mark(0, "]")),
-	-- }
-
-	-- if motion == "char" then
-	--	 invert()
-	--	 return
-	-- end
-
-	-- for linenum = range.starting, range.ending, 1 do
-	--	 utils.set_line_number(linenum)
-	--	 invert()
-	-- end
+function M.cycle_next()
+    cycle()
 end
 
 return M
