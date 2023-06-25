@@ -18,6 +18,8 @@
 </p>
 #+end_html
 
+⚠️ If you've just updated the plugin, read over this document to see what's new. ⚠️
+
 https://user-images.githubusercontent.com/97860672/193787598-56abba13-3710-43d1-b8b3-4fd81074dbd4.mp4
 
 * Why autolist.nvim
@@ -85,7 +87,7 @@ as well:
 1. Type in a list marker (a list marker is just the delimiter used to
    start the list (=-|+|*= or =1.|2.|3.=)
 2. Type in your content
-3. When you're ready, press =enter=/=return= and a new list entry will
+3. When you're ready, press =enter= / =return= and a new list entry will
    be automatically created
 4. If you're cursor is at the end of the line, you can indent your list
    with tab. When indenting, ordered lists will automatically be reset
@@ -94,7 +96,7 @@ as well:
    dedented. When dedenting, markers will automatically be changed
    through context awareness, to the correct marker such that the list
    continues logically
-6. Lastly, when you're done, pressing =enter=/=return= on an empty list
+6. Lastly, when you're done, pressing =enter= / =return= on an empty list
    entry will delete it, leaving you with a fresh new sentence.
 7. You can even go back and delete a line. The list will be
    automatically renumbered.
