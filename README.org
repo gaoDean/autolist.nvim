@@ -59,6 +59,7 @@ as well:
 
           vim.keymap.set("i", "<tab>", "<cmd>AutolistTab<cr>")
           vim.keymap.set("i", "<s-tab>", "<cmd>AutolistShiftTab<cr>")
+          -- vim.keymap.set("i", "<c-t>", "<c-t><cmd>AutolistRecalculate<cr>") -- an example of using <c-t> to indent
           vim.keymap.set("i", "<CR>", "<CR><cmd>AutolistNewBullet<cr>")
           vim.keymap.set("n", "o", "o<cmd>AutolistNewBullet<cr>")
           vim.keymap.set("n", "O", "O<cmd>AutolistNewBulletBefore<cr>")
@@ -80,7 +81,7 @@ as well:
           vim.keymap.set("v", "d", "d<cmd>AutolistRecalculate<cr>")
       end,
   },
-    
+
 #+end_src
 
 * Usage
@@ -200,6 +201,8 @@ Here are all the public functions:
 + ~AutolistToggleCheckbox~ : toggles a checkbox on the current line
 + ~AutolistCycleNext~ : cycles the list type forwards according to ~config.cycle~
 + ~AutolistCyclePrev~ : above, but backwards
++ ~AutolistTab~ : has a special use case where you want to indent the list when you press tab. If you want to indent the list when you press ~<c-t>~, you only need to map ~<c-t>~ to ~AutolistRecalculate~ because ~AutolistTab~ basically turns a tab into ~<c-t>~ with recalculate.
++ ~AutolistShiftTab~ : same thing as above, used to replicate word processors. Mapping ~<s-tab>~ to this will convert it into ~<c-d>AutolistRecalculate~.
 
 All of the functions described above have lua counterparts which are just snake case versions of the pascal case commands. For example ~AutolistNewBullet~ has the snake case counterpart ~require("autolist").new_bullet()~
 

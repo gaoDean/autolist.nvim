@@ -229,7 +229,7 @@ end
 
 local function cycle(cycle_backward)
 	local filetype_lists = get_lists()
-    local list_start = utils.get_list_start(fn.line("."), filetype_lists)
+    local list_start = utils.get_indent_list_start(fn.line("."), filetype_lists)
 
     if not list_start then return nil end
 

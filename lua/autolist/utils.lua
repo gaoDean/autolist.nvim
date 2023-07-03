@@ -166,8 +166,26 @@ function M.get_ordered_add(entry, amount)
 	return exec_ordered(entry, digitfunc, charfunc, romanfunc, entry)
 end
 
--- get the start of the current list scope (indent)
+-- get the actual start of the current list
 function M.get_list_start(cur_linenum, list_types)
+	if not cur_linenum then cur_linenum = fn.line(".") end
+	local linenum = cur_linenum
+	local line = fn.getline(linenum)
+    if M.is_list(line, list_types) then
+        while
+            M.is_list(line, list_types)
+        do
+            linenum = linenum - 1
+            line = fn.getline(linenum)
+        end
+    else
+        return linenum
+    end
+    return linenum + 1
+end
+
+-- get the start of the current list scope (indent)
+function M.get_indent_list_start(cur_linenum, list_types)
 	if not cur_linenum then cur_linenum = fn.line(".") end
 	local linenum = cur_linenum
 	local line = fn.getline(linenum)
