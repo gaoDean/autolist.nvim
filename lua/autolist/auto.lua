@@ -160,7 +160,7 @@ function M.new_bullet(prev_line_override)
     if prev_line:match(pat_colon)
         and (config.colon.indent_raw
              or (bullet and config.colon.indent)) then
-        bullet = config.tab .. config.colon.preferred .. " "
+        bullet = config.tab .. prev_line:match("^%s*") .. config.colon.preferred .. " "
     end
 
     if bullet then -- insert bullet
