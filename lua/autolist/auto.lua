@@ -180,6 +180,12 @@ local function handle_indent(before, after)
   local current_line_is_list = utils.is_list(fn.getline("."), filetype_lists)
   local cur_line = fn.getline(".")
   local to_press = before
+
+  if is_in_code_fence() then
+    press(before, "i")
+    return
+  end
+
   if current_line_is_list
     and fn.getpos(".")[3] - 1 == string.len(cur_line) -- cursor on last char of line
   then
