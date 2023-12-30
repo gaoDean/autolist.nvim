@@ -22,7 +22,8 @@ local function press(key, mode)
   if not key or key == "" then return end
   local parsed_key = vim.api.nvim_replace_termcodes(key, true, true, true)
   if mode == "i" then
-    vim.cmd.normal({ "a" .. parsed_key, bang = true })
+    -- Another option is `vim.cmd.normal({ "i" .. parsed_key, bang = true })`
+    vim.api.nvim_feedkeys(parsed_key, 'n', true)
   else
     vim.cmd.normal({ parsed_key, bang = true })
   end
@@ -176,15 +177,13 @@ local function run_recalculate_after_delay()
 end
 
 local function handle_indent(before, after)
-  local filetype_lists = get_lists()
-  local current_line_is_list = utils.is_list(fn.getline("."), filetype_lists)
   local cur_line = fn.getline(".")
-  local to_press = before
-  if current_line_is_list
-    and fn.getpos(".")[3] - 1 == string.len(cur_line) -- cursor on last char of line
-  then
-    fn.feedkeys(vim.api.nvim_replace_termcodes(after, true, true, true))
-    run_recalculate_after_delay()
+  local filetype_lists = get_lists()
+  local in_list = utils.is_list(cur_line, filetype_lists)
+  local at_line_end = fn.getpos(".")[3] - 1 == string.len(cur_line) -- cursor on last char of line
+
+  if in_list and at_line_end then
+    press(after, "i")
   else
     press(before, "i")
   end
