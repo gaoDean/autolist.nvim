@@ -5,7 +5,7 @@ local M = {}
 ---@param win number current window
 ---@return AutolistTsParser|nil
 function M:new(buf, win)
-  local ft = vim.api.nvim_buf_get_option(buf, 'filetype')
+  local ft = vim.bo[buf].filetype
   local ok, parser = pcall(vim.treesitter.get_parser, buf, ft, {})
   if not ok then
     return nil
@@ -30,7 +30,7 @@ end
 ---Check if current TS node is within a Markdown code fence
 ---@return boolean
 function M:is_in_markdown_code_fence()
-  if vim.api.nvim_buf_get_option(self.buf, 'filetype') ~= 'markdown' then
+  if vim.bo[self.buf].filetype ~= 'markdown' then
     return false
   end
 
