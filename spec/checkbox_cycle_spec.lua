@@ -39,12 +39,13 @@ describe("toggle_checkbox", function()
     assert.are.equal("- [x] pending task", r[1])
   end)
 
-  it("is a no-op on lines without checkboxes", function()
+  pending("adds a checkbox to bare bullet (#67)", function()
     local buf = make_buf({ "- regular item" }, 1)
 
     auto.toggle_checkbox()
     local r = get_lines(buf)
-    assert.are.equal("- regular item", r[1])
+    assert.is_truthy(r[1]:match("%[.%]"),
+      "expected checkbox to be added, got: '" .. r[1] .. "'")
   end)
 
   it("is a no-op on non-list lines", function()

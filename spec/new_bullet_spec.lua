@@ -264,3 +264,37 @@ describe("colon indentation", function()
     config.update({ colon = { preferred = "-" } })
   end)
 end)
+
+-- ──────────────────────────────────────────────────────────────────────────
+describe("edge cases", function()
+  it("works on a buffer with no file name (#21)", function()
+    local buf = vim.api.nvim_create_buf(false, true)  -- scratch, no file
+    vim.api.nvim_set_current_buf(buf)
+    vim.bo.filetype = "markdown"
+    vim.opt.expandtab = true
+    vim.opt.tabstop = 4
+    config.update()
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "- item one" })
+    vim.api.nvim_win_set_cursor(0, { 1, 0 })
+
+    simulate_enter(buf, "test")
+    local r = get_lines(buf)
+
+    assert.are.equal("- item one", r[1])
+    assert.are.equal("- test", r[2],
+      "new_bullet should work on unnamed buffer, got: '" .. (r[2] or "nil") .. "'")
+  end)
+
+  pending("creates next bullet after a multi-line continuation (#74)", function()
+    local buf = make_buf({
+      "- this is a list item",
+      "  which is also multi-line",
+    }, 2)
+
+    simulate_enter(buf)
+    local r = get_lines(buf)
+
+    assert.is_truthy(r[3]:match("^%- "),
+      "expected a bullet on the continuation, got: '" .. (r[3] or "nil") .. "'")
+  end)
+end)

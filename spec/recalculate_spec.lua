@@ -190,4 +190,19 @@ describe("recalculate", function()
     -- The empty bullet should get renumbered
     assert.is_truthy(result[2]:match("^2"))
   end)
+
+  -- ── infinite loop guard (issue #76) ────────────────────────────────
+  it("recalculate with list_cap items stops without hanging (#76)", function()
+    -- Build a list that is exactly at the list_cap boundary
+    local lines = {}
+    for i = 1, config.list_cap + 5 do
+      table.insert(lines, "1. item " .. i)
+    end
+
+    local result = recalc_buf(lines, 1)
+
+    -- Items past list_cap should not be renumbered
+    assert.are.equal("1. item " .. (config.list_cap + 5), result[config.list_cap + 5],
+      "item past list_cap was incorrectly renumbered")
+  end)
 end)
