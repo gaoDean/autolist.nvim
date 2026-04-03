@@ -246,7 +246,6 @@ local function cycle(cycle_backward)
 
   local target_index = index_in_cycle + (cycle_backward and -1 or 1)
 
-  print(target_index)
   if target_index > #config.cycle then target_index = 1 end
   if target_index <= 0 then target_index = #config.cycle end
 
