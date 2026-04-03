@@ -161,6 +161,7 @@ function M.new_bullet(prev_line_override)
   bullet = bullet and utils.get_ordered_add(bullet, 1) -- add 1 if ordered list
 
   if prev_line:match(pat_colon)
+    and not prev_line_override
     and (config.colon.indent_raw
     or (bullet and config.colon.indent)) then
     bullet = config.tab .. prev_line:match("^%s*") .. config.colon.preferred .. " "
