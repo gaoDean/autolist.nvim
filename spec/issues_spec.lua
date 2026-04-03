@@ -10,11 +10,11 @@ local utils = require("autolist.utils")
 local list_types = { "[-+*]", "%d+[.)]", "%a[.)]", "%u+[.)]" }
 
 --- Simulate pressing Enter: insert blank line below cursor, move down, call new_bullet.
-local function simulate_enter(buf)
-  local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
-  vim.api.nvim_buf_set_lines(buf, cursor_line, cursor_line, false, { "" })
-  vim.api.nvim_win_set_cursor(0, { cursor_line + 1, 0 })
-  auto.new_bullet()
+local function simulate_enter(buf, text)
+  vim.keymap.set('i', '<CR>', '<CR><cmd>lua require("autolist.auto").new_bullet()<CR>', { buffer = buf })
+  local suffix = (text or "") .. "<Esc>"
+  local keys = vim.api.nvim_replace_termcodes("A<CR>" .. suffix, true, false, true)
+  vim.api.nvim_feedkeys(keys, "x", false)
 end
 
 --- Create a scratch markdown buffer with the given lines.
@@ -22,6 +22,7 @@ local function make_buf(lines, cursor_line)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_set_current_buf(buf)
   vim.bo.filetype = "markdown"
+  vim.bo.autoindent = true
   vim.opt.expandtab = true
   vim.opt.tabstop = 4
   config.update()
@@ -183,10 +184,17 @@ describe("#83 shift-tab should respect parent list style", function()
     local line = vim.fn.getline(5)
     vim.api.nvim_win_set_cursor(0, { 5, #line })
 
-    -- The actual shift-tab is async (feedkeys), so we test that
-    -- the indent list start is correctly found
-    local start = utils.get_indent_list_start(5, list_types)
-    assert.is_truthy(start, "should find indent list start for the child list")
+    -- Plenary allows testing real async interactions.
+    -- The shift_tab() internally uses async fn.feedkeys(<c-d>) + vim.loop timer.
+    -- We wait a tiny amount to give the event loop time to process interactions.
+    vim.keymap.set('i', '<S-Tab>', '<cmd>lua require("autolist.auto").shift_tab()<cr>', { buffer = buf })
+    local keys = vim.api.nvim_replace_termcodes("A<S-Tab><Esc>", true, false, true)
+    vim.api.nvim_feedkeys(keys, "x", false)
+    vim.wait(10, function() return false end)
+
+    local r = get_lines(buf)
+    -- It should pull back to column 0 and become an ordered list matching the parent
+    assert.are.equal("4. b", r[5], "expected child to dedent and adopt ordered marker, got: " .. (r[5] or "nil"))
   end)
 end)
 
@@ -201,10 +209,10 @@ describe("#81 new_bullet_before should not indent on colon-ending line below", f
       INDENT .. "- Test bullet",
     }, 1)
 
-    -- Simulate O (insert line above, then new_bullet_before)
-    vim.api.nvim_buf_set_lines(buf, 0, 0, false, { "" })
-    vim.api.nvim_win_set_cursor(0, { 1, 0 })
-    auto.new_bullet_before()
+    -- Simulate O (insert line above, then new_bullet_before) over feedkeys
+    vim.keymap.set('n', 'O', 'O<cmd>lua require("autolist.auto").new_bullet_before()<CR>', { buffer = buf })
+    local keys = vim.api.nvim_replace_termcodes("O<Esc>", true, false, true)
+    vim.api.nvim_feedkeys(keys, "x", false)
 
     local r = get_lines(buf)
 
@@ -269,11 +277,11 @@ describe("#86 new checkbox line from checked item should be unchecked", function
       "- [x] completed task",
     }, 1)
 
-    simulate_enter(buf)
+    simulate_enter(buf, "test")
     local r = get_lines(buf)
 
     -- The new bullet should have an empty checkbox, not a filled one
-    assert.is_truthy(r[2]:match("%[ %]"),
+    assert.is_truthy(r[2]:match("%[ %] test"),
       "new checkbox should be unchecked [ ], got: '" .. (r[2] or "nil") .. "'")
     assert.is_falsy(r[2]:match("%[x%]"),
       "new checkbox should NOT be checked [x], got: '" .. (r[2] or "nil") .. "'")
@@ -294,11 +302,11 @@ describe("#21 plugin works on scratch/unnamed buffers", function()
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "- item one" })
     vim.api.nvim_win_set_cursor(0, { 1, 0 })
 
-    simulate_enter(buf)
+    simulate_enter(buf, "test")
     local r = get_lines(buf)
 
     assert.are.equal("- item one", r[1])
-    assert.are.equal("- ", r[2],
+    assert.are.equal("- test", r[2],
       "new_bullet should work on unnamed buffer, got: '" .. (r[2] or "nil") .. "'")
   end)
 end)

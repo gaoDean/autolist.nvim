@@ -1,14 +1,18 @@
-LUA_VERSION := 5.1
-LUAROCKS := luarocks --local --lua-version $(LUA_VERSION)
-NLUA := $(HOME)/.luarocks/bin/nlua
-BUSTED := $(HOME)/.luarocks/lib/luarocks/rocks-$(LUA_VERSION)/busted/2.3.0-1/bin/busted
-
-.PHONY: test deps
+.PHONY: test deps dev
 
 test:
-	eval $$(luarocks path --lua-version $(LUA_VERSION)) && \
-		$(NLUA) $(BUSTED) --ignore-lua
+	nvim --headless --noplugin -u spec/minimal_init.lua -c "PlenaryBustedDirectory spec/ { minimal_init = 'spec/minimal_init.lua' }"
+
+dev:
+	nvim --clean --cmd "set rtp+=." \
+		-c "lua require('autolist').setup()" \
+		-c "lua vim.keymap.set('i', '<CR>', '<CR><cmd>AutolistNewBullet<cr>')" \
+		-c "lua vim.keymap.set('i', '<S-Tab>', '<cmd>AutolistShiftTab<cr>')" \
+		-c "lua vim.keymap.set('i', '<Tab>', '<cmd>AutolistTab<cr>')" \
+		-c "lua vim.keymap.set('n', 'o', 'o<cmd>AutolistNewBullet<cr>')" \
+		-c "lua vim.keymap.set('n', 'O', 'O<cmd>AutolistNewBulletBefore<cr>')" \
+		dev.md
 
 deps:
-	$(LUAROCKS) install nlua
-	$(LUAROCKS) install busted
+	@mkdir -p .tests
+	@[ -d .tests/plenary.nvim ] || git clone --depth 1 https://github.com/nvim-lua/plenary.nvim .tests/plenary.nvim
