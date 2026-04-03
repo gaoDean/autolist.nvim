@@ -44,12 +44,11 @@ function M.recalculate(override_start_num)
 
   local types = get_lists()
   local list_start_num
-  local reset_list
+  local reset_list = 0
   if override_start_num then
     list_start_num = override_start_num
   else
     list_start_num = utils.get_list_start(fn.line("."), types)
-    reset_list = 0
   end
   if not list_start_num then return end -- returns nil if not ordered list
   if reset_list then
