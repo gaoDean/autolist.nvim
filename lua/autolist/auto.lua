@@ -168,6 +168,7 @@ function M.new_bullet(prev_line_override)
   end
 
   if bullet then -- insert bullet
+    bullet = bullet:gsub(checkbox_filled_pat, checkbox_empty, 1)
     utils.set_current_line(bullet .. cur_line:gsub("^%s*", "", 1))
   end
 end
