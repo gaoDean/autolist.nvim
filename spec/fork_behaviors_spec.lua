@@ -10,17 +10,18 @@ local numbers = require("autolist.numbers")
 local list_types = { "[-+*]", "%d+[.)]", "%a[.)]", "%u+[.)]" }
 
 --- Simulate pressing Enter: insert blank line below cursor, move down, call new_bullet.
-local function simulate_enter(buf)
-  local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
-  vim.api.nvim_buf_set_lines(buf, cursor_line, cursor_line, false, { "" })
-  vim.api.nvim_win_set_cursor(0, { cursor_line + 1, 0 })
-  auto.new_bullet()
+local function simulate_enter(buf, text)
+  vim.keymap.set('i', '<CR>', '<CR><cmd>lua require("autolist.auto").new_bullet()<CR>', { buffer = buf })
+  local suffix = (text or "") .. "<Esc>"
+  local keys = vim.api.nvim_replace_termcodes("A<CR>" .. suffix, true, false, true)
+  vim.api.nvim_feedkeys(keys, "x", false)
 end
 
 local function make_buf(lines, cursor_line)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_set_current_buf(buf)
   vim.bo.filetype = "markdown"
+  vim.bo.autoindent = true
   vim.opt.expandtab = true
   vim.opt.tabstop = 4
   config.update()
@@ -185,11 +186,12 @@ describe("empty bullet deletion should remove the line entirely", function()
   it("empty ordered bullet is fully deleted, not just cleared", function()
     local buf = make_buf({ "1. First" }, 1)
 
-    -- Enter 1: creates "2. "
+    -- Enter 1: creates empty bullet (trailing space stripped by Esc)
     simulate_enter(buf)
     local r = get_lines(buf)
     assert.are.equal(2, #r)
-    assert.are.equal("2. ", r[2])
+    assert.is_truthy(r[2]:match("^2%."),
+      "expected new bullet starting with '2.', got: '" .. (r[2] or "nil") .. "'")
 
     -- Enter 2: should delete the empty "2. " line
     simulate_enter(buf)
@@ -351,16 +353,16 @@ describe("bullet pattern matching edge cases", function()
 
   it("new_bullet correctly continues from '- item' (normal case)", function()
     local buf = make_buf({ "- item" }, 1)
-    simulate_enter(buf)
+    simulate_enter(buf, "test")
     local r = get_lines(buf)
-    assert.are.equal("- ", r[2])
+    assert.are.equal("- test", r[2])
   end)
 
   it("new_bullet correctly continues from '* item'", function()
     local buf = make_buf({ "* item" }, 1)
-    simulate_enter(buf)
+    simulate_enter(buf, "test")
     local r = get_lines(buf)
-    assert.are.equal("* ", r[2])
+    assert.are.equal("* test", r[2])
   end)
 
   -- Markdown bold should not trigger a bullet
@@ -466,29 +468,26 @@ end)
 -- ══════════════════════════════════════════════════════════════════════
 describe("checkbox continuation state", function()
 
-  it("continuing from [x] item creates bullet with [x] copied (current behavior)", function()
-    -- Document what actually happens: the bullet including [x] is copied.
-    -- This may or may not be desirable (#86 requests [ ] instead).
+  it("continuing from [x] item creates bullet with [ ] (Issue #86)", function()
+    -- The desired behavior is that a new item starts unchecked.
     local buf = make_buf({ "- [x] done task" }, 1)
 
-    simulate_enter(buf)
+    simulate_enter(buf, "test")
     local r = get_lines(buf)
 
-    -- The new line will have `- [x] ` (current behavior copies checkbox state)
-    -- Correct behavior would arguably be `- [ ] ` (issue #86)
-    -- This test documents the current reality.
-    assert.is_truthy(r[2]:match("^%- %["),
-      "expected a bullet with checkbox, got: '" .. r[2] .. "'")
+    -- The new line will have `- [ ] test`
+    assert.is_truthy(r[2]:match("^%- %[ %] test"),
+      "expected a bullet with [ ] checkbox, got: '" .. (r[2] or "nil") .. "'")
   end)
 
   it("continuing from [ ] item creates bullet with [ ]", function()
     local buf = make_buf({ "- [ ] pending task" }, 1)
 
-    simulate_enter(buf)
+    simulate_enter(buf, "test")
     local r = get_lines(buf)
 
-    assert.is_truthy(r[2]:match("%[ %]"),
-      "expected empty checkbox, got: '" .. r[2] .. "'")
+    assert.is_truthy(r[2]:match("%[ %] test"),
+      "expected empty checkbox, got: '" .. (r[2] or "nil") .. "'")
   end)
 end)
 
@@ -508,13 +507,16 @@ describe("treesitter module API compatibility", function()
     local ts = require("autolist.treesitter")
     local buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_set_current_buf(buf)
-    vim.bo.filetype = "markdown"
+    vim.bo.filetype = "nonexistent_ft"
 
     -- With no treesitter parser installed, this should return nil, not error
-    local ok, result = pcall(ts.new, ts, buf, vim.api.nvim_get_current_win())
+    local ok, result = pcall(ts.new, buf, vim.api.nvim_get_current_win())
     -- Either it returns nil or errors gracefully
-    assert.is_true(ok or result == nil,
-      "treesitter:new crashed instead of returning nil")
+    if ok then
+      assert.is_nil(result, "treesitter:new returned non-nil instead of nil when no parser exists")
+    else
+      assert.is_truthy(result, "treesitter:new crashed with error string")
+    end
   end)
 end)
 
@@ -632,7 +634,9 @@ describe("get_list_start edge cases", function()
     -- Line 2 should be its own list start (different indent from line 1)
     local start = utils.get_list_start(2, list_types)
     -- This depends on behavior: get_list_start walks up while is_list matches,
-    -- regardless of indent. So it may OR may not stop.
-    assert.is_truthy(start, "get_list_start returned nil")
+    -- regardless of indent. So it may OR may not stop. In current implementation
+    -- it might go to 1, but #82 / #83 changes this logic. Here we assert it correctly
+    -- detects line 2 is its own list start.
+    assert.are.equal(2, start, "get_list_start incorrectly walked past different indent level to: " .. tostring(start))
   end)
 end)

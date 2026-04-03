@@ -48,7 +48,7 @@ function M.recalculate(override_start_num)
   if override_start_num then
     list_start_num = override_start_num
   else
-    list_start_num = utils.get_list_start(fn.line("."), types)
+    list_start_num = utils.get_indent_list_start(fn.line("."), types)
   end
   if not list_start_num then return end -- returns nil if not ordered list
   if reset_list then
@@ -124,7 +124,7 @@ end
 local function is_in_code_fence()
   -- check if Treesitter parser is installed, and if so, check if we're in a markdown code fence
   local parser = require('autolist.treesitter')
-    :new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
+    .new(vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win())
   return parser and parser:is_in_markdown_code_fence()
 end
 

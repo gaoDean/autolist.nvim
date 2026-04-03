@@ -8,11 +8,11 @@ local config = require("autolist.config")
 --- 1. Insert a blank line below the cursor
 --- 2. Move the cursor to the new line
 --- 3. Call auto.new_bullet()
-local function simulate_enter(buf)
-  local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
-  vim.api.nvim_buf_set_lines(buf, cursor_line, cursor_line, false, { "" })
-  vim.api.nvim_win_set_cursor(0, { cursor_line + 1, 0 })
-  auto.new_bullet()
+local function simulate_enter(buf, text)
+  vim.keymap.set('i', '<CR>', '<CR><cmd>lua require("autolist.auto").new_bullet()<CR>', { buffer = buf })
+  local suffix = (text or "") .. "<Esc>"
+  local keys = vim.api.nvim_replace_termcodes("A<CR>" .. suffix, true, false, true)
+  vim.api.nvim_feedkeys(keys, "x", false)
 end
 
 --- Helper: create a scratch buffer with markdown filetype.
@@ -20,6 +20,7 @@ local function make_buf(lines, cursor_line)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_set_current_buf(buf)
   vim.bo.filetype = "markdown"
+  vim.bo.autoindent = true
   vim.opt.expandtab = true
   vim.opt.tabstop = 4
   config.update()
@@ -40,34 +41,34 @@ describe("new_bullet", function()
     it("creates next numbered bullet after a content-filled item", function()
       local buf = make_buf({ "1. First" }, 1)
 
-      simulate_enter(buf)
+      simulate_enter(buf, "test")
       local r = get_lines(buf)
       assert.are.equal("1. First", r[1])
-      assert.are.equal("2. ", r[2])
+      assert.are.equal("2. test", r[2])
     end)
 
     it("creates correct next number for multi-digit lists", function()
       local buf = make_buf({ "9. Ninth" }, 1)
 
-      simulate_enter(buf)
+      simulate_enter(buf, "test")
       local r = get_lines(buf)
-      assert.are.equal("10. ", r[2])
+      assert.are.equal("10. test", r[2])
     end)
 
     it("continues alphabetic lists", function()
       local buf = make_buf({ "a) First" }, 1)
 
-      simulate_enter(buf)
+      simulate_enter(buf, "test")
       local r = get_lines(buf)
-      assert.are.equal("b) ", r[2])
+      assert.are.equal("b) test", r[2])
     end)
 
     it("continues roman numeral lists", function()
       local buf = make_buf({ "I. First" }, 1)
 
-      simulate_enter(buf)
+      simulate_enter(buf, "test")
       local r = get_lines(buf)
-      assert.are.equal("II. ", r[2])
+      assert.are.equal("II. test", r[2])
     end)
   end)
 
@@ -76,26 +77,26 @@ describe("new_bullet", function()
     it("creates same unordered bullet (-)", function()
       local buf = make_buf({ "- First" }, 1)
 
-      simulate_enter(buf)
+      simulate_enter(buf, "test")
       local r = get_lines(buf)
       assert.are.equal("- First", r[1])
-      assert.are.equal("- ", r[2])
+      assert.are.equal("- test", r[2])
     end)
 
     it("creates same unordered bullet (*)", function()
       local buf = make_buf({ "* First" }, 1)
 
-      simulate_enter(buf)
+      simulate_enter(buf, "test")
       local r = get_lines(buf)
-      assert.are.equal("* ", r[2])
+      assert.are.equal("* test", r[2])
     end)
 
     it("creates same unordered bullet (+)", function()
       local buf = make_buf({ "+ First" }, 1)
 
-      simulate_enter(buf)
+      simulate_enter(buf, "test")
       local r = get_lines(buf)
-      assert.are.equal("+ ", r[2])
+      assert.are.equal("+ test", r[2])
     end)
   end)
 
@@ -104,12 +105,13 @@ describe("new_bullet", function()
     it("deletes empty ordered bullet on enter", function()
       local buf = make_buf({ "1. First" }, 1)
 
-      -- Enter 1: creates "2. "
+      -- Enter 1: creates empty bullet (trailing space stripped by Esc)
       simulate_enter(buf)
       local r = get_lines(buf)
-      assert.are.equal("2. ", r[2])
+      assert.is_truthy(r[2]:match("^2%."),
+        "expected new bullet starting with '2.', got: '" .. (r[2] or "nil") .. "'")
 
-      -- Enter 2: empty bullet "2. " should be cleared
+      -- Enter 2: empty bullet should be cleared/deleted
       simulate_enter(buf)
       r = get_lines(buf)
       assert.are.equal("1. First", r[1])
@@ -118,12 +120,13 @@ describe("new_bullet", function()
     it("deletes empty unordered bullet on enter", function()
       local buf = make_buf({ "- First" }, 1)
 
-      -- Enter 1: creates "- "
+      -- Enter 1: creates empty bullet (trailing space stripped by Esc)
       simulate_enter(buf)
       local r = get_lines(buf)
-      assert.are.equal("- ", r[2])
+      assert.is_truthy(r[2]:match("^%-"),
+        "expected new bullet starting with '-', got: '" .. (r[2] or "nil") .. "'")
 
-      -- Enter 2: empty bullet "- " should be deleted
+      -- Enter 2: empty bullet should be deleted
       simulate_enter(buf)
       r = get_lines(buf)
       assert.are.equal("- First", r[1])
@@ -152,10 +155,11 @@ describe("new_bullet", function()
     it("continues a checkbox list with empty checkbox", function()
       local buf = make_buf({ "- [x] Done task" }, 1)
 
-      simulate_enter(buf)
+      simulate_enter(buf, "test")
       local r = get_lines(buf)
       -- Should create a new bullet; the checkbox part is included in the bullet
-      assert.is_truthy(r[2]:match("^%- %[.%]"))
+      assert.is_truthy(r[2]:match("^%- %[.%] test"),
+        "expected checkbox bullet with content, got: '" .. (r[2] or "nil") .. "'")
     end)
   end)
 
@@ -179,10 +183,11 @@ describe("new_bullet", function()
     it("preserves indentation on continuation", function()
       local buf = make_buf({ "    - Nested item" }, 1)
 
-      simulate_enter(buf)
+      simulate_enter(buf, "test")
       local r = get_lines(buf)
       -- New bullet should have same indentation
-      assert.is_truthy(r[2]:match("^    %- "))
+      assert.is_truthy(r[2]:match("^    %- test"),
+        "expected indented bullet with content, got: '" .. (r[2] or "nil") .. "'")
     end)
   end)
 end)

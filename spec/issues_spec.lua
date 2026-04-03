@@ -184,13 +184,15 @@ describe("#83 shift-tab should respect parent list style", function()
     local line = vim.fn.getline(5)
     vim.api.nvim_win_set_cursor(0, { 5, #line })
 
-    -- Plenary allows testing real async interactions.
-    -- The shift_tab() internally uses async fn.feedkeys(<c-d>) + vim.loop timer.
-    -- We wait a tiny amount to give the event loop time to process interactions.
-    vim.keymap.set('i', '<S-Tab>', '<cmd>lua require("autolist.auto").shift_tab()<cr>', { buffer = buf })
-    local keys = vim.api.nvim_replace_termcodes("A<S-Tab><Esc>", true, false, true)
-    vim.api.nvim_feedkeys(keys, "x", false)
-    vim.wait(10, function() return false end)
+    -- Make sure the keymap is actually set for this buffer
+    vim.keymap.set('i', '<S-Tab>', function() require("autolist.auto").shift_tab() end, { buffer = buf })
+
+    local keys_enter = vim.api.nvim_replace_termcodes("A<S-Tab>", true, false, true)
+    local keys_exit = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
+    
+    vim.api.nvim_feedkeys(keys_enter, "x", false)
+    vim.wait(50, function() return false end) -- Give it enough time
+    vim.api.nvim_feedkeys(keys_exit, "x", false)
 
     local r = get_lines(buf)
     -- It should pull back to column 0 and become an ordered list matching the parent

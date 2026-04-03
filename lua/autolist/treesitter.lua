@@ -4,18 +4,24 @@ local M = {}
 ---@param buf number current buffer
 ---@param win number current window
 ---@return AutolistTsParser|nil
-function M:new(buf, win)
+function M.new(buf, win)
   local ft = vim.bo[buf].filetype
+  if not ft or ft == "" then return nil end
+
+  -- Explicitly check if the parser for this language is installed
+  local has_parser, _ = pcall(vim.treesitter.language.add, ft)
+  if not has_parser then return nil end
+
   local ok, parser = pcall(vim.treesitter.get_parser, buf, ft, {})
-  if not ok then
+  if not ok or not parser or parser:lang() ~= ft then
     return nil
   end
-  local instance = {}
-  setmetatable(instance, self)
-  self.__index = self
-  self.parser = parser ---@type LanguageTree
-  self.buf = buf ---@type number
-  self.win = win ---@type number
+  local instance = setmetatable({
+    parser = parser,
+    buf = buf,
+    win = win,
+  }, M)
+  M.__index = M
   return instance
 end
 

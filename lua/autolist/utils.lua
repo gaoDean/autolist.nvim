@@ -174,9 +174,11 @@ function M.get_list_start(cur_linenum, list_types)
 	if not cur_linenum then cur_linenum = fn.line(".") end
 	local linenum = cur_linenum
 	local line = fn.getline(linenum)
+	local cur_indent = M.get_indent_lvl(line)
     if M.is_list(line, list_types) then
         while
             M.is_list(line, list_types)
+            and M.get_indent_lvl(line) >= cur_indent
         do
             linenum = linenum - 1
             line = fn.getline(linenum)
