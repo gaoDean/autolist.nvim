@@ -74,10 +74,13 @@ end
 -- change the list marker of the current line
 function M.set_line_marker(linenum, marker, list_types)
 	local line = fn.getline(linenum)
+	local pat = M.get_marker_pat(line, list_types)
+	if not pat then return end
+
 	line = line:gsub("%s*$", "", 1)
 	line = line:gsub(
-		"^(%s*)" .. M.get_marker_pat(line, list_types) .. "(%s*)",
-		"%1" .. (marker or "") .. "%2",
+		"^(%s*)" .. pat .. "%s*",
+		"%1" .. (marker or "") .. " ",
 		1
 	)
 	fn.setline(linenum, line)
