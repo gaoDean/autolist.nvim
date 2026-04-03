@@ -9,7 +9,7 @@ local utils = require("autolist.utils")
 require("autolist.config").update()
 
 -- The standard markdown list types matching config.lists.markdown
-local list_types = { "[-+*]", "%d+[.)]", "%a[.)]", "%u*[.)]" }
+local list_types = { "[-+*]", "%d+[.)]", "%a[.)]", "%u+[.)]" }
 
 describe("utils", function()
 

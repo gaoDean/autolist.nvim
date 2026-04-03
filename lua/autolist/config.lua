@@ -7,7 +7,7 @@ local list_patterns = {
     unordered = "[-+*]", -- - + *
     digit = "%d+[.)]", -- 1. 2. 3.
     ascii = "%a[.)]", -- a) b) c)
-    roman = "%u*[.)]", -- I. II. III.
+    roman = "%u+[.)]", -- I. II. III.
     latex_item = "\\item",
 }
 

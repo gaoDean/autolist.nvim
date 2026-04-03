@@ -52,7 +52,7 @@ local function exec_ordered(
 )
 	local digit = entry:gsub("^%s*(%d+)[.)].*$", "%1", 1)
 	local char = entry:gsub("^%s*(%l)[.)].*$", "%1", 1)
-	local roman = entry:gsub("^%s*(%u*)[.)].*$", "%1", 1)
+	local roman = entry:gsub("^%s*(%u+)[.)].*$", "%1", 1)
 	if digit and digit ~= entry then
 		return func_digit(digit)
 	elseif char and char ~= entry then

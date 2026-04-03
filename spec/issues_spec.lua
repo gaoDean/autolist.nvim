@@ -7,7 +7,7 @@ local auto = require("autolist.auto")
 local config = require("autolist.config")
 local utils = require("autolist.utils")
 
-local list_types = { "[-+*]", "%d+[.)]", "%a[.)]", "%u*[.)]" }
+local list_types = { "[-+*]", "%d+[.)]", "%a[.)]", "%u+[.)]" }
 
 --- Simulate pressing Enter: insert blank line below cursor, move down, call new_bullet.
 local function simulate_enter(buf)
