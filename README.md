@@ -41,7 +41,7 @@ It sounds simple, but all I wanted was a list continuation plugin in lua. Bullet
 
 # Installation
 
-This is using lazy.nvim, but you can adapt it to other package managers as well:
+### lazy.nvim
 
 ``` lua
 {
@@ -80,6 +80,14 @@ This is using lazy.nvim, but you can adapt it to other package managers as well:
         vim.keymap.set("v", "d", "d<cmd>AutolistRecalculate<cr>")
     end,
 },
+```
+
+### vim.pack (Neovim 0.11+)
+
+``` lua
+vim.pack.add("https://github.com/gaoDean/autolist.nvim")
+require("autolist").setup()
+-- see lazy.nvim example for mappings
 ```
 
 # Usage
