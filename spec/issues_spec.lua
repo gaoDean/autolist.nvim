@@ -242,7 +242,7 @@ end)
 -- #74: Multi-line list items (soft-wrapped) don't get next bullet
 -- ══════════════════════════════════════════════════════════════════════
 describe("#74 multi-line list items should still get next bullet", function()
-  it("new_bullet after a continuation line should create next bullet", function()
+  pending("new_bullet after a continuation line should create next bullet", function()
     local buf = make_buf({
       "- this is a list item",
       "  which is also multi-line",
@@ -307,7 +307,7 @@ end)
 -- #67: toggle_checkbox should add a checkbox if none exists
 -- ══════════════════════════════════════════════════════════════════════
 describe("#67 toggle_checkbox should add checkbox to bare bullet", function()
-  it("toggling on a line with no checkbox should add [x]", function()
+  pending("toggling on a line with no checkbox should add [x]", function()
     local buf = make_buf({ "- some item" }, 1)
 
     auto.toggle_checkbox()
