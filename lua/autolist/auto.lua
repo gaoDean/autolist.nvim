@@ -109,14 +109,17 @@ end
 local function get_bullet_from(line, pattern)
   local matched_bare = line:match("^%s*"
     .. pattern
-    .. "%s*") -- only bullet, no checkbox
+    .. "%s+") -- only bullet, require space after marker
   local matched_with_checkbox = line:match("^%s*"
     .. pattern
-    .. "%s*"
+    .. "%s+"
     .. "%[.%]"
     .. "%s*") -- bullet and checkbox
+  local matched_eol = line:match("^%s*"
+    .. pattern
+    .. "%s*$") -- bare marker at end of line (no content after)
 
-  return matched_with_checkbox or matched_bare
+  return matched_with_checkbox or matched_bare or matched_eol
 end
 
 local function is_in_code_fence()
