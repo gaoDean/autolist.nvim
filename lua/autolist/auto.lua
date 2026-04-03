@@ -134,7 +134,8 @@ local function find_suitable_bullet(line, filetype_lists, del_above)
     if bullet then
       if string.len(line) == string.len(bullet) then
         -- empty bullet, delete it
-        fn.setline(fn.line(".") - (del_above and 1 or -1), "")
+        local del_linenum = fn.line(".") - (del_above and 1 or -1)
+        vim.api.nvim_buf_set_lines(0, del_linenum - 1, del_linenum, false, {})
         utils.reset_cursor_column()
         return nil
       end
