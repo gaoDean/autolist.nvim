@@ -226,8 +226,18 @@ function M.is_list(entry, list_types, more)
 	if entry:find('^%s*$') then return false end
 	for _, pat in ipairs(list_types) do
 		local sub, nsubs = entry:gsub(prefix .. pat .. more .. suffix, "%1", 1)
-		-- if replaced something
-		if nsubs > 0 then return true, pat, sub end
+		if nsubs > 0 then
+			-- Verify marker is followed by whitespace or end of line.
+			-- Prevents e.g. **bold** matching as unordered list.
+			if more ~= "" then
+				return true, pat, sub
+			end
+			local indent_len = #(entry:match("^(%s*)"))
+			local after_pos = indent_len + #sub + 1
+			if after_pos > #entry or entry:sub(after_pos, after_pos):match("%s") then
+				return true, pat, sub
+			end
+		end
 	end
 	return false
 end
