@@ -18,11 +18,11 @@ what's new. ⚠️
 
 <https://user-images.githubusercontent.com/97860672/193787598-56abba13-3710-43d1-b8b3-4fd81074dbd4.mp4>
 
-### Why did I create autolist?
+## Why did I create autolist?
 
 All I wanted was a list continuation plugin in lua. Bullets.vim works, but it is written in vimscript and is more than a thousand lines long. Needless to say, I couldn't find a suitable one, so I decided to create my own.
 
-### Why use autolist?
+## Why use autolist?
 
 `autolist.nvim's` files are relatively small, with the files complete with comments and formatting. It strives to be as minimal as possible, while implementing basic functionality of automatic lists, and implements context aware renumbering/marking of list entries, to take your mind off the formatting, and have it work in the background while you write down your thoughts.
 
