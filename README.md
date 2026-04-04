@@ -247,5 +247,3 @@ Found that a plugin breaks when you use autolist? See [#43](https://github.com/g
 inspired by [this gist](https://gist.github.com/sedm0784/dffda43bcfb4728f8e90)
 
 > "All software adds features until it is annoyingly complicated. It is then replaced by a"simpler" solution which adds features until it is exactly as complicated."
-
-looking for contributors because i have schoolwork which means i sometimes cant keep up with issues
