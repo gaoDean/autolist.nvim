@@ -35,6 +35,23 @@ local function get_lists()
   return config.lists[vim.bo.filetype]
 end
 
+-- returns the tab length value for the current buffer
+local function tablength()
+  if not vim.bo.expandtab then
+    -- just for logistics, corresponds to a single \t character
+    return 1
+  end
+  return config.tablength()
+end
+
+-- returns the tab string for the current buffer
+local function get_tab()
+  if not vim.bo.expandtab then
+    return "\t"
+  end
+  return utils.tablength2spaces(tablength())
+end
+
 -- recalculates the current list scope
 function M.recalculate(override_start_num)
   -- the var base names: list and line
@@ -83,7 +100,7 @@ function M.recalculate(override_start_num)
         prev_indent = -1 -- escaped the child list
       elseif
         line_indent ~= prev_indent -- small difference between var names
-        and line_indent == list_indent + config.tabstop
+        and line_indent == list_indent + tablength()
       then
         -- this part recalculates a child list with recursion
         -- the prev_indent prevents it from recalculating multiple times.
@@ -164,7 +181,7 @@ function M.new_bullet(prev_line_override)
     and not prev_line_override
     and (config.colon.indent_raw
     or (bullet and config.colon.indent)) then
-    bullet = config.tab .. prev_line:match("^%s*") .. config.colon.preferred .. " "
+    bullet = get_tab() .. prev_line:match("^%s*") .. config.colon.preferred .. " "
   end
 
   if bullet then -- insert bullet

@@ -183,6 +183,9 @@ local default_config = {
     right = "%]", -- the right checkbox delim (same customisation as above)
     fill = "x", -- if you do the above two customisations, your checkbox could be (x) instead of [x]
   },
+  -- which buffer-local option to use to compute tab length;
+  -- currently supports "tabstop", "shiftwidth", or supplying your own function (see :h 'tabstop')
+  tablength = "tabstop",
 
   -- this is all based on lua patterns, see "Defining custom lists" for a nice article to learn them
 }

@@ -59,11 +59,21 @@ local default_config = {
     right = "%]", -- the right checkbox delim (same customisation as above)
     fill = "x", -- if you do the above two customisations, your checkbox could be (x) instead of [x]
   },
+  -- which buffer-local option to use as tabstop; currently supports "tabstop",
+  -- "shiftwidth", or supplying your own function (see :h 'tabstop')
+  tablength = "tabstop",
 
   -- this is all based on lua patterns, see "Defining custom lists" for a nice article to learn them
 }
 
 local M = vim.deepcopy(default_config)
+
+local tablength_getter = {
+  tabstop = function ()
+    return vim.bo.tabstop
+  end,
+  shiftwidth = vim.fn.shiftwidth,
+}
 
 M.update = function(opts)
 	local newconf = vim.tbl_deep_extend("force", default_config, opts or {})
@@ -76,20 +86,10 @@ M.update = function(opts)
 
 	-- options that are hidden from config options but accessible by the scripts
 	M.list_cap = 50
-	M.tabstop = vim.opt.tabstop:get()
-	if vim.opt.expandtab:get() then
-		local pattern = ""
-		-- pattern is tabstop in the form of spaces
-		for i = 1, M.tabstop, 1 do
-			pattern = pattern .. " "
-		end
-		M.tab = pattern
-	else
-		M.tab = "\t"
-		-- just for logistics
-		M.tabstop = 1 -- honestly i bet tmr i will not know why i did this
-	end
 	M.recal_full = false
+	if not vim.is_callable(M.tablength) then
+		M.tablength = tablength_getter[M.tablength]
+	end
 end
 
 return M

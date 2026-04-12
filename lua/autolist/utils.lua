@@ -69,6 +69,36 @@ local function char_to_number(char)
 	return char:byte() - string.byte("a") + 1
 end
 
+---Caches/memoizes the output of a function
+---@generic T1, T2
+---@param func fun(s: T1): T2, any?
+---@return fun(s:T1): T2
+function M.cache(func)
+	local mem = {}
+	return function(s)
+		local cached = mem[s]
+		if cached == nil then
+			cached = func(s)
+			mem[s] = cached
+		end
+		return cached
+	end
+end
+
+M.tablength2spaces = M.cache(
+	---Formats a number of spaces into the actual string
+	---@param tablength integer
+	---@return string
+	function(tablength)
+		local pattern = ""
+		-- pattern is tablength in the form of spaces
+		for _ = 1, tablength, 1 do
+			pattern = pattern .. " "
+		end
+		return pattern
+	end
+)
+
 -- ================================ setters ==( set, reset )================ --
 
 -- change the list marker of the current line
